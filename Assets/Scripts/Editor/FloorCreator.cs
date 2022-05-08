@@ -22,13 +22,13 @@ public class FloorCreator : EditorWindow
 
         if (GUILayout.Button("ê∂ê¨"))
         {
-            var floor = FindObjectOfType<Floor>();
+            var floor = FindObjectOfType<FloorManager>();
             while (floor.transform.childCount > 0) DestroyImmediate(floor.transform.GetChild(0).gameObject);
             floor.Create(width, height, maxRoom, isTower);
         }
         if (GUILayout.Button("ÉNÉäÉA"))
         {
-            var floor = FindObjectOfType<Floor>();
+            var floor = FindObjectOfType<FloorManager>();
             while (floor.transform.childCount > 0) DestroyImmediate(floor.transform.GetChild(0).gameObject);
         }
     }

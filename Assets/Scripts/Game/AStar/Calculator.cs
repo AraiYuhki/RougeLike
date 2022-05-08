@@ -15,6 +15,8 @@ namespace AStar
 
         public Node[,] Nodes { get; private set; }
 
+        public FloorManager FloorManager => ServiceLocator.Instance == null ? null : ServiceLocator.Instance.FloorManager;
+
         private static readonly Vector2Int[] OffsetList = new Vector2Int[]{
             Vector2Int.up,
             Vector2Int.down,
@@ -67,7 +69,7 @@ namespace AStar
             }
             if (goal == null)
             {
-                Debug.LogError("Way to goal is not found");
+                Debug.LogError($"Way to goal is not found {StartPoint} -> {EndPoint}");
                 return null;
             }
             var current = goal;
@@ -77,7 +79,16 @@ namespace AStar
                 result.Add(current.Position);
                 current = current.Parent;
             }
+            result.Reverse();
             return result;
+        }
+
+        public void Clear()
+        {
+            for (var x = 0; x < size.x; x++)
+                for (var y = 0; y < size.y; y++)
+                    Nodes[x, y].Clear();
+            openedNode.Clear();
         }
 
         private Node OpenAround(Node node)
@@ -100,6 +111,8 @@ namespace AStar
                     targetNode.Cost = node.Cost + 1.5f;
                 else
                     targetNode.Cost = node.Cost + 1f;
+                if (FloorManager != null && FloorManager.GetUnit(targetPosition) != null)
+                    targetNode.Cost += 100f;
                 targetNode.CalculateEstimatedCost(EndPoint);
                 if (targetNode.Position.x == EndPoint.x && targetNode.Position.y == EndPoint.y)
                 {

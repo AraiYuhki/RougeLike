@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,5 +19,12 @@ public class Enemy : Unit
             Def = def,
             Exp = exp
         };
+    }
+
+    public override void SetDestAngle(Vector2Int move)
+    {
+        EndRotation = false;
+        var destAngle = Vector3.SignedAngle(Vector3.forward, new Vector3(move.x, 0f, move.y), Vector3.up);
+        transform.DORotate(new Vector3(0f, destAngle, 0f), 0.1f).SetEase(Ease.OutCubic).OnComplete(() => EndRotation = true);
     }
 }

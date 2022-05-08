@@ -27,5 +27,12 @@ namespace AStar
             EstimatedCost = Mathf.Max(x, y);
             Score = Cost + EstimatedCost;
         }
+
+        public void Clear()
+        {
+            Cost = Score = EstimatedCost = 0;
+            State = NodeState.None;
+            Parent = null;
+        }
     }
 }

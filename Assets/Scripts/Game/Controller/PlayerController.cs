@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,8 +16,8 @@ public class PlayerController : MonoBehaviour
     /// コマンドが実行されたか
     /// </summary>
     private bool isExecuteCommand = false;
-    private Floor floor;
-    public void SetFloor(Floor floor) => this.floor = floor;
+    private FloorManager floor;
+    public void SetFloor(FloorManager floor) => this.floor = floor;
     public void Spawn(Vector2Int position) => player.SetPosition(position);
     public Player Player => player;
 
@@ -28,6 +29,8 @@ public class PlayerController : MonoBehaviour
     public void Left() => move.x = -1;
     public void TurnMode() => isTurnMode = true;
     public void Wait() => isExecuteCommand = true;
+
+    public Action<Unit, Vector2Int> OnMoved { get; set; }
 
     public IEnumerator Controll()
     {
@@ -43,18 +46,30 @@ public class PlayerController : MonoBehaviour
             else if (Input.GetKey(KeyCode.S)) Down();
             if (Input.GetKey(KeyCode.D)) Right();
             else if (Input.GetKey(KeyCode.A)) Left();
-            isTurnMode |= Input.GetKey(KeyCode.LeftShift);
+            isTurnMode = Input.GetKey(KeyCode.LeftShift);
 
             if (move.x != 0 || move.y != 0)
             {
-                var destPosition = player.Position + move;
-                var destTile = floor.Map[destPosition.x, destPosition.y];
-                if (destTile.IsWall || Input.GetKey(KeyCode.LeftShift))
+                var currentPosition = player.Position;
+                var destPosition = currentPosition + move;
+                var destTile = floor.GetTile(destPosition);
+                var enemy = floor.GetUnit(destPosition);
+                if (enemy != null)
+                {
+                    var completeAttackAnimation = false;
+                    player.SetDestAngle(move);
+                    player.Attack(enemy.transform.localPosition, () => completeAttackAnimation = true);
+                    while (!completeAttackAnimation) yield return new WaitForEndOfFrame();
+                    move = Vector2Int.zero;
+                    yield break;
+                }
+                if (destTile.IsWall || isTurnMode)
                 {
                     player.SetDestAngle(move);
                 }
                 else
                 {
+                    OnMoved?.Invoke(player, destPosition);
                     player.Move(move);
                     isExecuteCommand = true;
                 }

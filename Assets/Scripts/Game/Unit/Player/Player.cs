@@ -1,8 +1,9 @@
+using DG.Tweening;
 using UnityEngine;
 
 public class Player : Unit
 {
-    public PlayerData Data { get; private set; }
+    public PlayerData Data { get; private set; } = new PlayerData(10);
 
     public bool IsLockInput { get; set; } = false;
 
@@ -22,15 +23,11 @@ public class Player : Unit
     public override void Update()
     {
         base.Update();
-        if (Mathf.Abs((DestPosition - transform.localPosition).magnitude) < 0.001f)
-        {
-            IsLockInput = false;
-        }
     }
 
     public override void Move(Vector2Int move)
     {
         IsLockInput = true;
-        base.Move(move);
+        Move(move, () => IsLockInput = false);
     }
 }

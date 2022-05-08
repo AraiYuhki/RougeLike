@@ -18,17 +18,16 @@ public class DungeonUI : MonoBehaviour
 
     private PlayerData Data => player.Data;
 
-    private void Start()
+    // Update is called once per frame
+    void Update()
     {
+        if (Data == null) return;
+        
         hpGauge.Max = Data.MaxHP;
         staminaGauge.Max = Data.MaxStamina;
         levelLabel.text = Data.Lv.ToString();
         expGauge.Max = 10;
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
         hpGauge.SetValue(Data.Hp);
         staminaGauge.SetValue((int)Data.Stamina);
         expGauge.SetValue(Data.TotalExp);

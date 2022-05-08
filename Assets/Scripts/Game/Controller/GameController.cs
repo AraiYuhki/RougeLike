@@ -5,13 +5,12 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
     [SerializeField]
-    private Floor floor = null;
-    [SerializeField]
-    private PlayerController playerController = null;
-    [SerializeField]
     private GameObject uiController = null;
 
-    private UnitManager unitManager = null;
+    private Player Player => playerController.Player;
+    private FloorManager floorManager => ServiceLocator.Instance.FloorManager;
+    private PlayerController playerController => ServiceLocator.Instance.PlayerController;
+    private EnemyManager enemyManager => ServiceLocator.Instance.EnemyManager;
 
     private static readonly RuntimePlatform[] EnableUIControllerPlatforms = new RuntimePlatform[]
     {
@@ -25,13 +24,17 @@ public class GameController : MonoBehaviour
     private void Start()
     {
         uiController.gameObject.SetActive(EnableUIControllerPlatforms.Contains(Application.platform));
-        floor.Clear();
-        floor.Create(20, 20, 4, false);
-        playerController.SetFloor(floor);
-        playerController.Spawn(floor.FloorData.SpawnPoint);
+        
+        floorManager.Clear();
+        floorManager.Create(20, 20, 4, false);
+
+        playerController.SetFloor(floorManager);
+        playerController.Spawn(floorManager.FloorData.SpawnPoint);
+        playerController.OnMoved = floorManager.OnMoveUnit;
+
         turnControll = StartCoroutine(TurnControll());
-        unitManager = new UnitManager(playerController.Player);
-        unitManager.Initialize(floor);
+
+        enemyManager.Initialize(playerController.Player);
     }
 
     private void OnDestroy()
@@ -44,6 +47,7 @@ public class GameController : MonoBehaviour
         while (true)
         {
             yield return playerController.Controll();
+            yield return enemyManager.EnemyControll();
         }
     }
 }
