@@ -14,6 +14,8 @@ public class DungeonUI : MonoBehaviour
     [SerializeField]
     private TMP_Text levelLabel;
     [SerializeField]
+    private TMP_Text walletLabel;
+    [SerializeField]
     private Player player;
 
     private PlayerData Data => player.Data;
@@ -24,12 +26,13 @@ public class DungeonUI : MonoBehaviour
         if (Data == null) return;
         
         hpGauge.Max = Data.MaxHP;
-        staminaGauge.Max = Data.MaxStamina;
+        staminaGauge.Max = (int)Data.MaxStamina;
         levelLabel.text = Data.Lv.ToString();
-        expGauge.Max = 10;
+        expGauge.Max = Data.NextLevelExp;
+        walletLabel.text = $"{Data.Gems}G";
 
-        hpGauge.SetValue(Data.Hp);
+        hpGauge.SetValue(Mathf.FloorToInt(Data.Hp));
         staminaGauge.SetValue((int)Data.Stamina);
-        expGauge.SetValue(Data.TotalExp);
+        expGauge.SetValue(Data.CurrentLevelExp);
     }
 }

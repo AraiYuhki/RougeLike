@@ -12,8 +12,10 @@ public class Gauge : MonoBehaviour
     private int max = 100;
     [SerializeField]
     private int value = 100;
+    [SerializeField]
+    private bool percentView = false;
 
-    public float Progress => value / max;
+    public float Progress => (float)value / max;
     public int Max
     {
         get => max;
@@ -24,7 +26,7 @@ public class Gauge : MonoBehaviour
     {
         this.value = value;
         if(label != null)
-            label.text = $"{value}/{max}";
+            label.text = percentView ? string.Format("{0:0}%", Progress * 100) : $"{value}/{max}";
         foreground.fillAmount = Progress;
     }
 }

@@ -30,7 +30,7 @@ public class GameController : MonoBehaviour
 
         playerController.SetFloor(floorManager);
         playerController.Spawn(floorManager.FloorData.SpawnPoint);
-        playerController.OnMoved = floorManager.OnMoveUnit;
+        Player.OnMoved += floorManager.OnMoveUnit;
 
         turnControll = StartCoroutine(TurnControll());
 
@@ -47,7 +47,9 @@ public class GameController : MonoBehaviour
         while (true)
         {
             yield return playerController.Controll();
-            yield return enemyManager.EnemyControll();
+            yield return enemyManager.Controll();
+            foreach (var unit in FindObjectsOfType<Unit>())
+                unit.TurnEnd();
         }
     }
 }

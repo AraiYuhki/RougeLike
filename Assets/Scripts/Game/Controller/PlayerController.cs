@@ -30,8 +30,6 @@ public class PlayerController : MonoBehaviour
     public void TurnMode() => isTurnMode = true;
     public void Wait() => isExecuteCommand = true;
 
-    public Action<Unit, Vector2Int> OnMoved { get; set; }
-
     public IEnumerator Controll()
     {
         while (true)
@@ -41,7 +39,7 @@ public class PlayerController : MonoBehaviour
                 yield return null;
                 continue;
             }
-            if (Input.GetKey(KeyCode.Space)) yield break;
+            if (Input.GetKey(KeyCode.Space)) isExecuteCommand = true;
             if (Input.GetKey(KeyCode.W)) Up();
             else if (Input.GetKey(KeyCode.S)) Down();
             if (Input.GetKey(KeyCode.D)) Right();
@@ -58,7 +56,7 @@ public class PlayerController : MonoBehaviour
                 {
                     var completeAttackAnimation = false;
                     player.SetDestAngle(move);
-                    player.Attack(enemy.transform.localPosition, () => completeAttackAnimation = true);
+                    player.Attack(enemy, () => completeAttackAnimation = true);
                     while (!completeAttackAnimation) yield return new WaitForEndOfFrame();
                     move = Vector2Int.zero;
                     yield break;
@@ -69,7 +67,6 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    OnMoved?.Invoke(player, destPosition);
                     player.Move(move);
                     isExecuteCommand = true;
                 }

@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using UnityEngine;
 
 public abstract class EnemyAI
 {
-    public Action<Unit, Vector2Int> OnMove { get; set; }
+    protected int cantMoveTurns = 0;
     protected FloorManager floorInfo = null;
     protected Player player = null;
     public Enemy Enemy { get; private set; } = null;
@@ -23,8 +24,9 @@ public abstract class EnemyAI
         return Mathf.Abs(diff.x) <= 1 && Mathf.Abs(diff.y) <= 1;
     }
 
-    public virtual void Move()
+    public virtual void Move(TweenCallback onComplete = null)
     {
+        onComplete?.Invoke();
     }
     public virtual IEnumerator Attack()
     {
@@ -36,7 +38,7 @@ public class DefaultAI : EnemyAI
 {
     public DefaultAI(FloorManager floorInfo, Enemy enemy, Player player) : base(floorInfo, enemy, player) { }
 
-    public override void Move()
+    public override void Move(TweenCallback onComplete = null)
     {
         var playerTile = floorInfo.GetTile(player.Position);
         var currentTile = floorInfo.GetTile(Enemy.Position);
@@ -51,26 +53,33 @@ public class DefaultAI : EnemyAI
         var targetPosition = player.Position;
         if (!Enemy.IsEncounted)
         {
-            if (Enemy.TargetTile == null || Enemy.TargetRoomId == currentTile.Id)
+            if (Enemy.TargetTile == null || Enemy.TargetTile == currentTile || cantMoveTurns > 1)
             {
                 var count = 0;
                 var targetRoomId = floorInfo.RoomIds.Random();
                 while ((targetRoomId = floorInfo.RoomIds.Random()) == currentTile.Id && count < 10)
                     count++;
                 Enemy.TargetTile = floorInfo.GetRoomTiles(targetRoomId).Random();
+                cantMoveTurns = 0;
             }
             targetPosition = Enemy.TargetTile.Position;
         }
 
         var root = floorInfo.GetRoot(Enemy.Position, targetPosition);
-        if (root == null) return;
+        if (root == null)
+        {
+            base.Move(onComplete);
+            cantMoveTurns++;
+            return;
+        }
         var nextTile = root.Skip(1).First();
         if (floorInfo.GetUnit(nextTile) != null)
         {
+            base.Move(onComplete);
+            cantMoveTurns++;
             return;
         }
-        Enemy.MoveTo(nextTile);
-        OnMove?.Invoke(Enemy, nextTile);
+        Enemy.MoveTo(nextTile, onComplete);
     }
 
     public override IEnumerator Attack()
@@ -80,7 +89,7 @@ public class DefaultAI : EnemyAI
         while (Enemy.EndRotation) yield return new WaitForEndOfFrame();
         var endAttackAnimation = false;
         var targetPosition = new Vector3(player.Position.x, 0.5f, player.Position.y);
-        Enemy.Attack(targetPosition, () => endAttackAnimation = true);
+        Enemy.Attack(player, () => endAttackAnimation = true);
         while(!endAttackAnimation) yield return new WaitForEndOfFrame();
     }
 }

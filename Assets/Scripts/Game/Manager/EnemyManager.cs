@@ -30,11 +30,17 @@ public class EnemyManager : MonoBehaviour
         var tiles = floorManager.GetEmptyRoomTiles(playerTile.Id);
         instance.SetPosition(tiles.Random().Position);
         floorManager.SetUnit(instance, instance.Position);
-        ai.OnMove = floorManager.OnMoveUnit;
+        instance.OnMoved += floorManager.OnMoveUnit;
+        instance.OnDead += () =>
+        {
+            enemies.Remove(ai);
+            floorManager.RemoveUnit(instance);
+            Destroy(instance.gameObject);
+        };
         enemies.Add(ai);
     }
 
-    public IEnumerator EnemyControll()
+    public IEnumerator Controll()
     {
         if (spawnIntervalTurn < spawnedCount)
         {
@@ -47,8 +53,10 @@ public class EnemyManager : MonoBehaviour
         }
         var moveEnemies = enemies.Where(e => !e.CanAttack()).ToList();
         var attackEnemies = enemies.Where(e => e.CanAttack()).ToList();
+        var completedCount = 0;
         foreach(var enemy in moveEnemies)
-            enemy.Move();
+            enemy.Move(() => completedCount++);
+        while (moveEnemies.Count > completedCount) yield return null;
         foreach (var enemy in attackEnemies)
             yield return enemy.Attack();
     }
