@@ -7,6 +7,8 @@ public class Enemy : Unit
 {
     public EnemyData Data { get; private set; } = new EnemyData(10);
     public override int Hp { get => Mathf.FloorToInt(Data.Hp); set => Data.Hp = value; }
+    public override int MaxHp { get => Data.MaxHP; }
+    public override void PowerUp(int value) => Data.Atk += value;
     public bool IsEncounted { get; set; }
     public TileData TargetTile { get; set; }
     public int TargetRoomId => TargetTile.Id;

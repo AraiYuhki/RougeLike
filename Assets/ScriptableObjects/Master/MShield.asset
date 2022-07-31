@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eee921cbf6fbef34e9aacfb8912f831c, type: 3}
+  m_Name: MShield
+  m_EditorClassIdentifier: 
+  data:
+  - name: "\u934B\u306E\u84CB"
+    buyPrice: 100
+    sellPrice: 50
+    def: 1
+  - name: "\u9769\u306E\u76FE"
+    buyPrice: 200
+    sellPrice: 100
+    def: 2
+  - name: "\u6728\u306E\u76FE"
+    buyPrice: 400
+    sellPrice: 200
+    def: 3
+  - name: "\u7532\u7F85\u306E\u76FE"
+    buyPrice: 800
+    sellPrice: 400
+    def: 4
+  - name: "\u9285\u306E\u76FE"
+    buyPrice: 1200
+    sellPrice: 600
+    def: 5
+  - name: "\u9752\u9285\u306E\u76FE"
+    buyPrice: 2400
+    sellPrice: 1200
+    def: 6
+  - name: "\u9244\u306E\u76FE"
+    buyPrice: 4800
+    sellPrice: 2400
+    def: 10
+  - name: "\u92FC\u306E\u76FE"
+    buyPrice: 9600
+    sellPrice: 4800
+    def: 13
+  - name: "\u771F\u9280\u306E\u76FE"
+    buyPrice: 19200
+    sellPrice: 9600
+    def: 18
+  - name: "\u8679\u92FC\u306E\u76FE"
+    buyPrice: 38400
+    sellPrice: 19200
+    def: 22

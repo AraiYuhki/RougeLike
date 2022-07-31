@@ -1,6 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 using System;
+using UnityEngine.ProBuilder;
 
 public class Unit : MonoBehaviour
 {
@@ -15,7 +16,10 @@ public class Unit : MonoBehaviour
     public event Action OnDead;
 
     public virtual int Hp { get; set; }
+    public virtual int MaxHp { get; set; }
     public virtual void AddExp(int exp) { }
+    public virtual void RecoveryStamina(float value) { }
+    public virtual void PowerUp(int value) { }
 
     public void Awake()
     {
@@ -68,6 +72,12 @@ public class Unit : MonoBehaviour
         OnMoved?.Invoke(this, dest);
     }
 
+    public virtual void Heal(float value)
+    {
+        Hp += (int)value;
+        Hp = Mathf.Min(Hp, MaxHp);
+    }
+
     public virtual void Damage(int damage, Unit attacker)
     {
         Hp -= damage;
@@ -78,7 +88,7 @@ public class Unit : MonoBehaviour
 
     public void Dead(Unit attacker)
     {
-        if (this is Enemy enemy)
+        if (this is Enemy enemy && attacker != null)
             attacker.AddExp(enemy.Data.Exp);
         OnDead?.Invoke();
     }
