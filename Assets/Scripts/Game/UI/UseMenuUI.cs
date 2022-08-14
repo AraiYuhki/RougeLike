@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -35,7 +36,7 @@ public class UseMenuUI : MonoBehaviour
             var item = Instantiate(template, transform);
             item.gameObject.SetActive(true);
             item.Initialize(() => SetSelectIndex(index), () => callback());
-            item.GetComponentInChildren<Text>().text = label;
+            item.GetComponentInChildren<TMP_Text>().text = label;
             this.items.Add(item);
         }
     }
@@ -47,6 +48,7 @@ public class UseMenuUI : MonoBehaviour
             tween.Kill();
             tween = null;
         }
+        gameObject.SetActive(true);
         tween = GetComponent<CanvasGroup>().DOFade(1.0f, 0.2f);
         tween.OnComplete(() => tween = null);
     }
@@ -59,7 +61,11 @@ public class UseMenuUI : MonoBehaviour
             tween = null;
         }
         tween = GetComponent<CanvasGroup>().DOFade(0f, 0.2f);
-        tween.OnComplete(() => tween = null);
+        tween.OnComplete(() =>
+        {
+            tween = null;
+            gameObject.SetActive(false);
+        });
     }
 
     private void SetSelectIndex(int index)
@@ -71,13 +77,13 @@ public class UseMenuUI : MonoBehaviour
     private void FixIndex()
     {
         if (selectedIndex >= items.Count) selectedIndex -= items.Count;
-        else if (selectedIndex < 0) selectedIndex -= items.Count;
+        else if (selectedIndex < 0) selectedIndex += items.Count;
     }
 
     public void Up()
     {
         items[selectedIndex].Select(false);
-        selectedIndex++;
+        selectedIndex--;
         FixIndex();
         items[selectedIndex].Select(true);
     }
@@ -86,14 +92,14 @@ public class UseMenuUI : MonoBehaviour
     public void Down()
     {
         items[selectedIndex].Select(false);
-        selectedIndex--;
+        selectedIndex++;
         FixIndex();
         items[selectedIndex].Select(true);
     }
 
     public void Submit()
     {
-
+        items[selectedIndex].Submit();
     }
 
     public void Cancel()

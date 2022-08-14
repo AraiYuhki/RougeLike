@@ -28,31 +28,42 @@ public class MenuUI : MonoBehaviour
     private bool isOpened = false;
     private ControllType type = ControllType.Inventory;
     private InGameInput gameInput;
-    
-    public void Initialize(Player player, InGameInput gameInput)
+    private Action usedCallback;
+
+    public void Initialize(Player player, InGameInput gameInput, Action usedCallback)
     {
         inventoryUI.Initialize(player);
         statusUI.Initialize(player);
         this.gameInput = gameInput;
+        this.usedCallback = usedCallback;
     }
 
-    public void SwitchOpenMenu(Action onComplete)
+    public void Open(TweenCallback onComplete = null)
     {
-        TweenCallback callback = () =>
+        inventoryUI.Open();
+        statusUI.Open(() =>
         {
-            isOpened = !isOpened;
             onComplete?.Invoke();
-        };
+            isOpened = true;
+        });
+    }
+
+    public void Close(TweenCallback onComplete = null)
+    {
+        inventoryUI.Close();
+        useMenuUI.Close();
+        statusUI.Close(() => {
+            isOpened = false;
+            onComplete?.Invoke();
+        });
+    }
+
+    public void SwitchOpenMenu(TweenCallback onComplete)
+    {
         if (!isOpened)
-        {
-            inventoryUI.Open();
-            statusUI.Open(callback);
-        }
+            Open(onComplete);
         else
-        {
-            inventoryUI.Close();
-            statusUI.Close(callback);
-        }
+            Close(onComplete);
     }
 
     public IEnumerator Controll()
@@ -87,12 +98,18 @@ public class MenuUI : MonoBehaviour
             {
                 menu.Add(("‘•”õ", () => Player.Data.EquipmentShield = shield));
             }
-            else if (inventoryUI.SelectedItem is UsableItemData)
+            else if (inventoryUI.SelectedItem is UsableItemData data)
             {
-                menu.Add(("Žg‚¤", () => { }));
+                menu.Add(("Žg‚¤", () => { UseItem(data); }));
             }
             menu.Add(("“Š‚°‚é", () => { }));
             menu.Add(("’u‚­", () => { }));
+            menu.Add(("–ß‚é", () =>
+            {
+                useMenuUI.Close();
+                type = ControllType.Inventory;
+            }
+            ));
             useMenuUI.Initialize(menu);
             useMenuUI.Open();
             type = ControllType.UseMenu;
@@ -112,5 +129,34 @@ public class MenuUI : MonoBehaviour
             useMenuUI.Close();
             type = ControllType.Inventory;
         }
+    }
+
+    private void UseItem(UsableItemData data)
+    {
+        switch(data.Type)
+        {
+            case ItemType.HPHeal:
+                Player.Heal(data.Parameter);
+                break;
+            case ItemType.PowerUp:
+                Player.PowerUp((int)data.Parameter);
+                break;
+            case ItemType.StaminaHeal:
+                Player.RecoveryStamina(data.Parameter);
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+        if (!data.IsStackable)
+        {
+            Data.Inventory.Remove(data);
+            Close(() => usedCallback?.Invoke());
+            return;
+        }
+
+        Data.Inventory[data]--;
+        if (Data.Inventory[data] <= 0)
+            Player.Data.Inventory.Remove(data);
+        Close(() => usedCallback?.Invoke());
     }
 }

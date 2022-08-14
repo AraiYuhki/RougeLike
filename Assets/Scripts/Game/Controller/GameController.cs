@@ -60,12 +60,12 @@ public class GameController : MonoBehaviour
         turnControll = StartCoroutine(TurnControll());
 
         enemyManager.Initialize(player);
-        menuUI.Initialize(player, GameInput);
+        menuUI.Initialize(player, GameInput, () => status = GameStatus.TurnEnd);
     }
 
     private void OnDestroy()
     {
-        GameInput.Disable();
+        GameInput?.Disable();
         StopCoroutine(turnControll);
     }
 
@@ -112,7 +112,7 @@ public class GameController : MonoBehaviour
 
         if (GameInput.Player.Menu.WasPressedThisFrame())
         {
-            menuUI.SwitchOpenMenu(() => status = GameStatus.UIControll);
+            menuUI.Open(() => status = GameStatus.UIControll);
             status = GameStatus.Wait;
             yield break;
         }
@@ -161,7 +161,7 @@ public class GameController : MonoBehaviour
     {
         if (GameInput.Player.Menu.WasPressedThisFrame())
         {
-            menuUI.SwitchOpenMenu(() => status = GameStatus.PlayerControll);
+            menuUI.Close(() => status = GameStatus.PlayerControll);
             status = GameStatus.Wait;
             yield return null;
             yield break;
