@@ -27,14 +27,12 @@ public class MenuUI : MonoBehaviour
     private PlayerData Data => Player.Data;
     private bool isOpened = false;
     private ControllType type = ControllType.Inventory;
-    private InGameInput gameInput;
     private Action usedCallback;
 
-    public void Initialize(Player player, InGameInput gameInput, Action usedCallback)
+    public void Initialize(Player player, Action usedCallback)
     {
         inventoryUI.Initialize(player);
         statusUI.Initialize(player);
-        this.gameInput = gameInput;
         this.usedCallback = usedCallback;
     }
 
@@ -43,6 +41,7 @@ public class MenuUI : MonoBehaviour
         inventoryUI.Open();
         statusUI.Open(() =>
         {
+            type = ControllType.Inventory;
             onComplete?.Invoke();
             isOpened = true;
         });
@@ -82,12 +81,12 @@ public class MenuUI : MonoBehaviour
 
     private void InventoryControll()
     {
-        if (gameInput.Player.Up.WasPressedThisFrame())
+        if (InputUtility.Up.IsTriggerd())
             inventoryUI.Up();
-        else if (gameInput.Player.Down.WasPressedThisFrame())
+        else if (InputUtility.Down.IsTriggerd())
             inventoryUI.Down();
 
-        if (gameInput.Player.Submit.WasPressedThisFrame())
+        if (InputUtility.Submit.IsTriggerd())
         {
             var menu = new List<(string, UnityAction)>();
             if (inventoryUI.SelectedItem is WeaponData weapon)
@@ -118,13 +117,13 @@ public class MenuUI : MonoBehaviour
 
     private void UseMenuControll()
     {
-        if (gameInput.Player.Up.WasPressedThisFrame())
+        if (InputUtility.Up.IsTriggerd())
             useMenuUI.Up();
-        else if (gameInput.Player.Down.WasPressedThisFrame())
+        else if (InputUtility.Down.IsTriggerd())
             useMenuUI.Down();
-        if (gameInput.Player.Submit.WasPressedThisFrame())
+        if (InputUtility.Submit.IsTriggerd())
             useMenuUI.Submit();
-        else if (gameInput.Player.Cancel.WasPressedThisFrame())
+        else if (InputUtility.Cancel.IsTriggerd())
         {
             useMenuUI.Close();
             type = ControllType.Inventory;
@@ -147,6 +146,7 @@ public class MenuUI : MonoBehaviour
             default:
                 throw new NotImplementedException();
         }
+        Debug.LogError($"{data.Name}:‚ðŽg—p‚µ‚½");
         if (!data.IsStackable)
         {
             Data.Inventory.Remove(data);

@@ -37,6 +37,7 @@ public class SelectableItem : MonoBehaviour
         tween = button.image.DOColor(destinationColor, button.colors.fadeDuration);
         tween.OnComplete(() => tween = null);
         isSelected = isSelect;
+        tween.Play();
     }
 
     public void Submit() => button.onClick?.Invoke();

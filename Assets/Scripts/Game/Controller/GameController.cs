@@ -21,7 +21,6 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private Player player = null;
 
-    public InGameInput GameInput { get; private set; }
     public Player Player => player;
     private FloorManager floorManager => ServiceLocator.Instance.FloorManager;
     private EnemyManager enemyManager => ServiceLocator.Instance.EnemyManager;
@@ -42,8 +41,6 @@ public class GameController : MonoBehaviour
 
     private void Awake()
     {
-        GameInput = new InGameInput();
-        GameInput.Enable();
         status = GameStatus.PlayerControll;
     }
 
@@ -60,12 +57,11 @@ public class GameController : MonoBehaviour
         turnControll = StartCoroutine(TurnControll());
 
         enemyManager.Initialize(player);
-        menuUI.Initialize(player, GameInput, () => status = GameStatus.TurnEnd);
+        menuUI.Initialize(player, () => status = GameStatus.EnemyControll);
     }
 
     private void OnDestroy()
     {
-        GameInput?.Disable();
         StopCoroutine(turnControll);
     }
 
@@ -110,18 +106,18 @@ public class GameController : MonoBehaviour
     {
         if (player.IsLockInput) yield break;
 
-        if (GameInput.Player.Menu.WasPressedThisFrame())
+        if (InputUtility.Menu.IsTriggerd())
         {
             menuUI.Open(() => status = GameStatus.UIControll);
             status = GameStatus.Wait;
             yield break;
         }
-        if (GameInput.Player.Wait.IsPressed()) isExecuteCommand = true;
-        if (GameInput.Player.Up.IsPressed()) Up();
-        else if (GameInput.Player.Down.IsPressed()) Down();
-        if (GameInput.Player.Right.IsPressed()) Right();
-        else if (GameInput.Player.Left.IsPressed()) Left();
-        isTurnMode |= GameInput.Player.TurnMode.IsPressed();
+        if (InputUtility.Wait.IsPressed()) isExecuteCommand = true;
+        if (InputUtility.Up.IsPressed()) Up();
+        else if (InputUtility.Down.IsPressed()) Down();
+        if (InputUtility.Right.IsPressed()) Right();
+        else if (InputUtility.Left.IsPressed()) Left();
+        isTurnMode |= InputUtility.TurnMode.IsPressed();
 
         if (move.x != 0 || move.y != 0)
         {
@@ -159,7 +155,7 @@ public class GameController : MonoBehaviour
 
     private IEnumerator UIControll()
     {
-        if (GameInput.Player.Menu.WasPressedThisFrame())
+        if (InputUtility.Menu.IsTriggerd())
         {
             menuUI.Close(() => status = GameStatus.PlayerControll);
             status = GameStatus.Wait;
