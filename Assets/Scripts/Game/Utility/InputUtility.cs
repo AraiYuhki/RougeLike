@@ -34,7 +34,7 @@ public static class InputUtility
     public static InputDelegater Submit => new InputDelegater(Keyboard.current?.enterKey, DualShockGamepad.current?.crossButton, XInputController.current?.aButton);
     public static InputDelegater Cancel => new InputDelegater(Keyboard.current?.escapeKey, DualShockGamepad.current?.circleButton, XInputController.current?.bButton);
     public static InputDelegater Up => new InputDelegater(Keyboard.current?.wKey, Keyboard.current?.upArrowKey, DualShockGamepad.current?.dpad.up, XInputController.current?.dpad?.up);
-    public static InputDelegater Down => new InputDelegater(Keyboard.current?.sKey, Keyboard.current?.downArrowKey, DualShockGamepad.current?.dpad.down, XInputController.current.dpad?.down);
+    public static InputDelegater Down => new InputDelegater(Keyboard.current?.sKey, Keyboard.current?.downArrowKey, DualShockGamepad.current?.dpad.down, XInputController.current?.dpad?.down);
     public static InputDelegater Right => new InputDelegater(Keyboard.current?.dKey, Keyboard.current?.rightArrowKey, DualShockGamepad.current?.dpad.right, XInputController.current?.dpad?.right);
     public static InputDelegater Left => new InputDelegater(Keyboard.current?.aKey, Keyboard.current?.leftArrowKey, DualShockGamepad.current?.dpad.left, XInputController.current?.dpad.left);
     public static InputDelegater Menu => new InputDelegater(Keyboard.current?.escapeKey, DualShockGamepad.current?.triangleButton, XInputController.current?.yButton);

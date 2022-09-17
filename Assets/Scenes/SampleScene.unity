@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.16478395, g: 0.2393659, b: 0.3580712, a: 1}
+  m_IndirectSpecularColor: {r: 0.16750419, g: 0.23615462, b: 0.3467101, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -24100,6 +24100,7 @@ GameObject:
   - component: {fileID: 1009754814}
   - component: {fileID: 1009754813}
   - component: {fileID: 1009754815}
+  - component: {fileID: 1009754816}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -24151,6 +24152,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabs:
   - {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}
+--- !u!114 &1009754816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009754811}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 900a2f0fc4b7f21438865086accce300, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gemTemplates:
+  - {fileID: 8397770708302656268, guid: 24c217a0a5b2e4244b9dba76d5dd5a6e, type: 3}
+  itemTemplates:
+  - {fileID: 4881664775750953345, guid: dbe1448ef47467e4fa77ea6186d400a0, type: 3}
+  weaponTemplates:
+  - {fileID: 4931641926363298240, guid: b20ce1165cffa264cb434419fca8e3b6, type: 3}
+  shieldTemplates:
+  - {fileID: 1443198034183998324, guid: fb179f109901d0f4c8d0143bfedd2d3d, type: 3}
 --- !u!1 &1014885319
 GameObject:
   m_ObjectHideFlags: 0
@@ -47308,6 +47329,7 @@ MonoBehaviour:
   gameController: {fileID: 1009754813}
   floorManager: {fileID: 100000723}
   enemyManager: {fileID: 1009754815}
+  itemManager: {fileID: 1009754816}
   dungeonUI: {fileID: 89703659}
 --- !u!4 &2070232888
 Transform:

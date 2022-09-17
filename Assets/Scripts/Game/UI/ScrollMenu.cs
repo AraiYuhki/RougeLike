@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -90,9 +91,10 @@ public class ScrollMenu : MonoBehaviour
         }
         group.alpha = 1f;
         tween = group.DOFade(0f, 0.2f);
+        if (items.Count != 0 && items.Count > selectedIndex)
+            items[selectedIndex].Select(false);
         tween.OnComplete(() =>
         {
-            items[selectedIndex].Select(false);
             tween = null;
             onComplete?.Invoke();
             gameObject.SetActive(false);

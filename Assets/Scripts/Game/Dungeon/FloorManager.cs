@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,10 +23,17 @@ public class FloorManager : MonoBehaviour
     public int[] RoomIds => FloorData.Map.Cast<TileData>().Where(tile => tile.IsRoom).Select(tile => tile.Id).Distinct().ToArray();
 
     private Unit[,] units;
+    private Item[,] items;
+
     public Unit GetUnit(int x, int y) => units[x, y];
     public Unit GetUnit(Vector2Int position) => units[position.x, position.y];
     public int GetUnitCount() => units.ToArray().Where(unit => unit != null).Count();
 
+    public Item GetItem(int x, int y) => items[x, y];
+    public Item GetItem(Vector2Int position) => items[position.x, position.y];
+    public int GetItemCount() => items.ToArray().Where(unit => unit != null).Count();
+
+    public List<TileData> GetRoomTiles() => Map.ToArray().Where(tile => tile.IsRoom).ToList();
     public List<TileData> GetRoomTiles(int roomId) => Map.ToArray().Where(tile => tile.IsRoom && tile.Id == roomId).ToList();
     public List<TileData> GetRoomTilesExcludeRoomId(int excludeRoomId) => Map.ToArray().Where(tile => tile.IsRoom && tile.Id != excludeRoomId).ToList();
     public List<TileData> GetEmptyRoomTiles(int excludeRoomId)
@@ -50,6 +58,7 @@ public class FloorManager : MonoBehaviour
         Size = new Vector2Int(width, height);
         FloorData = DungeonGenerator.GenerateFloor(width, height, maxRoom);
         units = new Unit[Size.x, Size.y];
+        items = new Item[Size.x, Size.y];
         this.isTower = isTower;
         for (var x = 0; x < Size.x; x++)
         {
@@ -87,6 +96,23 @@ public class FloorManager : MonoBehaviour
                 if (units[x, y] == unit)
                 {
                     units[x, y] = null;
+                    return;
+                }
+            }
+        }
+    }
+
+    public void SetItem(Item item, Vector2Int position) => items[position.x, position.y] = item;
+    public void RemoveItem(Vector2Int position) => items[position.x, position.y] = null;
+    public void RemoveItem(Item item)
+    {
+        for (var x = 0; x < Size.x; x++)
+        {
+            for (var y = 0; y < Size.y; y++)
+            {
+                if (items[x, y] == item)
+                {
+                    items[x, y] = null;
                     return;
                 }
             }

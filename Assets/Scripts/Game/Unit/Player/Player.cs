@@ -21,7 +21,7 @@ public class Player : Unit
             Atk = atk,
             Def = def,
         };
-        for (var i = 0; i < 20; i++)
+        for (var i = 0; i < 3; i++)
         {
             Data.Inventory.Add(DataBase.Instance.GetTable<MItem>().Data.First().Clone() as ItemBase, 1);
         }

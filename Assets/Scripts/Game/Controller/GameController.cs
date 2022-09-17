@@ -24,6 +24,8 @@ public class GameController : MonoBehaviour
     public Player Player => player;
     private FloorManager floorManager => ServiceLocator.Instance.FloorManager;
     private EnemyManager enemyManager => ServiceLocator.Instance.EnemyManager;
+    private ItemManager itemManager => ServiceLocator.Instance.ItemManager;
+
     private InventoryUI inventoryUI => menuUI.InventoryUI;
     private Vector2Int move = Vector2Int.zero;
     private GameStatus status = GameStatus.Wait;
@@ -57,6 +59,7 @@ public class GameController : MonoBehaviour
         turnControll = StartCoroutine(TurnControll());
 
         enemyManager.Initialize(player);
+        itemManager.Initialize();
         menuUI.Initialize(player, () => status = GameStatus.EnemyControll);
     }
 
@@ -140,6 +143,7 @@ public class GameController : MonoBehaviour
             else
             {
                 player.Move(move);
+                TakeItem();
                 isExecuteCommand = true;
             }
         }
@@ -151,6 +155,24 @@ public class GameController : MonoBehaviour
             status = GameStatus.EnemyControll;
         }
         yield return null;
+    }
+
+    private void TakeItem()
+    {
+        var item = floorManager.GetItem(player.Position);
+        if (item == null) return;
+        if (item.IsGem)
+        {
+            player.Data.Gems += item.GemCount;
+            Debug.LogError($"ÉWÉFÉÄÇ{item.GemCount}å¬èEÇ¡ÇΩ");
+        }
+        else
+        {
+            player.Data.TakeItem(item.Data);
+            Debug.LogError($"{item.Data.Name}ÇèEÇ¡ÇΩ");
+        }
+        floorManager.RemoveItem(item);
+        ServiceLocator.Instance.ItemManager.Despawn(item);
     }
 
     private IEnumerator UIControll()

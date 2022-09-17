@@ -12,6 +12,7 @@ public class InventoryUI : ScrollMenu
     public CanvasGroup Group => group;
 
     public ItemBase SelectedItem => (items[selectedIndex] as ItemRowController).ItemData;
+    public ItemRowController SelectedRow => items[selectedIndex] as ItemRowController;
 
     public void Initialize(Player player)
     {
@@ -26,8 +27,21 @@ public class InventoryUI : ScrollMenu
         {
             var item = Instantiate(template as ItemRowController, baseObject);
             item.gameObject.SetActive(true);
-            item.Initialize(pair.Key, pair.Value, () => SetSelectIndex(index));
+            var isEquip = data.EquipmentWeapon == pair.Key || data.EquipmentShield == pair.Key;
+            item.Initialize(pair.Key, pair.Value, isEquip, () => SetSelectIndex(index));
             items.Add(item);
+        }
+    }
+
+    public void UpdateStatus()
+    {
+        foreach (ItemRowController item in items)
+        {
+            var count = player.Data.Inventory[item.ItemData];
+            if (player.Data.EquipmentWeapon == item.ItemData || player.Data.EquipmentShield == item.ItemData)
+                item.UpdateStatus(true, count);
+            else
+                item.UpdateStatus(false, count);
         }
     }
 }

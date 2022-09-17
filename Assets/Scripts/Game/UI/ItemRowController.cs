@@ -18,13 +18,20 @@ public class ItemRowController : SelectableItem
 
     public ItemBase ItemData { get; private set; }
 
-    public void Initialize(ItemBase itemData, int count, Action onSelect = null, UnityAction onSubmit = null)
+    public void Initialize(ItemBase itemData, int count, bool isEquip, Action onSelect = null, UnityAction onSubmit = null)
     {
         base.Initialize(onSelect, onSubmit);
         ItemData = itemData;
         nameLabel.text = itemData.Name;
-        equipIcon.gameObject.SetActive(false);
+        equipIcon.gameObject.SetActive(isEquip);
         stackLabel.gameObject.SetActive(itemData.IsStackable);
+        stackLabel.text = $"x{count}";
+    }
+
+    public void UpdateStatus(bool isEquip, int count)
+    {
+        nameLabel.text = ItemData.Name;
+        equipIcon.gameObject.SetActive(isEquip);
         stackLabel.text = $"x{count}";
     }
 }

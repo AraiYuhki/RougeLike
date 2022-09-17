@@ -50,6 +50,14 @@ public static class Extension
     public static T Random<T>(this IEnumerable<T> self)
     {
         var value = UnityEngine.Random.Range(0, self.Count());
-        return self.ElementAt(value);
+        try
+        {
+            return self.ElementAt(value);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"{value} : {self.Count()} : {e.Message}");
+            throw e;
+        }
     }
 }

@@ -6,11 +6,12 @@ public class Item : MonoBehaviour
 {
     [SerializeField]
     private bool autoRotation = false;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    
+    public ItemBase Data { get; set; }
+    public int GemCount { get; set; } = 0;
+    public bool IsGem => GemCount > 0;
+
+    public void SetPosition(TileData tile) => transform.localPosition = new Vector3(tile.Position.x, 0f, tile.Position.y);
 
     // Update is called once per frame
     void Update()

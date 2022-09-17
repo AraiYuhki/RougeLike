@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -28,6 +29,7 @@ public class MenuUI : MonoBehaviour
     private bool isOpened = false;
     private ControllType type = ControllType.Inventory;
     private Action usedCallback;
+    private Action equipedCallback;
 
     public void Initialize(Player player, Action usedCallback)
     {
@@ -38,6 +40,7 @@ public class MenuUI : MonoBehaviour
 
     public void Open(TweenCallback onComplete = null)
     {
+        inventoryUI.Initialize();
         inventoryUI.Open();
         statusUI.Open(() =>
         {
@@ -91,11 +94,11 @@ public class MenuUI : MonoBehaviour
             var menu = new List<(string, UnityAction)>();
             if (inventoryUI.SelectedItem is WeaponData weapon)
             {
-                menu.Add(("‘•”õ", () => Player.Data.EquipmentWeapon = weapon));
+                menu.Add(("‘•”õ", () => EquipWeapon(weapon)));
             }
             else if (inventoryUI.SelectedItem is ShieldData shield)
             {
-                menu.Add(("‘•”õ", () => Player.Data.EquipmentShield = shield));
+                menu.Add(("‘•”õ", () => EquipShield(shield)));
             }
             else if (inventoryUI.SelectedItem is UsableItemData data)
             {
@@ -124,10 +127,13 @@ public class MenuUI : MonoBehaviour
         if (InputUtility.Submit.IsTriggerd())
             useMenuUI.Submit();
         else if (InputUtility.Cancel.IsTriggerd())
-        {
-            useMenuUI.Close();
-            type = ControllType.Inventory;
-        }
+            CloseUseMenu();
+    }
+
+    private void CloseUseMenu()
+    {
+        useMenuUI.Close();
+        type = ControllType.Inventory;
     }
 
     private void UseItem(UsableItemData data)
@@ -158,5 +164,21 @@ public class MenuUI : MonoBehaviour
         if (Data.Inventory[data] <= 0)
             Player.Data.Inventory.Remove(data);
         Close(() => usedCallback?.Invoke());
+    }
+
+    private void EquipWeapon(WeaponData weapon)
+    {
+        Player.Data.EquipmentWeapon = weapon;
+        Debug.LogError($"{weapon.Name}‚ð‘•”õ‚µ‚½");
+        inventoryUI.UpdateStatus();
+        CloseUseMenu();
+    }
+
+    private void EquipShield(ShieldData shield)
+    {
+        Player.Data.EquipmentShield = shield;
+        Debug.LogError($"{shield.Name}‚ð‘•”õ‚µ‚½");
+        inventoryUI.UpdateStatus();
+        CloseUseMenu();
     }
 }

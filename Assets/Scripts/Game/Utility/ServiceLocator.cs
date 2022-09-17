@@ -11,11 +11,14 @@ public class ServiceLocator : MonoBehaviour
     [SerializeField]
     private EnemyManager enemyManager;
     [SerializeField]
+    private ItemManager itemManager;
+    [SerializeField]
     private DungeonUI dungeonUI;
 
     public GameController GameController => gameController;
     public FloorManager FloorManager => floorManager;
     public EnemyManager EnemyManager => enemyManager;
+    public ItemManager ItemManager => itemManager;
     public DungeonUI DungeonUI => dungeonUI;
     public static ServiceLocator Instance => instance;
 
