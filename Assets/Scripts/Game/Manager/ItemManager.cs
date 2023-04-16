@@ -44,22 +44,24 @@ public class ItemManager : MonoBehaviour
         }
     }
 
-    public void Drop(ItemBase data, int index, Vector2Int position)
+    public Item Drop(ItemBase data, int index, Vector2Int position)
     {
         var template = GetTemplate(data, index);
         var item = Instantiate(template, floorManager.transform);
         item.Data = data;
         item.SetPosition(floorManager.GetTile(position.x, position.y));
         floorManager.SetItem(item, position);
+        return item;
     }
 
-    public void Drop(int price, Vector2Int position)
+    public Item Drop(int price, Vector2Int position)
     {
         var item = Instantiate(gemTemplates.First(), floorManager.transform);
         item.GemCount = price;
         item.SetPosition(floorManager.GetTile(position.x, position.y));
         itemList.Add(item);
         floorManager.SetItem(item, position);
+        return item;
     }
 
     public void Spawn(ItemBase data, int index)

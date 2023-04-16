@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -60,7 +61,11 @@ public class GameController : MonoBehaviour
 
         enemyManager.Initialize(player);
         itemManager.Initialize();
-        menuUI.Initialize(player, () => status = GameStatus.EnemyControll);
+        menuUI.Initialize(player,
+            () => status = GameStatus.EnemyControll,
+            TakeItem,
+            ThrowItem,
+            DropItem);
     }
 
     private void OnDestroy()
@@ -157,6 +162,67 @@ public class GameController : MonoBehaviour
         yield return null;
     }
 
+    private void DropItem(ItemBase target)
+    {
+        itemManager.Drop(target, 0, Player.Position);
+        status = GameStatus.EnemyControll;
+    }
+
+    private void ThrowItem(ItemBase target)
+    {
+        var item = itemManager.Drop(target, 0, Player.Position);
+        var targetPosition = floorManager.GetHitPosition(player.Position, player.Angle, 10);
+        var tween = item.transform
+            .DOLocalMove(new Vector3(targetPosition.position.x, 0, targetPosition.position.y), 0.1f * targetPosition.length)
+            .SetEase(Ease.Linear)
+            .Play();
+        tween.onComplete += () =>
+        {
+            floorManager.RemoveItem(item);
+            // 当たる位置にドロップできない場合は周囲からドロップできる場所を探す
+            if (targetPosition.enemy != null)
+            {
+                var enemy = targetPosition.enemy;
+                if (target is WeaponData weapon)
+                    enemy.Damage(DamageUtil.GetDamage(player, weapon.Atk), player);
+                else if (target is ShieldData shield)
+                    enemy.Damage(DamageUtil.GetDamage(player, shield.Def), player);
+                // 消費アイテムを投げつけた場合は、強制的にその効果を発動させる
+                else if (target is UsableItemData usableItem)
+                    usableItem.Use(enemy);
+                itemManager.Despawn(item);
+                status = GameStatus.EnemyControll;
+                return;
+            }
+            if (!floorManager.CanDrop(targetPosition.position))
+            {
+                // 周囲のドロップできる場所を検索
+                var candidate = floorManager.GetCanDropTile(targetPosition.position);
+                // 候補あり
+                if (candidate != null)
+                {
+                    // ドロップアニメ
+                    Debug.LogError(candidate.Position);
+                    var dropTween = item.transform
+                    .DOLocalMove(new Vector3(candidate.Position.x, 0f, candidate.Position.y), 0.5f)
+                    .SetEase(Ease.OutExpo)
+                    .Play();
+                    dropTween.onComplete += () =>
+                    {
+                        floorManager.SetItem(item, candidate.Position);
+                        status = GameStatus.EnemyControll;
+                    };
+                    return;
+                }
+                // 候補がないので消滅
+                itemManager.Despawn(item);
+                return;
+            }
+            floorManager.SetItem(item, targetPosition.position);
+            status = GameStatus.EnemyControll;
+        };
+    }
+
     private void TakeItem()
     {
         var item = floorManager.GetItem(player.Position);
@@ -173,6 +239,7 @@ public class GameController : MonoBehaviour
         }
         floorManager.RemoveItem(item);
         ServiceLocator.Instance.ItemManager.Despawn(item);
+        status = GameStatus.EnemyControll;
     }
 
     private IEnumerator UIControll()

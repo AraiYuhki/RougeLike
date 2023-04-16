@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 [Serializable]
@@ -8,12 +9,14 @@ public abstract class UnitData
 {
     public const int MaxInventorySize = 20;
     public const int MaxAtk = 8;
-    private int atk = 1;
+    [SerializeField]
+    protected int atk = 1;
+
     public int TotalExp { get; set; } = 0;
-    public int MaxHP { get; protected set; } = 15;
+    public virtual int MaxHP { get; protected set; } = 15;
     public float Hp { get; set; } = 15f;
     public int Lv { get; set; } = 1;
-    public int Atk { get => atk; set => atk = Mathf.Min(value, MaxAtk); }
+    public virtual int Atk { get => atk; set => atk = Mathf.Min(value, MaxAtk); }
     public virtual int Def { get; set; } = 0;
     public UnitData(int hp) => Hp = MaxHP = hp;
     public Dictionary<ItemBase, int> Inventory { get; protected set; } = new Dictionary<ItemBase, int>();
@@ -84,8 +87,37 @@ public partial class PlayerData : UnitData
     }
 }
 
-public class EnemyData : UnitData
+[Serializable]
+public class EnemyData : UnitData, ICloneable
 {
-    public int Exp { get; set; } = 5;
+    [SerializeField]
+    private string name = string.Empty;
+    [SerializeField]
+    private int exp = 5;
+    [SerializeField]
+    private int maxHP = 10;
+    [SerializeField]
+    private int def = 0;
+    [SerializeField]
+    private List<DropItemData> dropItemList = new List<DropItemData>();
+    
+    public string Name { get => name; private set => name = value; }
+    public List<DropItemData> DropItemList { get => dropItemList; private set => dropItemList = value; }
+    public override int Def { get => def; set => def = value; }
+    public override int MaxHP { get => maxHP; protected set => maxHP = value; }
+    public int Exp { get => exp; set => exp = value; }
     public EnemyData(int hp) : base(hp) { }
+
+    public object Clone()
+    {
+        return new EnemyData(MaxHP)
+        {
+            Name = Name,
+            MaxHP = MaxHP,
+            Atk = Atk,
+            Def = Def,
+            DropItemList = new List<DropItemData>(DropItemList),
+            Exp = Exp,
+        };
+    }
 }

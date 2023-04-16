@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class FloorManager : MonoBehaviour
 {
@@ -25,13 +27,51 @@ public class FloorManager : MonoBehaviour
     private Unit[,] units;
     private Item[,] items;
 
-    public Unit GetUnit(int x, int y) => units[x, y];
-    public Unit GetUnit(Vector2Int position) => units[position.x, position.y];
+    public bool CanDrop(int x, int y)
+    {
+        var tile = GetTile(x, y);
+        if (tile.IsWall)
+            return false;
+        if (GetItem(x, y) != null)
+            return false;
+        return true;
+    }
+
+    public bool CanDrop(Vector2Int position) => CanDrop(position.x, position.y);
+
+    public Unit GetUnit(int x, int y)
+    {
+        if (x < 0 || x >= units.GetLength(0) || y < 0 || y >= units.GetLength(1))
+            return null;
+        return units[x, y];
+    }
+    public Unit GetUnit(Vector2Int position) => GetUnit(position.x, position.y);
     public int GetUnitCount() => units.ToArray().Where(unit => unit != null).Count();
 
     public Item GetItem(int x, int y) => items[x, y];
     public Item GetItem(Vector2Int position) => items[position.x, position.y];
     public int GetItemCount() => items.ToArray().Where(unit => unit != null).Count();
+
+    public List<TileData> GetAroundTilesAt(Vector2Int position)
+    {
+        var candidate = new List<TileData>() {
+            GetTile(position + new Vector2Int(-1, 1)),
+            GetTile(position + new Vector2Int(0, 1)),
+            GetTile(position + new Vector2Int(1, 1)),
+            GetTile(position + new Vector2Int(1, 0)),
+            GetTile(position + new Vector2Int(-1, 0)),
+            GetTile(position + new Vector2Int(1, -1)),
+            GetTile(position + new Vector2Int(0, -1)),
+            GetTile(position + new Vector2Int(-1, -1)),
+        };
+        return candidate.Where(tile => tile != null).ToList();
+    }
+
+    public TileData GetCanDropTile(Vector2Int candidate)
+    {
+        var tiles = GetAroundTilesAt(candidate).Where(tile => CanDrop(tile.Position)).ToArray();
+        return tiles.Any() ? tiles.Random() : null;
+    }
 
     public List<TileData> GetRoomTiles() => Map.ToArray().Where(tile => tile.IsRoom).ToList();
     public List<TileData> GetRoomTiles(int roomId) => Map.ToArray().Where(tile => tile.IsRoom && tile.Id == roomId).ToList();
@@ -41,8 +81,27 @@ public class FloorManager : MonoBehaviour
         .Where(tile => tile.IsRoom && tile.Id != excludeRoomId && GetUnit(tile.Position) == null)
         .ToList();
 
-    public TileData GetTile(int x, int y) => Map[x, y];
+    public TileData GetTile(int x, int y)
+    {
+        if (x < 0 || x >= Map.GetLength(0)
+        ||  y < 0 || y >= Map.GetLength(1))
+            return null;
+        return Map[x, y];
+    }
     public TileData GetTile(Vector2Int position) => GetTile(position.x, position.y);
+
+    public (int length, Vector2Int position, Enemy enemy) GetHitPosition(Vector2Int startPosition, Vector2Int vector, int length = 10)
+    {
+        for (var count = 1; count < length; count++)
+        {
+            var unit = GetUnit(startPosition + vector * count);
+            if (unit is Enemy enemy) return (count, unit.Position, enemy);
+            var tile = GetTile(startPosition + vector * count);
+            if (tile.IsWall)
+                return (count - 1, GetTile(startPosition + vector * (count - 1)).Position, null);
+        }
+        return (length, startPosition + vector * length, null);
+    }
 
     public void CreateAsync(int width, int height, int maxRoom, bool isTower)
     {

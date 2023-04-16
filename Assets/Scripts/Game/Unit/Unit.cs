@@ -9,6 +9,7 @@ public class Unit : MonoBehaviour
     public float DestAngle { get; set; }
 
     public bool EndRotation { get; protected set; }
+    public Vector2Int Angle { get; protected set; } = Vector2Int.up;
 
     public event Action<Unit, Vector2Int> OnMoved;
     public event Action<Unit, Unit> OnAttack;
@@ -40,7 +41,7 @@ public class Unit : MonoBehaviour
     public virtual void Attack(Unit target, TweenCallback onEndAttack = null)
     {
         var damage = DamageUtil.GetDamage(this, target);
-        var targetPosition = target.transform.localPosition;
+        var targetPosition = new Vector3(target.Position.x, target.transform.localPosition.y, target.Position.y);
         var currentPosition = transform.localPosition;
         var sequence = DOTween.Sequence();
         sequence.Append(transform.DOLocalMove(targetPosition, 0.2f).SetEase(Ease.InCubic));
@@ -82,6 +83,7 @@ public class Unit : MonoBehaviour
     {
         Hp -= damage;
         OnDamage?.Invoke(attacker, damage);
+        Debug.LogError($"{name}ÇÕ{damage}É_ÉÅÅ[ÉWÇéÛÇØÇΩ");
         if (Hp <= 0)
             Dead(attacker);
     }
@@ -89,7 +91,10 @@ public class Unit : MonoBehaviour
     public void Dead(Unit attacker)
     {
         if (this is Enemy enemy && attacker != null)
+        {
             attacker.AddExp(enemy.Data.Exp);
+            Debug.LogError($"{enemy.Data.Name}ÇÕì|ÇÍÇΩ");
+        }
         OnDead?.Invoke();
     }
 
@@ -112,6 +117,7 @@ public class Unit : MonoBehaviour
 
     public virtual void SetDestAngle(Vector2Int move)
     {
+        Angle = move;
         var destAngle = Vector3.SignedAngle(Vector3.forward, new Vector3(move.x, 0f, move.y), Vector3.up);
         transform.DORotate(new Vector3(0f, destAngle, 0f), 0.1f).SetEase(Ease.OutCubic);
     }

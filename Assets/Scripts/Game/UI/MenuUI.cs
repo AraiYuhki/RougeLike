@@ -28,14 +28,20 @@ public class MenuUI : MonoBehaviour
     private PlayerData Data => Player.Data;
     private bool isOpened = false;
     private ControllType type = ControllType.Inventory;
-    private Action usedCallback;
-    private Action equipedCallback;
+    private Action onUsed;
+    private Action<ItemBase> onDropItem;
+    private Action<ItemBase> onThrowItem;
+    private Action onTakeItem;
+    private Action onEquiped;
 
-    public void Initialize(Player player, Action usedCallback)
+    public void Initialize(Player player, Action onUsed, Action onTakeItem, Action<ItemBase> onThrowItem, Action<ItemBase> onDropItem)
     {
         inventoryUI.Initialize(player);
         statusUI.Initialize(player);
-        this.usedCallback = usedCallback;
+        this.onUsed = onUsed;
+        this.onTakeItem = onTakeItem;
+        this.onThrowItem = onThrowItem;
+        this.onDropItem = onDropItem;
     }
 
     public void Open(TweenCallback onComplete = null)
@@ -102,10 +108,11 @@ public class MenuUI : MonoBehaviour
             }
             else if (inventoryUI.SelectedItem is UsableItemData data)
             {
-                menu.Add(("使う", () => { UseItem(data); }));
+                menu.Add(("使う", () => UseItem(data)));
             }
-            menu.Add(("投げる", () => { }));
-            menu.Add(("置く", () => { }));
+            menu.Add(("投げる", () => { ThrowItem(); }));
+            if (ServiceLocator.Instance.FloorManager.GetItem(Player.Position) == null)
+                menu.Add(("置く", DropItem));
             menu.Add(("戻る", () =>
             {
                 useMenuUI.Close();
@@ -156,14 +163,14 @@ public class MenuUI : MonoBehaviour
         if (!data.IsStackable)
         {
             Data.Inventory.Remove(data);
-            Close(() => usedCallback?.Invoke());
+            Close(() => onUsed?.Invoke());
             return;
         }
 
         Data.Inventory[data]--;
         if (Data.Inventory[data] <= 0)
             Player.Data.Inventory.Remove(data);
-        Close(() => usedCallback?.Invoke());
+        Close(() => onUsed?.Invoke());
     }
 
     private void EquipWeapon(WeaponData weapon)
@@ -180,5 +187,27 @@ public class MenuUI : MonoBehaviour
         Debug.LogError($"{shield.Name}を装備した");
         inventoryUI.UpdateStatus();
         CloseUseMenu();
+    }
+
+    private void ThrowItem()
+    {
+        var target = inventoryUI.SelectedItem;
+        Player.Data.Inventory.Remove(target);
+        Debug.LogError($"{target.Name}を投げた");
+        Close(() => onThrowItem?.Invoke(target));
+    }
+
+    private void TakeItem()
+    {
+        onTakeItem?.Invoke();
+        Close();
+    }
+
+    private void DropItem()
+    {
+        var target = inventoryUI.SelectedItem;
+        Player.Data.Inventory.Remove(target);
+        Debug.LogError($"{target.Name}を地面に置いた");
+        Close(() => onDropItem?.Invoke(target));
     }
 }

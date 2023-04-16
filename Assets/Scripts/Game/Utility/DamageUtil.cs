@@ -24,6 +24,10 @@ public static class DamageUtil
         return GetResult(ApplyDef(atk, player.Data.Def));
     }
 
+    // “Š±ƒ_ƒ[ƒW
+    public static int GetDamage(Player player, int baseAtk)
+        => player.Data.BaseAtk + Mathf.RoundToInt(player.Data.BaseAtk* (baseAtk - 8) / 16);
+
     private static float ApplyDef(int atk, int def) => atk * Mathf.Pow(0.9375f, def);
 
     private static int GetResult(float baseDamage) => Mathf.Max(0, (int)Random.Range(baseDamage * 0.875f, baseDamage * 1.1171875f));
