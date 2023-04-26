@@ -18,7 +18,7 @@ public class ItemManager : MonoBehaviour
     [SerializeField]
     private Item[] shieldTemplates = new Item[0];
 
-    private List<Item> itemList = new List<Item>();
+    public List<Item> ItemList { get; private set; } = new List<Item>();
     private FloorManager floorManager => ServiceLocator.Instance.FloorManager;
 
     public void Initialize(int count = 5)
@@ -59,7 +59,7 @@ public class ItemManager : MonoBehaviour
         var item = Instantiate(gemTemplates.First(), floorManager.transform);
         item.GemCount = price;
         item.SetPosition(floorManager.GetTile(position.x, position.y));
-        itemList.Add(item);
+        ItemList.Add(item);
         floorManager.SetItem(item, position);
         return item;
     }
@@ -72,7 +72,7 @@ public class ItemManager : MonoBehaviour
         var tile = floorManager.GetRoomTiles().Where(tile => floorManager.GetItem(tile.Position) == null).Random();
         item.SetPosition(tile);
         floorManager.SetItem(item, tile.Position);
-        itemList.Add(item);
+        ItemList.Add(item);
     }
 
     public void Spawn(int price)
@@ -83,12 +83,12 @@ public class ItemManager : MonoBehaviour
         var tile = floorManager.GetRoomTiles().Where(tile => floorManager.GetItem(tile.Position) == null).Random();
         item.SetPosition(tile);
         floorManager.SetItem(item, tile.Position);
-        itemList.Add(item);
+        ItemList.Add(item);
     }
 
     public void Despawn(Item item)
     {
-        itemList.Remove(item);
+        ItemList.Remove(item);
         Destroy(item.gameObject);
     }
 

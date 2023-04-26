@@ -11,7 +11,13 @@ public class Item : MonoBehaviour
     public int GemCount { get; set; } = 0;
     public bool IsGem => GemCount > 0;
 
-    public void SetPosition(TileData tile) => transform.localPosition = new Vector3(tile.Position.x, 0f, tile.Position.y);
+    public Vector2Int Position { get; private set; }
+
+    public void SetPosition(TileData tile)
+    {
+        Position = tile.Position;
+        transform.localPosition = new Vector3(tile.Position.X, 0f, tile.Position.Y);
+    }
 
     // Update is called once per frame
     void Update()

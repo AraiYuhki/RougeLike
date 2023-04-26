@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
-class Room
+[Serializable]
+public class Room
 {
     public int X { get; private set; }
     public int Y { get; private set; }
@@ -11,7 +14,7 @@ class Room
     public int ConnectX { get; private set; }
     public int ConnectY { get; private set; }
 
-    private Dictionary<int, Path> pathList = new Dictionary<int, Path>();
+    public List<int> ConnectedRooms { get; private set; } = new List<int>();
 
     public int EndX => X + Width;
 
@@ -34,16 +37,14 @@ class Room
 
     public void AddPath(int toRoomID, Path path)
     {
-        if (pathList.ContainsKey(toRoomID))
-        {
+        if (ConnectedRooms.Contains(toRoomID))
             return;
-        }
-        pathList.Add(toRoomID, path);
+        ConnectedRooms.Add(toRoomID);
     }
 
     public bool CheckPathBeing(int toRoomId)
     {
-        return pathList.ContainsKey(toRoomId);
+        return ConnectedRooms.Contains(toRoomId);
     }
 
     public void ScaleDown()

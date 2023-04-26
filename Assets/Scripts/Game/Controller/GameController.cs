@@ -204,7 +204,7 @@ public class GameController : MonoBehaviour
                     // ドロップアニメ
                     Debug.LogError(candidate.Position);
                     var dropTween = item.transform
-                    .DOLocalMove(new Vector3(candidate.Position.x, 0f, candidate.Position.y), 0.5f)
+                    .DOLocalMove(new Vector3(candidate.Position.X, 0f, candidate.Position.Y), 0.5f)
                     .SetEase(Ease.OutExpo)
                     .Play();
                     dropTween.onComplete += () =>

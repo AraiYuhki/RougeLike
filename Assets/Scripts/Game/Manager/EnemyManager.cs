@@ -15,6 +15,8 @@ public class EnemyManager : MonoBehaviour
     private int spawnedCount = 0;
     const int spawnIntervalTurn = 30;
 
+    public List<Enemy> Enemies => enemies.Select(enemy => enemy.Enemy).ToList();
+
     public void Initialize(Player player)
     {
         this.player = player;
@@ -34,7 +36,7 @@ public class EnemyManager : MonoBehaviour
         instance.OnDead += () =>
         {
             enemies.Remove(ai);
-            floorManager.RemoveUnit(instance);
+            floorManager.RemoveUnit(instance.Position);
             Destroy(instance.gameObject);
         };
         enemies.Add(ai);

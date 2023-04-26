@@ -60,17 +60,17 @@ public class Unit : MonoBehaviour
     public void MoveTo(Vector2Int destPosition, TweenCallback onComplete = null)
     {
         var diff = destPosition - Position;
+        OnMoved?.Invoke(this, destPosition);
         SetPosition(destPosition, onComplete);
         SetDestAngle(diff);
-        OnMoved?.Invoke(this, destPosition);
     }
 
     public void Move(Vector2Int move, TweenCallback onComplete = null)
     {
         var dest = Position + move;
+        OnMoved?.Invoke(this, dest);
         SetPosition(dest, onComplete);
         SetDestAngle(move);
-        OnMoved?.Invoke(this, dest);
     }
 
     public virtual void Heal(float value)

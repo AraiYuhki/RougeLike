@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-class Area
+public class Area
 {
     public struct AdjacentData
     {
@@ -25,10 +25,10 @@ class Area
 
     public Area(int x, int y, int width, int height)
     {
-        this.X = x;
-        this.Y = y;
-        this.Width = width;
-        this.Height = height;
+        X = x;
+        Y = y;
+        Width = width;
+        Height = height;
         Id = Count;
         Count++;
     }
@@ -44,7 +44,7 @@ class Area
         {
             if (Width < AreaSizeMin * 2) return;
             dividePoint = Random.Range(AreaSizeMin, Width - AreaSizeMin);
-            Debug.Log("width:" + Width + " dividePoint:" + dividePoint);
+            Debug.Log($"width:{Width} dividePoint:{dividePoint}");
             child[0] = new Area(X, Y, dividePoint, Height);
             child[1] = new Area(X + dividePoint, Y, Width - dividePoint, Height);
         }
@@ -63,13 +63,11 @@ class Area
     {
         if (child[0] == null && child[1] == null)
         {
-            Debug.Log(X + ":" + Y + ":" + Width + ":" + Height);
+            Debug.Log($"{X}:{Y}:{Width}:{Height}");
+            return;
         }
-        else
-        {
-            child[0].RecursivePrintStatus();
-            child[1].RecursivePrintStatus();
-        }
+        child[0]?.RecursivePrintStatus();
+        child[1]?.RecursivePrintStatus();
     }
 
     public void RecursiveGetArea(ref List<Area> result)
@@ -79,8 +77,8 @@ class Area
             result.Add(this);
             return;
         }
-        child[0].RecursiveGetArea(ref result);
-        child[1].RecursiveGetArea(ref result);
+        child[0]?.RecursiveGetArea(ref result);
+        child[1]?.RecursiveGetArea(ref result);
     }
 
     public List<Room> RecursiveGetRoom(ref List<Room> result)
@@ -91,14 +89,8 @@ class Area
         }
         else
         {
-            if (child[0] != null)
-            {
-                child[0].RecursiveGetRoom(ref result);
-            }
-            if (child[1] != null)
-            {
-                child[1].RecursiveGetRoom(ref result);
-            }
+            child[0]?.RecursiveGetRoom(ref result);
+            child[1]?.RecursiveGetRoom(ref result);
         }
         return result;
     }
@@ -107,102 +99,88 @@ class Area
     {
         if (child[0] == null && child[1] == null)
         {
-            var width = Mathf.Max(RoomSizeMin, Random.Range(RoomSizeMin, this.Width - 2));
-            var height = Mathf.Max(RoomSizeMin, Random.Range(RoomSizeMin, this.Height - 2));
-            var x = Random.Range(1, this.Width - width - 1) + this.X;
-            var y = Random.Range(1, this.Height - height - 1) + this.Y;
+            var width = Mathf.Max(RoomSizeMin, Random.Range(RoomSizeMin, Width - 2));
+            var height = Mathf.Max(RoomSizeMin, Random.Range(RoomSizeMin, Height - 2));
+            var x = Random.Range(1, Width - width - 1) + X;
+            var y = Random.Range(1, Height - height - 1) + Y;
             Room = new Room(Id, x, y, width, height);
+            return;
         }
-        else
-        {
-            if (child[0] != null)
-            {
-                child[0].RecursiveCrateRoom();
-            }
-            if (child[1] != null)
-            {
-                child[1].RecursiveCrateRoom();
-            }
-        }
+        child[0]?.RecursiveCrateRoom();
+        child[1]?.RecursiveCrateRoom();
     }
 
     public void RecursiveCreatePath(ref List<Path> pathList)
     {
-        if (child[0] == null && child[1] == null)
+        if (child[0] != null || child[1] != null)
         {
-            for (var cnt = 0; cnt < adjacent.Count; cnt++)
+            child[0]?.RecursiveCreatePath(ref pathList);
+            child[1]?.RecursiveCreatePath(ref pathList);
+            return;
+        }
+
+        for (var index = 0; index < adjacent.Count; index++)
+        {
+            var toId = adjacent[index].area.Id;
+            if (Room.CheckPathBeing(toId))
             {
-                var toId = adjacent[cnt].area.Id;
-                if (Room.CheckPathBeing(toId))
-                {
-                    if (!adjacent[cnt].area.Room.CheckPathBeing(Id))
-                    {
-                        Debug.Log("エラー 片方の部屋にしか道が登録されていません！ fromArea:" + Id + " toArea:" + toId);
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-                var fromRoom = Room;
-                var toRoom = adjacent[cnt].area.Room;
-                var path = new Path();
-                var fromPosition = Vector2Int.zero;
-                var toPosition = Vector2Int.zero;
+                if (!adjacent[index].area.Room.CheckPathBeing(Id))
+                    Debug.Log($"エラー 片方の部屋にしか道が登録されていません！ fromArea:{Id} toArea:{toId}");
+                else
+                    continue;
+            }
+            var fromRoom = Room;
+            var toRoom = adjacent[index].area.Room;
+            var path = new Path();
+            var fromPosition = Vector2Int.zero;
+            var toPosition = Vector2Int.zero;
 
-                if (adjacent[cnt].isHorizontal)
+            if (adjacent[index].isHorizontal)
+            {
+                if (X > adjacent[index].area.X)
                 {
-                    if (X > adjacent[cnt].area.X)
-                    {
-                        fromPosition.x = fromRoom.X;
-                        toPosition.x = (toRoom.X + toRoom.Width);
-                        path.Dir = Path.Direction.LEFT;
-                    }
-                    else
-                    {
-                        fromPosition.x = fromRoom.X + fromRoom.Width;
-                        toPosition.x = toRoom.X;
-                        path.Dir = Path.Direction.RIGHT;
-                    }
-
-                    fromPosition.y = Random.Range(fromRoom.Y, fromRoom.Y + fromRoom.Height);
-                    toPosition.y = Random.Range(toRoom.Y, toRoom.Y + toRoom.Height);
+                    fromPosition.x = fromRoom.X;
+                    toPosition.x = toRoom.X + toRoom.Width;
+                    path.Dir = Path.Direction.Left;
                 }
                 else
                 {
-                    if (Y > adjacent[cnt].area.Y)
-                    {
-                        fromPosition.y = fromRoom.Y;
-                        toPosition.y = toRoom.Y + toRoom.Height;
-                        path.Dir = Path.Direction.UP;
-                    }
-                    else
-                    {
-                        fromPosition.y = fromRoom.Y + fromRoom.Height;
-                        toPosition.y = toRoom.Y;
-                        path.Dir = Path.Direction.DOWN;
-                    }
-                    fromPosition.x = Random.Range(fromRoom.X, fromRoom.X + fromRoom.Width);
-                    toPosition.x = Random.Range(toRoom.X, toRoom.X + toRoom.Width);
+                    fromPosition.x = fromRoom.X + fromRoom.Width;
+                    toPosition.x = toRoom.X;
+                    path.Dir = Path.Direction.Right;
                 }
-                path.From = fromPosition;
-                path.To = toPosition;
-                path.FromAreaId = Id;
-                path.ToAreaId = toId;
-                path.CreatePositionList(this);
 
-                fromRoom.AddPath(toId, path);
-                toRoom.AddPath(Id, path);
-                pathList.Add(path);
-                Debug.Log("fromRoom(" + fromRoom.X + "," + fromRoom.Y + ":" + fromRoom.Width + "," + fromRoom.Height + ")"
-                                + " toRoom(" + toRoom.X + "," + toRoom.Y + ":" + toRoom.Width + "," + toRoom.Height + ")");
-                Debug.Log("from(" + fromPosition.x + "," + fromPosition.y + ")" + " to(" + toPosition.x + "," + toPosition.y + ")");
+                fromPosition.y = Random.Range(fromRoom.Y, fromRoom.Y + fromRoom.Height);
+                toPosition.y = Random.Range(toRoom.Y, toRoom.Y + toRoom.Height);
             }
-        }
-        else
-        {
-            child[0].RecursiveCreatePath(ref pathList);
-            child[1].RecursiveCreatePath(ref pathList);
+            else
+            {
+                if (Y > adjacent[index].area.Y)
+                {
+                    fromPosition.y = fromRoom.Y;
+                    toPosition.y = toRoom.Y + toRoom.Height;
+                    path.Dir = Path.Direction.Up;
+                }
+                else
+                {
+                    fromPosition.y = fromRoom.Y + fromRoom.Height;
+                    toPosition.y = toRoom.Y;
+                    path.Dir = Path.Direction.Down;
+                }
+                fromPosition.x = Random.Range(fromRoom.X, fromRoom.X + fromRoom.Width);
+                toPosition.x = Random.Range(toRoom.X, toRoom.X + toRoom.Width);
+            }
+            path.From = fromPosition;
+            path.To = toPosition;
+            path.FromAreaId = Id;
+            path.ToAreaId = toId;
+            path.CreatePositionList(this);
+
+            fromRoom.AddPath(toId, path);
+            toRoom.AddPath(Id, path);
+            pathList.Add(path);
+            Debug.Log($"fromRoom({fromRoom.X},{fromRoom.Y}:{fromRoom.Width},{fromRoom.Height}) toRoom({toRoom.X},{toRoom.Y}:{toRoom.Width},{toRoom.Height})");
+            Debug.Log($"from({fromPosition.x},{fromPosition.y}) to({toPosition.x},{toPosition.y})");
         }
     }
 
@@ -210,31 +188,28 @@ class Area
     public void CreateAdjacentList(List<Area> list)
     {
         adjacent = new List<AdjacentData>();
-        for (var cnt = 0; cnt < list.Count; cnt++)
+        for (var index = 0; index < list.Count; index++)
         {
-            if (list[cnt] == this)
-            {
-                continue;
-            }
+            if (list[index] == this) continue;
             var data = new AdjacentData();
-            if (list[cnt].X + list[cnt].Width == X || X + Width == list[cnt].X)
+            if (list[index].X + list[index].Width == X || X + Width == list[index].X)
             {
-                if ((Y >= list[cnt].Y && Y <= list[cnt].Y + list[cnt].Height) || (list[cnt].Y >= Y && list[cnt].Y <= Y + Height))
+                if ((Y >= list[index].Y && Y <= list[index].Y + list[index].Height) || (list[index].Y >= Y && list[index].Y <= Y + Height))
                 {
-                    data.area = list[cnt];
+                    data.area = list[index];
                     data.isHorizontal = true;
                     adjacent.Add(data);
-                    Debug.Log(Id + " adjaceet width " + list[cnt].Id);
+                    Debug.Log($"{Id} adjaceet width {list[index].Id}");
                 }
             }
-            else if (list[cnt].Y + list[cnt].Height == Y || Y + Height == list[cnt].Y)
+            else if (list[index].Y + list[index].Height == Y || Y + Height == list[index].Y)
             {
-                if ((X >= list[cnt].X && X <= list[cnt].X + list[cnt].Width) || (list[cnt].X >= X && list[cnt].X <= X + Width))
+                if ((X >= list[index].X && X <= list[index].X + list[index].Width) || (list[index].X >= X && list[index].X <= X + Width))
                 {
-                    data.area = list[cnt];
+                    data.area = list[index];
                     data.isHorizontal = false;
                     adjacent.Add(data);
-                    Debug.Log(Id + " adjaceet width " + list[cnt].Id);
+                    Debug.Log($"{Id} adjaceet width {list[index].Id}");
                 }
             }
         }

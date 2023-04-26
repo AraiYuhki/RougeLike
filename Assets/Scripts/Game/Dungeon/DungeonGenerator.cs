@@ -38,10 +38,10 @@ public class DungeonGenerator
 
         Debug.Log("area count:" + Area.Count);
 
-        var result = new List<Room>();
+        var roomList = new List<Room>();
         rootArea.RecursiveCrateRoom();
         rootArea.RecursivePrintStatus();
-        rootArea.RecursiveGetRoom(ref result);
+        rootArea.RecursiveGetRoom(ref roomList);
 
         var areaList = new List<Area>();
         rootArea.RecursiveGetArea(ref areaList);
@@ -57,12 +57,12 @@ public class DungeonGenerator
             {
                 map[x, y] = new TileData()
                 {
-                    Position = new Vector2Int(x, y),
+                    Position = new Point(x, y),
                     Type = TileType.Wall
                 };
             }
         }
-        foreach (var room in result)
+        foreach (var room in roomList)
         {
             var x = room.X;
             var y = room.Y;
@@ -72,7 +72,7 @@ public class DungeonGenerator
             {
                 for (var column = x; column < x + width; column++)
                 {
-                    map[row, column].Position = new Vector2Int(row, column);
+                    map[row, column].Position = new Point(row, column);
                     map[row, column].Type = TileType.Room;
                     map[row, column].Id = room.AreaId;
                 }
@@ -81,12 +81,12 @@ public class DungeonGenerator
 
         foreach (var path in pathList)
         {
-            foreach(var position in path.PathPositonList)
+            foreach(var position in path.PathPositionList)
             {
-                map[position.y, position.x].Position = position;
-                map[position.y, position.x].Type = TileType.Path;
+                map[position.Y, position.X].Position = position;
+                map[position.Y, position.X].Type = TileType.Path;
             }
         }
-        return new FloorData(map);
+        return new FloorData(map, roomList, pathList);
     }
 }

@@ -1,167 +1,205 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-class Path
+[Serializable]
+public class Path
 {
     public enum Direction
     {
-        UP = 0,
-        DOWN,
-        LEFT,
-        RIGHT,
+        Up = 0,
+        Down,
+        Left,
+        Right,
         MAX
     }
 
+    [SerializeField]
+    private int toAreaId;
+    [SerializeField]
+    private int fromAreaId;
+    [SerializeField]
+    private Point to;
+    [SerializeField]
+    private Point from;
+    [SerializeField]
+    private List<Point> pathPositionList = new List<Point>();
+    [SerializeField]
+    private Direction direction;
 
-    public int ToAreaId { get; set; }
-    public Vector2Int To { get; set; }
-    public Vector2Int From { get; set; }
-    public List<Vector2Int> PathPositonList { get; private set; }
-    public Direction Dir { get; set; }
+    public int ToAreaId
+    {
+        get => toAreaId;
+        set => toAreaId = value;
+    }
 
-    public int FromAreaId { get; set; }
+    public int FromAreaId
+    {
+        get => fromAreaId;
+        set => fromAreaId = value;
+    }
+
+    public Point To
+    {
+        get => to;
+        set => to = value;
+    }
+    public Point From
+    {
+        get => from;
+        set => from = value;
+    }
+
+    public List<Point> PathPositionList => pathPositionList;
+    public Direction Dir
+    {
+        get => direction;
+        set => direction = value;
+    }
+
+    public Path() { }
 
     public void CreatePositionList(Area fromArea)
     {
         var borderPosition = 0;
         switch (Dir)
         {
-            case Direction.UP:
+            case Direction.Up:
                 borderPosition = fromArea.Y;
                 break;
-            case Direction.DOWN:
+            case Direction.Down:
                 borderPosition = fromArea.Y + fromArea.Height;
                 break;
-            case Direction.LEFT:
+            case Direction.Left:
                 borderPosition = fromArea.X;
                 break;
-            case Direction.RIGHT:
+            case Direction.Right:
                 borderPosition = fromArea.X + fromArea.Width;
                 break;
         }
 
-        var fromPosition = new Vector2Int();
-        var toPosition = new Vector2Int();
+        var fromPosition = new Point();
+        var toPosition = new Point();
 
-        fromPosition.x = Mathf.Min(From.x, To.x);
-        fromPosition.y = Mathf.Min(From.y, To.y);
+        fromPosition.X = Mathf.Min(From.X, To.X);
+        fromPosition.Y = Mathf.Min(From.Y, To.Y);
 
-        toPosition.x = Mathf.Max(From.x, To.x);
-        toPosition.y = Mathf.Max(From.y, To.y);
+        toPosition.X = Mathf.Max(From.X, To.X);
+        toPosition.Y = Mathf.Max(From.Y, To.Y);
 
-        PathPositonList = new List<Vector2Int>();
-        if (Dir == Direction.UP || Dir == Direction.DOWN)
+        pathPositionList = new List<Point>();
+        if (Dir == Direction.Up || Dir == Direction.Down)
         {
-            var x = From.x;
-            if (From.y < To.y)
+            var x = From.X;
+            if (From.Y < To.Y)
             {
-                for (int y = From.y; y <= To.y; y++)
+                for (int y = From.Y; y <= To.Y; y++)
                 {
                     if (y == borderPosition)
                     {
-                        if (From.x < To.x)
+                        if (From.X < To.X)
                         {
-                            for (x = From.x; x < To.x; x++)
+                            for (x = From.X; x < To.X; x++)
                             {
-                                PathPositonList.Add(new Vector2Int(x, y));
+                                PathPositionList.Add(new Vector2Int(x, y));
                                 Debug.Log("(" + x + "," + y + ")");
                             }
                         }
                         else
                         {
-                            for (x = From.x; x > To.x; x--)
+                            for (x = From.X; x > To.X; x--)
                             {
-                                PathPositonList.Add(new Vector2Int(x, y));
+                                PathPositionList.Add(new Point(x, y));
                                 Debug.Log("(" + x + "," + y + ")");
                             }
                         }
                     }
-                    PathPositonList.Add(new Vector2Int(x, y));
+                    PathPositionList.Add(new Point(x, y));
                     Debug.Log("(" + x + "," + y + ")");
                 }
             }
             else
             {
-                for (var y = From.y; y >= To.y; y--)
+                for (var y = From.Y; y >= To.Y; y--)
                 {
                     if (y == borderPosition)
                     {
-                        if (From.x < To.x)
+                        if (From.X < To.X)
                         {
-                            for (x = From.x; x < To.x; x++)
+                            for (x = From.X; x < To.X; x++)
                             {
-                                PathPositonList.Add(new Vector2Int(x, y));
+                                PathPositionList.Add(new Point(x, y));
                                 Debug.Log("(" + x + "," + y + ")");
                             }
                         }
                         else
                         {
-                            for (x = From.x; x > To.x; x--)
+                            for (x = From.X; x > To.X; x--)
                             {
-                                PathPositonList.Add(new Vector2Int(x, y));
+                                PathPositionList.Add(new Point(x, y));
                                 Debug.Log("(" + x + "," + y + ")");
                             }
                         }
                     }
-                    PathPositonList.Add(new Vector2Int(x, y));
+                    PathPositionList.Add(new Point(x, y));
                     Debug.Log("(" + x + "," + y + ")");
                 }
             }
         }
         else
         {
-            var y = From.y;
-            if (From.x < To.x)
+            var y = From.Y;
+            if (From.X < To.X)
             {
-                for (var x = From.x; x <= To.x; x++)
+                for (var x = From.X; x <= To.X; x++)
                 {
                     if (x == borderPosition)
                     {
-                        if (From.y < To.y)
+                        if (From.X < To.X)
                         {
-                            for (y = From.y; y < To.y; y++)
+                            for (y = From.Y; y < To.Y; y++)
                             {
-                                PathPositonList.Add(new Vector2Int(x, y));
+                                PathPositionList.Add(new Point(x, y));
                                 Debug.Log("(" + x + "," + y + ")");
                             }
                         }
                         else
                         {
-                            for (y = From.y; y > To.y; y--)
+                            for (y = From.Y; y > To.Y; y--)
                             {
-                                PathPositonList.Add(new Vector2Int(x, y));
+                                PathPositionList.Add(new Point(x, y));
                                 Debug.Log("(" + x + "," + y + ")");
                             }
                         }
                     }
-                    PathPositonList.Add(new Vector2Int(x, y));
+                    PathPositionList.Add(new Point(x, y));
                     Debug.Log("(" + x + "," + y + ")");
                 }
             }
             else
             {
-                for (var x = From.x; x >= To.x; x--)
+                for (var x = From.X; x >= To.X; x--)
                 {
                     if (x == borderPosition)
                     {
-                        if (From.y < To.y)
+                        if (From.Y < To.Y)
                         {
-                            for (y = From.y; y < To.y; y++)
+                            for (y = From.Y; y < To.Y; y++)
                             {
-                                PathPositonList.Add(new Vector2Int(x, y));
+                                PathPositionList.Add(new Point(x, y));
                                 Debug.Log("(" + x + "," + y + ")");
                             }
                         }
                         else
                         {
-                            for (y = From.y; y > To.y; y--)
+                            for (y = From.Y; y > To.Y; y--)
                             {
-                                PathPositonList.Add(new Vector2Int(x, y));
+                                PathPositionList.Add(new Point(x, y));
                                 Debug.Log("(" + x + "," + y + ")");
                             }
                         }
                     }
-                    PathPositonList.Add(new Vector2Int(x, y));
+                    PathPositionList.Add(new Point(x, y));
                     Debug.Log("(" + x + "," + y + ")");
                 }
             }

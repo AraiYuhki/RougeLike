@@ -7,7 +7,7 @@ public class TileData
     /// <summary>
     /// À•W
     /// </summary>
-    public Vector2Int Position { get; set; }
+    public Point Position { get; set; }
     /// <summary>
     /// •”‰®‚©H
     /// </summary>

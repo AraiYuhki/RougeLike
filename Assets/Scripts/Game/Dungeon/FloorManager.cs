@@ -17,6 +17,9 @@ public class FloorManager : MonoBehaviour
     [SerializeField]
     private GameObject downStair;
 
+    [SerializeField]
+    private Minimap minimap;
+
     private AStar.Calculator rootFinder = null;
     private bool isTower;
     public FloorData FloorData { get; private set; }
@@ -128,6 +131,7 @@ public class FloorManager : MonoBehaviour
         }
         transform.parent.position = new Vector3(-width * 0.5f, 0f, -height * 0.5f);
         rootFinder = new AStar.Calculator(Map);
+        minimap.Initialize(FloorData);
     }
 
     public List<Vector2Int> GetRoot(Vector2Int startPosition, Vector2Int targetPosition)
@@ -140,7 +144,7 @@ public class FloorManager : MonoBehaviour
 
     public void OnMoveUnit(Unit unit, Vector2Int destPos)
     {
-        RemoveUnit(unit);
+        RemoveUnit(unit.Position);
         SetUnit(unit, destPos);
     }
 
@@ -171,6 +175,7 @@ public class FloorManager : MonoBehaviour
             {
                 if (items[x, y] == item)
                 {
+                    Debug.LogError($"({x}, {y}), {item.Position}");
                     items[x, y] = null;
                     return;
                 }

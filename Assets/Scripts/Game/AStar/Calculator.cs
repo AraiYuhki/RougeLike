@@ -41,8 +41,8 @@ namespace AStar
         public Calculator(TileData[,] map, Vector2Int startPoint, Vector2Int endPoint)
         {
             this.map = map;
-            this.StartPoint = startPoint;
-            this.EndPoint = endPoint;
+            StartPoint = startPoint;
+            EndPoint = endPoint;
             size = new Vector2Int(map.GetLength(0), map.GetLength(1));
             Nodes = new Node[size.x, size.y];
             for (var x = 0; x < size.x; x++)
@@ -98,10 +98,10 @@ namespace AStar
             foreach (var offset in OffsetList)
             {
                 var targetPosition = position + offset;
-                if (targetPosition.x < 0 || targetPosition.x >= size.x || targetPosition.y < 0 || targetPosition.y >= size.y)
+                if (targetPosition.X < 0 || targetPosition.X >= size.x || targetPosition.Y < 0 || targetPosition.Y >= size.y)
                     continue;
-                var targetNode = Nodes[targetPosition.x, targetPosition.y];
-                if (map[targetPosition.x, targetPosition.y].IsWall)
+                var targetNode = Nodes[targetPosition.X, targetPosition.Y];
+                if (map[targetPosition.X, targetPosition.Y].IsWall)
                     continue;
                 if (targetNode.State != NodeState.None)
                     continue;
@@ -114,7 +114,7 @@ namespace AStar
                 if (FloorManager != null && FloorManager.GetUnit(targetPosition) != null)
                     targetNode.Cost += 100f;
                 targetNode.CalculateEstimatedCost(EndPoint);
-                if (targetNode.Position.x == EndPoint.x && targetNode.Position.y == EndPoint.y)
+                if (targetNode.Position.X == EndPoint.x && targetNode.Position.Y == EndPoint.y)
                 {
                     return targetNode;
                 }

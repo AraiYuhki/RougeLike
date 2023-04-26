@@ -11,19 +11,19 @@ namespace AStar
 
     public class Node
     {
-        public Vector2Int Position { get; set; } = Vector2Int.zero;
+        public Point Position { get; set; } = new Point(0, 0);
         public float Cost { get; set; } = 0;
         public float Score { get; set; } = 0;
         public int EstimatedCost { get; set; } = 0;
         public NodeState State { get; set; } = NodeState.None;
         public Node Parent { get; set; } = null;
         public Node() { }
-        public Node(int x, int y) => Position = new Vector2Int(x, y);
+        public Node(int x, int y) => Position = new Point(x, y);
 
-        public void CalculateEstimatedCost(Vector2Int endPoint)
+        public void CalculateEstimatedCost(Point endPoint)
         {
-            var x = Mathf.Abs(Position.x - endPoint.x);
-            var y = Mathf.Abs(Position.y - endPoint.y);
+            var x = Mathf.Abs(Position.X - endPoint.X);
+            var y = Mathf.Abs(Position.Y - endPoint.Y);
             EstimatedCost = Mathf.Max(x, y);
             Score = Cost + EstimatedCost;
         }
