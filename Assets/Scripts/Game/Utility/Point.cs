@@ -1,6 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using UnityEngine;
 
 [Serializable]
@@ -56,4 +54,5 @@ public class Point
     }
 
     public override int GetHashCode() => HashCode.Combine(x, y, X, Y);
+    public override string ToString() => $"({x}, {y})";
 }

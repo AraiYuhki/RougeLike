@@ -89,121 +89,69 @@ public class Path
 
         pathPositionList = new List<Point>();
         if (Dir == Direction.Up || Dir == Direction.Down)
-        {
-            var x = From.X;
-            if (From.Y < To.Y)
-            {
-                for (int y = From.Y; y <= To.Y; y++)
-                {
-                    if (y == borderPosition)
-                    {
-                        if (From.X < To.X)
-                        {
-                            for (x = From.X; x < To.X; x++)
-                            {
-                                PathPositionList.Add(new Vector2Int(x, y));
-                                Debug.Log("(" + x + "," + y + ")");
-                            }
-                        }
-                        else
-                        {
-                            for (x = From.X; x > To.X; x--)
-                            {
-                                PathPositionList.Add(new Point(x, y));
-                                Debug.Log("(" + x + "," + y + ")");
-                            }
-                        }
-                    }
-                    PathPositionList.Add(new Point(x, y));
-                    Debug.Log("(" + x + "," + y + ")");
-                }
-            }
-            else
-            {
-                for (var y = From.Y; y >= To.Y; y--)
-                {
-                    if (y == borderPosition)
-                    {
-                        if (From.X < To.X)
-                        {
-                            for (x = From.X; x < To.X; x++)
-                            {
-                                PathPositionList.Add(new Point(x, y));
-                                Debug.Log("(" + x + "," + y + ")");
-                            }
-                        }
-                        else
-                        {
-                            for (x = From.X; x > To.X; x--)
-                            {
-                                PathPositionList.Add(new Point(x, y));
-                                Debug.Log("(" + x + "," + y + ")");
-                            }
-                        }
-                    }
-                    PathPositionList.Add(new Point(x, y));
-                    Debug.Log("(" + x + "," + y + ")");
-                }
-            }
-        }
+            CreatePositionListVertical(borderPosition);
         else
+            CreatePositionListHorizontal(borderPosition);
+    }
+
+    private void CreatePositionListVertical(int borderPosition)
+    {
+        var x = From.X;
+        if (From.Y < To.Y)
         {
-            var y = From.Y;
-            if (From.X < To.X)
+            for (int y = From.Y; y <= To.Y; y++)
             {
-                for (var x = From.X; x <= To.X; x++)
-                {
-                    if (x == borderPosition)
-                    {
-                        if (From.X < To.X)
-                        {
-                            for (y = From.Y; y < To.Y; y++)
-                            {
-                                PathPositionList.Add(new Point(x, y));
-                                Debug.Log("(" + x + "," + y + ")");
-                            }
-                        }
-                        else
-                        {
-                            for (y = From.Y; y > To.Y; y--)
-                            {
-                                PathPositionList.Add(new Point(x, y));
-                                Debug.Log("(" + x + "," + y + ")");
-                            }
-                        }
-                    }
-                    PathPositionList.Add(new Point(x, y));
-                    Debug.Log("(" + x + "," + y + ")");
-                }
+                if (y == borderPosition) CreatePositionListHorizontal(ref x, y);
+                PathPositionList.Add(new Point(x, y));
             }
-            else
-            {
-                for (var x = From.X; x >= To.X; x--)
-                {
-                    if (x == borderPosition)
-                    {
-                        if (From.Y < To.Y)
-                        {
-                            for (y = From.Y; y < To.Y; y++)
-                            {
-                                PathPositionList.Add(new Point(x, y));
-                                Debug.Log("(" + x + "," + y + ")");
-                            }
-                        }
-                        else
-                        {
-                            for (y = From.Y; y > To.Y; y--)
-                            {
-                                PathPositionList.Add(new Point(x, y));
-                                Debug.Log("(" + x + "," + y + ")");
-                            }
-                        }
-                    }
-                    PathPositionList.Add(new Point(x, y));
-                    Debug.Log("(" + x + "," + y + ")");
-                }
-            }
+            return;
         }
+
+        for (var y = From.Y; y >= To.Y; y--)
+        {
+            if (y == borderPosition) CreatePositionListHorizontal(ref x, y);
+            PathPositionList.Add(new Point(x, y));
+        }
+    }
+
+    private void CreatePositionListVertical(int x, ref int y)
+    {
+        if (From.Y < To.Y)
+        {
+            for (y = From.Y; y < To.Y; y++) PathPositionList.Add(new Point(x, y));
+            return;
+        }
+        for (y = From.Y; y > To.Y; y--) PathPositionList.Add(new Point(x, y));
+    }
+
+    private void CreatePositionListHorizontal(int borderPosition)
+    {
+        var y = From.Y;
+        if (From.X < To.X)
+        {
+            for (var x = From.X; x <= To.X; x++)
+            {
+                if (x == borderPosition) CreatePositionListVertical(x, ref y);
+                PathPositionList.Add(new Point(x, y));
+            }
+            return;
+        }
+
+        for (var x = From.X; x >= To.X; x--)
+        {
+            if (x == borderPosition) CreatePositionListVertical(x, ref y);
+            PathPositionList.Add(new Point(x, y));
+        }
+    }
+
+    private void CreatePositionListHorizontal(ref int x, int y)
+    {
+        if (From.X < To.X)
+        {
+            for (x = From.X; x < To.X; x++) PathPositionList.Add(new Point(x, y));
+            return;
+        }
+        for (x = From.X; x > To.X; x--) PathPositionList.Add(new Point(x, y));
     }
 
 }

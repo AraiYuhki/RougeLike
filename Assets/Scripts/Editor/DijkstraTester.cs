@@ -13,11 +13,15 @@ public class DijkstraTester : EditorWindow
     private int width = 20;
     private int height = 20;
     private int roomCount = 4;
+    private float deletePercent = 30f;
 
     private int startId = 0;
     private int endId = 0;
 
-    private Vector3 origin = new Vector2(0, 160f);
+    private bool drawMap = false;
+    private bool visibleDeleted = false;
+
+    private Vector3 origin = new Vector2(0, 130f);
 
     [MenuItem("Tools/ダイクストラtester")]
     public static void Open()
@@ -34,6 +38,7 @@ public class DijkstraTester : EditorWindow
             width = EditorGUILayout.IntField("幅", width);
             height = EditorGUILayout.IntField("奥行", height);
             roomCount = EditorGUILayout.IntField("部屋数", roomCount);
+            deletePercent = EditorGUILayout.Slider("通路削除確立", deletePercent, 0f, 1f);
         }
         if (GUILayout.Button("生成"))
             Generate();
@@ -49,7 +54,31 @@ public class DijkstraTester : EditorWindow
             var dijkstra = new Dijkstra.RootFinder(floorData);
             dijkstra.Execute(startId, endId);
         }
-        //DrawFloorPreview();
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            drawMap = EditorGUILayout.Toggle("マップ描画", drawMap);
+            visibleDeleted = EditorGUILayout.Toggle("削除した経路を表示", visibleDeleted);
+        }
+        if (drawMap)
+            DrawFloorPreview();
+        else
+            DrawGraph();
+    }
+
+    private void LoadFile()
+    {
+        var filePath = EditorUtility.OpenFilePanelWithFilters("フロア情報選択", FloorUtil.SavePath, new string[] { "フロア情報", "flr" });
+        if (string.IsNullOrEmpty(filePath)) return;
+        floorData = FloorUtil.Deserialize(filePath);
+    }
+
+    private void Generate()
+    {
+        floorData = DungeonGenerator.GenerateFloor(width, height, roomCount, deletePercent);
+        Debug.LogError(floorData.Rooms.Count);
+    }
+    private void DrawGraph()
+    {
         Handles.color = Color.cyan;
         var style = new GUIStyle();
         style.normal.textColor = Color.cyan;
@@ -60,7 +89,7 @@ public class DijkstraTester : EditorWindow
             Handles.Label(position - Vector3.up * 15f, room.AreaId.ToString(), style);
         }
         Handles.color = Color.white;
-        foreach(var path in floorData.Paths)
+        foreach (var path in floorData.Paths)
         {
             var from = floorData.Rooms.First(room => room.AreaId == path.FromAreaId);
             var to = floorData.Rooms.First(room => room.AreaId == path.ToAreaId);
@@ -71,31 +100,17 @@ public class DijkstraTester : EditorWindow
         }
     }
 
-    private void LoadFile()
-    {
-        var filePath = EditorUtility.OpenFilePanelWithFilters("フロア情報選択", FloorUtil.SavePath, new string[] { "フロア情報", "flr" });
-        if (string.IsNullOrEmpty(filePath)) return;
-        floorData = FloorUtil.Deserialize(filePath);
-        origin.y = floorData.Size.Y;
-    }
-
-    private void Generate()
-    {
-        floorData = DungeonGenerator.GenerateFloor(width, height, roomCount);
-        origin.y = floorData.Size.Y;
-        Debug.LogError(floorData.Rooms.Count);
-    }
-
     private void DrawFloorPreview()
     {
         if (floorData == null) return;
         var rect = new Rect();
         rect.height = rect.width = 9;
+        var origin = new Vector2(0, 200f);
         for (var x = 0; x < floorData.Size.X; x++)
         {
             for (var y = 0; y < floorData.Size.Y; y++)
             {
-                rect.position = new Vector2(x * 10, y * 10) + new Vector2(origin.x, origin.y);
+                rect.position = new Vector2(x * 10, y * 10) + origin;
                 EditorGUI.DrawRect(rect, NodeColor(floorData.Map[x, y]));
             }
         }
@@ -107,6 +122,16 @@ public class DijkstraTester : EditorWindow
             return Color.magenta;
         else if (floorData.SpawnPoint == tile.Position)
             return Color.green;
-        return tile.Type == TileType.Wall ? Color.black : Color.white;
+        switch (tile.Type)
+        {
+            case TileType.Wall:
+                return Color.black;
+            case TileType.Hole:
+                return Color.blue;
+            case TileType.Deleted:
+                return visibleDeleted ? Color.red : Color.black;
+            default:
+                return Color.white;
+        }
     }
 }

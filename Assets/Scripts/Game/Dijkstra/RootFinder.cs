@@ -7,20 +7,6 @@ using UnityEngine;
 
 namespace Dijkstra
 {
-    /// <summary>
-    /// •Ó
-    /// </summary>
-    public struct Edge
-    {
-        public int to;
-        public int cost;
-        public Edge(int to, int cost)
-        {
-            this.to = to;
-            this.cost = cost;
-        }
-    }
-
     public enum NodeStatus
     {
         None,
@@ -36,6 +22,12 @@ namespace Dijkstra
         public int Score { get; set; } = int.MaxValue;
         public Node Parent { get; set; }
         public Dictionary<int, int> ConnectedCosts { get; set; } = new Dictionary<int, int>();
+        public void Clear()
+        {
+            Score = int.MaxValue;
+            Parent = null;
+            Status = NodeStatus.None;
+        }
     }
 
     public class RootFinder
@@ -46,10 +38,13 @@ namespace Dijkstra
         public RootFinder(FloorData data)
         {
             nodes = data.Rooms.ToDictionary(room => room.AreaId, room => new Node() { Room = room });
-            foreach(var path in data.Paths)
+            foreach (var path in data.Paths)
+            {
                 nodes[path.FromAreaId].ConnectedCosts[path.ToAreaId] = path.PathPositionList.Count;
+                nodes[path.ToAreaId].ConnectedCosts[path.FromAreaId] = path.PathPositionList.Count;
+            }
         }
-        public void Execute(int from, int to)
+        public List<int> Execute(int from, int to)
         {
             toId = to;
             nodes[from].Status = NodeStatus.Open;
@@ -65,7 +60,7 @@ namespace Dijkstra
             if (goal.Parent == null)
             {
                 Debug.LogError($"Way to goal is not found {from} -> {to}");
-                return;
+                return null;
             }
 
             var current = goal;
@@ -77,6 +72,7 @@ namespace Dijkstra
             }
             result.Reverse();
             Debug.LogError(string.Join("->", result));
+            return result;
         }
 
         private Node OpenConnected(Node node)
@@ -87,7 +83,7 @@ namespace Dijkstra
                 var nextNode = nodes[next];
                 if (nextNode.Status == NodeStatus.Close) continue;
                 nextNode.Status = NodeStatus.Open;
-                var nextScore = node.Score + (node.ConnectedCosts.ContainsKey(nextNode.Id) ? node.ConnectedCosts[nextNode.Id] : nextNode.ConnectedCosts[node.Id]);
+                var nextScore = node.Score +node.ConnectedCosts[nextNode.Id];
                 if (nextNode.Score > nextScore)
                 {
                     Debug.LogError($"Update cost {nextNode.Id} {nextNode.Score} -> {nextScore}");
@@ -95,6 +91,36 @@ namespace Dijkstra
                     nextNode.Score = nextScore;
                 }
             }
+            return null;
+        }
+
+        public static List<Room> FindClosedPath(List<Room> rooms, List<Path> paths)
+        {
+            var nodes = rooms.ToDictionary(room => room.AreaId, room => new Node() { Room = room });
+            foreach (var path in paths)
+                nodes[path.FromAreaId].ConnectedCosts[path.ToAreaId] = path.PathPositionList.Count;
+
+            var start = rooms.Random().AreaId;
+            nodes[start].Status = NodeStatus.Open;
+            var openNodes = new List<Node>() { nodes[start] };
+            var checkedNodes = new List<Room>();
+            while(openNodes.Any())
+            {
+                foreach(var node in openNodes.ToList())
+                {
+                    node.Status = NodeStatus.Close;
+                    checkedNodes.Add(node.Room);
+                    openNodes.Remove(node);
+                    foreach(var next in node.Room.ConnectedRooms)
+                    {
+                        var nextNode = nodes[next];
+                        if (nextNode.Status == NodeStatus.Close) continue;
+                        nextNode.Status = NodeStatus.Open;
+                        openNodes.Add(nextNode);
+                    }
+                }
+            }
+            if (nodes.Where(node => node.Value.Status != NodeStatus.Close).Any()) return checkedNodes;
             return null;
         }
     }

@@ -1,7 +1,5 @@
 using DG.Tweening;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -64,8 +62,11 @@ public class DefaultAI : EnemyAI
             }
             targetPosition = Enemy.TargetTile.Position;
         }
-
+        var time = new System.Diagnostics.Stopwatch();
+        time.Start();
         var root = floorInfo.GetRoot(Enemy.Position, targetPosition);
+        time.Stop();
+        Debug.LogError(time.ElapsedMilliseconds + "ms");
         if (root == null)
         {
             base.Move(onComplete);

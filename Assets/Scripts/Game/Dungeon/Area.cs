@@ -39,11 +39,10 @@ public class Area
         if (Count > MaxRoomNum) return;
 
         var horizontal = (Random.Range(0, 2) == 1 && Height >= AreaSizeMin * 2);
-        var dividePoint = AreaSizeMin;
         if (horizontal)
         {
             if (Width < AreaSizeMin * 2) return;
-            dividePoint = Random.Range(AreaSizeMin, Width - AreaSizeMin);
+            var dividePoint = Random.Range(AreaSizeMin, Width - AreaSizeMin);
             Debug.Log($"width:{Width} dividePoint:{dividePoint}");
             child[0] = new Area(X, Y, dividePoint, Height);
             child[1] = new Area(X + dividePoint, Y, Width - dividePoint, Height);
@@ -51,7 +50,7 @@ public class Area
         else
         {
             if (Height < AreaSizeMin * 2) return;
-            dividePoint = Random.Range(AreaSizeMin, Height - AreaSizeMin);
+            var dividePoint = Random.Range(AreaSizeMin, Height - AreaSizeMin);
             child[0] = new Area(X, Y, Width, dividePoint);
             child[1] = new Area(X, Y + dividePoint, Width, Height - dividePoint);
         }

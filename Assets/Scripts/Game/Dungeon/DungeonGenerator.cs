@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using UnityEngine;
 
 public class DungeonGenerator
@@ -29,7 +31,7 @@ public class DungeonGenerator
         }
     }
 
-    public static FloorData GenerateFloor(int mapWidth = 20, int mapHeight = 20, int maxRoom = 3)
+    public static FloorData GenerateFloor(int mapWidth = 20, int mapHeight = 20, int maxRoom = 3, float deletePathPercent = 10f)
     {
         Area.Count = 0;
         Area.MaxRoomNum = maxRoom;
@@ -50,43 +52,9 @@ public class DungeonGenerator
 
         var pathList = new List<Path>();
         rootArea.RecursiveCreatePath(ref pathList);
-        var map = new TileData[mapWidth, mapHeight];
-        for (var x = 0; x < mapWidth; x++)
-        {
-            for (var y = 0; y < mapHeight; y++)
-            {
-                map[x, y] = new TileData()
-                {
-                    Position = new Point(x, y),
-                    Type = TileType.Wall
-                };
-            }
-        }
-        foreach (var room in roomList)
-        {
-            var x = room.X;
-            var y = room.Y;
-            var width = room.Width;
-            var height = room.Height;
-            for (var row = y; row < y + height; row++)
-            {
-                for (var column = x; column < x + width; column++)
-                {
-                    map[row, column].Position = new Point(row, column);
-                    map[row, column].Type = TileType.Room;
-                    map[row, column].Id = room.AreaId;
-                }
-            }
-        }
 
-        foreach (var path in pathList)
-        {
-            foreach(var position in path.PathPositionList)
-            {
-                map[position.Y, position.X].Position = position;
-                map[position.Y, position.X].Type = TileType.Path;
-            }
-        }
-        return new FloorData(map, roomList, pathList);
+        var data = new FloorData(mapWidth, mapHeight, roomList, pathList);
+        data.DeletePath(deletePathPercent);
+        return data;
     }
 }

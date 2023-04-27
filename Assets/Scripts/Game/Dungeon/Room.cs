@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
-using Random = UnityEngine.Random;
+using System.Linq;
 
 [Serializable]
 public class Room
@@ -11,10 +10,11 @@ public class Room
     public int Width { get; private set; }
     public int Height { get; private set; }
     public int AreaId { get; private set; }
-    public int ConnectX { get; private set; }
-    public int ConnectY { get; private set; }
 
-    public List<int> ConnectedRooms { get; private set; } = new List<int>();
+    public Dictionary<int, Path> Connected { get; private set; } = new Dictionary<int, Path>();
+
+    public List<int> ConnectedRooms => Connected.Keys.ToList();
+    public List<Path> ConnectedPathList => Connected.Values.ToList();
 
     public int EndX => X + Width;
 
@@ -29,51 +29,14 @@ public class Room
         Height = height;
     }
 
-    public void SetConnectPoint(int x, int y)
-    {
-        ConnectX = x;
-        ConnectY = y;
-    }
-
     public void AddPath(int toRoomID, Path path)
     {
-        if (ConnectedRooms.Contains(toRoomID))
-            return;
+        if (ConnectedRooms.Contains(toRoomID)) return;
         ConnectedRooms.Add(toRoomID);
+        ConnectedPathList.Add(path);
+        Connected.Add(toRoomID, path);
     }
 
-    public bool CheckPathBeing(int toRoomId)
-    {
-        return ConnectedRooms.Contains(toRoomId);
-    }
-
-    public void ScaleDown()
-    {
-        int direction = Random.Range(0, 2);
-        if (direction == 0 && Width > 1)
-        {
-            if (ConnectX - X > EndX - ConnectX)
-            {
-                X++;
-                Width--;
-            }
-            else if (EndX - ConnectX > 1)
-            {
-                Width--;
-            }
-        }
-        else if (Height > 1)
-        {
-            if (ConnectY - Y > EndY - ConnectY)
-            {
-                Y++;
-                Height--;
-            }
-            else if (EndY - ConnectY > 1)
-            {
-                Height--;
-            }
-        }
-    }
+    public bool CheckPathBeing(int toRoomId) => ConnectedRooms.Contains(toRoomId);
 }
 
