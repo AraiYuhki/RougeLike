@@ -38,12 +38,11 @@ public class Area
         if (Width < AreaSizeMin && Height < AreaSizeMin) return;
         if (Count > MaxRoomNum) return;
 
-        var horizontal = (Random.Range(0, 2) == 1 && Height >= AreaSizeMin * 2);
+        var horizontal = Random.Range(0, 2) == 1 && Height >= AreaSizeMin * 2;
         if (horizontal)
         {
             if (Width < AreaSizeMin * 2) return;
             var dividePoint = Random.Range(AreaSizeMin, Width - AreaSizeMin);
-            Debug.Log($"width:{Width} dividePoint:{dividePoint}");
             child[0] = new Area(X, Y, dividePoint, Height);
             child[1] = new Area(X + dividePoint, Y, Width - dividePoint, Height);
         }
@@ -60,11 +59,7 @@ public class Area
 
     public void RecursivePrintStatus()
     {
-        if (child[0] == null && child[1] == null)
-        {
-            Debug.Log($"{X}:{Y}:{Width}:{Height}");
-            return;
-        }
+        if (child[0] == null && child[1] == null) return;
         child[0]?.RecursivePrintStatus();
         child[1]?.RecursivePrintStatus();
     }
@@ -109,12 +104,12 @@ public class Area
         child[1]?.RecursiveCrateRoom();
     }
 
-    public void RecursiveCreatePath(ref List<Path> pathList)
+    public void RecursiveCreatePath(ref List<Path> pathList, ref int pathIndex)
     {
         if (child[0] != null || child[1] != null)
         {
-            child[0]?.RecursiveCreatePath(ref pathList);
-            child[1]?.RecursiveCreatePath(ref pathList);
+            child[0]?.RecursiveCreatePath(ref pathList, ref pathIndex);
+            child[1]?.RecursiveCreatePath(ref pathList, ref pathIndex);
             return;
         }
 
@@ -130,7 +125,8 @@ public class Area
             }
             var fromRoom = Room;
             var toRoom = adjacent[index].area.Room;
-            var path = new Path();
+            var path = new Path() { Id = pathIndex };
+            pathIndex++;
             var fromPosition = Vector2Int.zero;
             var toPosition = Vector2Int.zero;
 
@@ -171,15 +167,13 @@ public class Area
             }
             path.From = fromPosition;
             path.To = toPosition;
-            path.FromAreaId = Id;
-            path.ToAreaId = toId;
+            path.FromRoomId = Id;
+            path.ToRoomId = toId;
             path.CreatePositionList(this);
 
-            fromRoom.AddPath(toId, path);
-            toRoom.AddPath(Id, path);
+            fromRoom.AddPath(toId, path, path.From);
+            toRoom.AddPath(Id, path, path.To);
             pathList.Add(path);
-            Debug.Log($"fromRoom({fromRoom.X},{fromRoom.Y}:{fromRoom.Width},{fromRoom.Height}) toRoom({toRoom.X},{toRoom.Y}:{toRoom.Width},{toRoom.Height})");
-            Debug.Log($"from({fromPosition.x},{fromPosition.y}) to({toPosition.x},{toPosition.y})");
         }
     }
 
@@ -198,7 +192,6 @@ public class Area
                     data.area = list[index];
                     data.isHorizontal = true;
                     adjacent.Add(data);
-                    Debug.Log($"{Id} adjaceet width {list[index].Id}");
                 }
             }
             else if (list[index].Y + list[index].Height == Y || Y + Height == list[index].Y)
@@ -208,7 +201,6 @@ public class Area
                     data.area = list[index];
                     data.isHorizontal = false;
                     adjacent.Add(data);
-                    Debug.Log($"{Id} adjaceet width {list[index].Id}");
                 }
             }
         }

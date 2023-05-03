@@ -1,10 +1,8 @@
-using Codice.Utils;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using static UnityEngine.UI.Image;
 
 
 public class DijkstraTester : EditorWindow
@@ -22,12 +20,15 @@ public class DijkstraTester : EditorWindow
     private bool visibleDeleted = false;
 
     private Vector3 origin = new Vector2(0, 130f);
+    private List<Vector2Int> root = new List<Vector2Int>();
 
-    [MenuItem("Tools/ダイクストラtester")]
-    public static void Open()
-    {
-        GetWindow<DijkstraTester>();
-    }
+    private Vector2Int startPoint;
+    private Vector2Int endPoint;
+
+    private Dijkstra dijkstra;
+
+    [MenuItem("Tools/ダイクストラテスター")]
+    public static void Open() => GetWindow<DijkstraTester>();
 
     public void OnGUI()
     {
@@ -40,29 +41,50 @@ public class DijkstraTester : EditorWindow
             roomCount = EditorGUILayout.IntField("部屋数", roomCount);
             deletePercent = EditorGUILayout.Slider("通路削除確立", deletePercent, 0f, 1f);
         }
-        if (GUILayout.Button("生成"))
-            Generate();
+
+        if (GUILayout.Button("生成")) Generate();
+
         if (floorData == null) return;
+
         using(new EditorGUILayout.HorizontalScope())
         {
-            var roomIds = floorData.Rooms.Select(room => room.AreaId).ToArray();
+            var roomIds = floorData.Rooms.Select(room => room.Id).ToArray();
             startId = EditorGUILayout.IntPopup("開始地点", startId, roomIds.Select(id => id.ToString()).ToArray(), roomIds);
             endId = EditorGUILayout.IntPopup("終了地点", endId, roomIds.Select(id => id.ToString()).ToArray(), roomIds);
+            if (GUILayout.Button("経路探索"))
+            {
+                var root = dijkstra.GetRoot(startId, endId);
+                Debug.LogError(string.Join("->", root));
+            }
         }
-        if (GUILayout.Button("経路探索"))
+        using (new EditorGUILayout.HorizontalScope())
         {
-            var dijkstra = new Dijkstra.RootFinder(floorData);
-            dijkstra.Execute(startId, endId);
+            startPoint = EditorGUILayout.Vector2IntField("開始地点", startPoint);
+            endPoint = EditorGUILayout.Vector2IntField("終了地点", endPoint);
+            if (GUILayout.Button("チェックポイントリスト作成"))
+                CreateCheckPointList(startPoint, endPoint);
+            if (GUILayout.Button("ルートを破棄")) root.Clear();
         }
+
+
         using (new EditorGUILayout.HorizontalScope())
         {
             drawMap = EditorGUILayout.Toggle("マップ描画", drawMap);
             visibleDeleted = EditorGUILayout.Toggle("削除した経路を表示", visibleDeleted);
         }
-        if (drawMap)
-            DrawFloorPreview();
-        else
-            DrawGraph();
+
+        try
+        {
+            if (drawMap)
+                DrawFloorPreview();
+            else
+                DrawGraph();
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+            floorData = null;
+        }
     }
 
     private void LoadFile()
@@ -70,33 +92,45 @@ public class DijkstraTester : EditorWindow
         var filePath = EditorUtility.OpenFilePanelWithFilters("フロア情報選択", FloorUtil.SavePath, new string[] { "フロア情報", "flr" });
         if (string.IsNullOrEmpty(filePath)) return;
         floorData = FloorUtil.Deserialize(filePath);
+        dijkstra = new Dijkstra(floorData);
+        root?.Clear();
     }
 
     private void Generate()
     {
         floorData = DungeonGenerator.GenerateFloor(width, height, roomCount, deletePercent);
         Debug.LogError(floorData.Rooms.Count);
+        dijkstra = new Dijkstra(floorData);
+        root?.Clear();
     }
     private void DrawGraph()
     {
         Handles.color = Color.cyan;
         var style = new GUIStyle();
         style.normal.textColor = Color.cyan;
-        foreach (var room in floorData.Rooms)
+        foreach (var node in dijkstra.Nodes.Values)
         {
-            var position = new Vector3(room.X + room.EndX, room.Y + room.EndY) * 5f + origin;
+            var position = node.Position * 10f + origin;
             Handles.DrawSolidDisc(position, Vector3.forward, 5f);
-            Handles.Label(position - Vector3.up * 15f, room.AreaId.ToString(), style);
+            Handles.Label(position - Vector3.up * 15f, node.Id.ToString(), style);
         }
+        
         Handles.color = Color.white;
-        foreach (var path in floorData.Paths)
+
+        var pathList = new List<(int, int)>();
+        foreach(var node in dijkstra.Nodes.Values)
         {
-            var from = floorData.Rooms.First(room => room.AreaId == path.FromAreaId);
-            var to = floorData.Rooms.First(room => room.AreaId == path.ToAreaId);
-            var fromPosition = new Vector3(from.X + from.EndX, from.Y + from.EndY) * 5f + origin;
-            var toPosition = new Vector3(to.X + to.EndX, to.Y + to.EndY) * 5f + origin;
-            Handles.DrawLine(fromPosition, toPosition);
-            Handles.Label((fromPosition + toPosition) * 0.5f, path.PathPositionList.Count.ToString());
+            foreach (var pair in node.ConnectedCosts)
+            {
+                // 同じ線は一度だけ描画する
+                if (pathList.Contains((node.Id, pair.Key)) || pathList.Contains((pair.Key, node.Id))) continue;
+                var toNode = dijkstra.Nodes[pair.Key];
+                var cost = pair.Value;
+                pathList.Add((node.Id, toNode.Id));
+
+                Handles.DrawLine(node.Position * 10f + origin, toNode.Position * 10f + origin);
+                Handles.Label(((node.Position + toNode.Position) * 0.5f) * 10f + origin, cost.ToString());
+            }
         }
     }
 
@@ -111,9 +145,28 @@ public class DijkstraTester : EditorWindow
             for (var y = 0; y < floorData.Size.Y; y++)
             {
                 rect.position = new Vector2(x * 10, y * 10) + origin;
-                EditorGUI.DrawRect(rect, NodeColor(floorData.Map[x, y]));
+                var color = NodeColor(floorData.Map[x, y]);
+                if (startPoint.x == x && startPoint.y == y)
+                    color = Color.cyan;
+                else if (endPoint.x == x && endPoint.y == y)
+                    color = Color.yellow;
+                else if (root.Any(point => point.x == x && point.y == y))
+                    color = Color.red;
+                EditorGUI.DrawRect(rect, color);
             }
         }
+    }
+
+    private TileData GetTile(Vector2Int position)
+    {
+        return floorData.Map[position.x, position.y];
+    }
+
+    private void CreateCheckPointList(Vector2Int startPosition, Vector2Int endPosition)
+    {
+        var rootFinder = new Dijkstra(floorData);
+        root = rootFinder.GetCheckpoints(startPosition, endPosition);
+        root = rootFinder.GetRoot(startPosition, endPosition, root);
     }
 
     private Color NodeColor(TileData tile)

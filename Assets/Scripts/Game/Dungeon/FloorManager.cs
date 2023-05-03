@@ -20,7 +20,8 @@ public class FloorManager : MonoBehaviour
     [SerializeField]
     private Minimap minimap;
 
-    private AStar.Calculator rootFinder = null;
+    private Dijkstra dijkstra = null;
+    private AStar aStar = null;
     private bool isTower;
     public FloorData FloorData { get; private set; }
     public Vector2Int Size { get; private set; } = new Vector2Int(20, 20);
@@ -130,16 +131,52 @@ public class FloorManager : MonoBehaviour
             }
         }
         transform.parent.position = new Vector3(-width * 0.5f, 0f, -height * 0.5f);
-        rootFinder = new AStar.Calculator(Map);
+        aStar = new AStar(Map);
+        dijkstra = new Dijkstra(FloorData);
         minimap.Initialize(FloorData);
     }
 
     public List<Vector2Int> GetRoot(Vector2Int startPosition, Vector2Int targetPosition)
     {
-        rootFinder.StartPoint = startPosition;
-        rootFinder.EndPoint = targetPosition;
-        rootFinder.Clear();
-        return rootFinder.Execute();
+        aStar.StartPoint = startPosition;
+        aStar.EndPoint = targetPosition;
+        aStar.Clear();
+        return aStar.Execute();
+    }
+
+    public List<int> GetRootRooms(Vector2Int startPosition, Vector2Int targetPosition)
+    {
+        var startTile = GetTile(startPosition);
+        var targetTile = GetTile(targetPosition);
+        if (!startTile.IsRoom || !targetTile.IsRoom) return null;
+        return dijkstra.GetRoot(startTile.Id, targetTile.Id);
+    }
+
+    public Room GetRoom(int roomId) => FloorData.Rooms.FirstOrDefault(room => room.Id == roomId);
+
+    public List<TileData> CreateCheckPointList(Vector2Int startPosition, Vector2Int targetPosition)
+    {
+        var startTile = GetTile(startPosition);
+        var targetTile = GetTile(targetPosition);
+        var result = new List<TileData>();
+
+        var roomList = dijkstra.GetRoot(startTile.Id, targetTile.Id).Select(roomId => GetRoom(roomId)).ToList();
+
+        foreach ((var room, var index) in roomList.Select((room, index) => (room, index)))
+        {
+            // –Ú“I‚Ì•”‰®
+            if (room == roomList.Last())
+            {
+                result.Add(targetTile);
+                continue;
+            }
+            // ŽŸ‚Ì•”‰®‚ÉŒq‚ª‚é’Ê˜H‚ðŽæ“¾
+            var nextPath = room.ConnectedPathList[roomList[index + 1].Id];
+            result.Add(GetTile(nextPath.From));
+            result.Add(GetTile(nextPath.To));
+        }
+
+        return result;
     }
 
     public void OnMoveUnit(Unit unit, Vector2Int destPos)

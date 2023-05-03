@@ -1,5 +1,6 @@
 using DG.Tweening;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -34,6 +35,7 @@ public abstract class EnemyAI
 
 public class DefaultAI : EnemyAI
 {
+    protected List<int> rootRooms = new List<int>();
     public DefaultAI(FloorManager floorInfo, Enemy enemy, Player player) : base(floorInfo, enemy, player) { }
 
     public override void Move(TweenCallback onComplete = null)

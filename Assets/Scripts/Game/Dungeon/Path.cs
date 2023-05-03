@@ -15,9 +15,11 @@ public class Path
     }
 
     [SerializeField]
-    private int toAreaId;
+    private int id;
     [SerializeField]
-    private int fromAreaId;
+    private int toRoomId;
+    [SerializeField]
+    private int fromRoomId;
     [SerializeField]
     private Point to;
     [SerializeField]
@@ -27,16 +29,22 @@ public class Path
     [SerializeField]
     private Direction direction;
 
-    public int ToAreaId
+    public int Id
     {
-        get => toAreaId;
-        set => toAreaId = value;
+        get => id;
+        set => id = value;
     }
 
-    public int FromAreaId
+    public int ToRoomId
     {
-        get => fromAreaId;
-        set => fromAreaId = value;
+        get => toRoomId;
+        set => toRoomId = value;
+    }
+
+    public int FromRoomId
+    {
+        get => fromRoomId;
+        set => fromRoomId = value;
     }
 
     public Point To
@@ -56,6 +64,8 @@ public class Path
         get => direction;
         set => direction = value;
     }
+
+    public Point Center => (To + From) * 0.5f;
 
     public Path() { }
 

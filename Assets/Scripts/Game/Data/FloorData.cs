@@ -63,39 +63,38 @@ public class FloorData
         {
             foreach (var next in room.ConnectedRooms.ToList())
             {
-                var nextRoom = rooms.First(room => room.AreaId == next);
+                var nextRoom = rooms.First(room => room.Id == next);
                 if (room.ConnectedRooms.Count <= 1 || nextRoom.ConnectedRooms.Count <= 1) continue;
                 var random = UnityEngine.Random.Range(0f, 1f);
                 if (random > deletePercent) continue;
-                room.ConnectedRooms.Remove(next);
-
-                nextRoom.ConnectedRooms.Remove(room.AreaId);
+                room.RemovePath(next);
+                nextRoom.RemovePath(room.Id);
                 var target = paths.FirstOrDefault(path
-                    => (path.FromAreaId == room.AreaId && path.ToAreaId == next)
-                    || (path.FromAreaId == next && path.ToAreaId == room.AreaId));
+                    => (path.FromRoomId == room.Id && path.ToRoomId == next)
+                    || (path.FromRoomId == next && path.ToRoomId == room.Id));
                 paths.Remove(target);
                 deletedPath.Add(target);
-                Debug.Log($"delete path {room.AreaId} -> {next}");
+                Debug.Log($"delete path {room.Id} -> {next}");
             }
         }
         var closedRooms = new List<Room>();
         var retryCount = 0;
         while (true)
         {
-            closedRooms = Dijkstra.RootFinder.FindClosedPath(rooms, paths);
+            closedRooms = Dijkstra.FindClosedPath(rooms, paths);
             if (closedRooms == null) break;
             foreach (var room in closedRooms)
             {
-                var target = deletedPath.FirstOrDefault(path => path.FromAreaId == room.AreaId || path.ToAreaId == room.AreaId);
+                var target = deletedPath.FirstOrDefault(path => path.FromRoomId == room.Id || path.ToRoomId == room.Id);
                 if (target != null)
                 {
-                    var from = rooms.First(room => room.AreaId == target.FromAreaId);
-                    var to = rooms.First(room => room.AreaId == target.ToAreaId);
-                    from.ConnectedRooms.Add(to.AreaId);
-                    to.ConnectedRooms.Add(from.AreaId);
+                    var from = rooms.First(room => room.Id == target.FromRoomId);
+                    var to = rooms.First(room => room.Id == target.ToRoomId);
+                    from.AddPath(to.Id, target, target.From);
+                    to.AddPath(from.Id, target, target.To);
                     paths.Add(target);
                     deletedPath.Remove(target);
-                    Debug.Log($"restore path {target.FromAreaId} -> {target.ToAreaId}");
+                    Debug.Log($"restore path {target.FromRoomId} -> {target.ToRoomId}");
                     break;
                 }
             }
@@ -114,9 +113,9 @@ public class FloorData
     {
         if (DeletedPaths != null)
         {
-            foreach (var path in DeletedPaths)
+            foreach (var path in DeletedPaths.Where(path => path != null))
             {
-                Debug.Log($"deleted path {path.FromAreaId} -> {path.ToAreaId}");
+                Debug.Log($"deleted path {path.FromRoomId} -> {path.ToRoomId}");
                 foreach (var position in path.PathPositionList)
                 {
                     var tile = map[position.X, position.Y];
@@ -137,7 +136,7 @@ public class FloorData
                 {
                     map[column, row].Position = new Point(column, row);
                     map[column, row].Type = TileType.Room;
-                    map[column, row].Id = room.AreaId;
+                    map[column, row].Id = room.Id;
                 }
             }
         }
@@ -148,6 +147,7 @@ public class FloorData
             {
                 map[position.X, position.Y].Position = position;
                 map[position.X, position.Y].Type = TileType.Path;
+                map[position.X, position.Y].Id = path.Id;
             }
         }
     }

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Drawing.Text;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using UnityEngine;
 
 public class DungeonGenerator
 {
@@ -31,14 +29,12 @@ public class DungeonGenerator
         }
     }
 
-    public static FloorData GenerateFloor(int mapWidth = 20, int mapHeight = 20, int maxRoom = 3, float deletePathPercent = 10f)
+    public static FloorData GenerateFloor(int mapWidth = 20, int mapHeight = 20, int maxRoom = 3, float deletePathPercent = 1f)
     {
         Area.Count = 0;
         Area.MaxRoomNum = maxRoom;
         var rootArea = new Area(0, 0, mapWidth, mapHeight);
         rootArea.Split();
-
-        Debug.Log("area count:" + Area.Count);
 
         var roomList = new List<Room>();
         rootArea.RecursiveCrateRoom();
@@ -51,7 +47,8 @@ public class DungeonGenerator
             area.CreateAdjacentList(areaList);
 
         var pathList = new List<Path>();
-        rootArea.RecursiveCreatePath(ref pathList);
+        var pathIndex = 1;
+        rootArea.RecursiveCreatePath(ref pathList, ref pathIndex);
 
         var data = new FloorData(mapWidth, mapHeight, roomList, pathList);
         data.DeletePath(deletePathPercent);

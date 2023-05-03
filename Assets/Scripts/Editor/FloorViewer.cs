@@ -7,7 +7,7 @@ public class FloorViewer : EditorWindow
 {
     private static FloorData floorData = null;
     private static Vector2 Origin = new Vector2(0, 120f);
-    private static AStar.Calculator calculator;
+    private static AStar aStar;
     private static List<Vector2Int> root = new List<Vector2Int>();
 
     [MenuItem("Tools/フロアビュアー")]
@@ -22,13 +22,13 @@ public class FloorViewer : EditorWindow
             ReadFile();
         if (GUILayout.Button("経路探索A*"))
         {
-            calculator = new AStar.Calculator(floorData.Map, floorData.SpawnPoint, floorData.StairPosition);
-            root = calculator.Execute();
+            aStar = new AStar(floorData.Map, floorData.SpawnPoint, floorData.StairPosition);
+            root = aStar.Execute();
         }
         if (GUILayout.Button("経路探索ダイクストラ"))
         {
-            var dijkstra = new Dijkstra.RootFinder(floorData);
-            dijkstra.Execute(floorData.Rooms.First().AreaId, floorData.Rooms.Last().AreaId);
+            var dijkstra = new Dijkstra(floorData);
+            dijkstra.GetRoot(floorData.Rooms.First().Id, floorData.Rooms.Last().Id);
         }
         DrawFloorPreview();
     }
