@@ -36,11 +36,15 @@ public class Minimap : MonoBehaviour
     [SerializeField]
     private Vector2 originalPosition = Vector2.zero;
 
+    private Point prevPlayerPosition = new Point();
     private RectTransform rectTransform = null;
     private Texture2D texture;
 
     private List<Image> enemies = new List<Image>();
     private List<Image> items = new List<Image>();
+
+    private FloorData floorData;
+    private bool[,] visibleMap;
 
     private Player player => ServiceLocator.Instance.GameController.Player;
     private EnemyManager enemyManager => ServiceLocator.Instance.EnemyManager;
@@ -59,7 +63,9 @@ public class Minimap : MonoBehaviour
 
     public void Initialize(FloorData data)
     {
+        floorData = data;
         var size = data.Size;
+        visibleMap = new bool[size.X, size.Y];
         originalPosition = -halfTileSize * size + Vector2.one * halfTileSize;
         playerIcon.rectTransform.sizeDelta = Vector2.one * tileSize;
 
@@ -74,24 +80,54 @@ public class Minimap : MonoBehaviour
         texture.filterMode = FilterMode.Point;
 
         for (var y = 0; y < size.Y; y++)
-        {
             for (var x = 0; x < size.X; x++)
-            {
-                texture.SetPixel(x, y, data.Map[x, y].IsWall ? Color.clear : new Color(0f, 1f, 1f, 0.5f));
-            }
-        }
+                texture.SetPixel(x, y, Color.clear);
         texture.Apply();
         tileLayer.sprite = Sprite.Create(texture, new Rect(0, 0, size.X, size.Y), Vector2.zero);
+        prevPlayerPosition = player.Position;
     }
 
     private void Update()
     {
         var position = -tileSize * player.Position.ToVector3();
         position -= originalPosition.ToVector3();
+        if (player.Position != (Vector2Int)prevPlayerPosition)
+        {
+            SetVisibleMap(player.Position);
+            prevPlayerPosition = player.Position;
+        }
         tileLayer.transform.localPosition = position;
         playerIcon.transform.rotation = Quaternion.Euler(0f, 0f, -player.transform.localEulerAngles.y);
         UpdateEnemies();
         UpdateItems();
+    }
+
+    private void SetVisibleMap(Point position)
+    {
+        var currentTile = floorData.Map[position.X, position.Y];
+        if (currentTile.IsRoom)
+        {
+            foreach(var tile in floorData.Map.ToArray().Where(tile => tile.IsRoom && tile.Id == currentTile.Id))
+                visibleMap[tile.Position.X, tile.Position.Y] = true;
+        }
+        visibleMap[position.X, position.Y] = true;
+        visibleMap[position.X + 1, position.Y] = true;
+        visibleMap[position.X - 1, position.Y] = true;
+        visibleMap[position.X, position.Y + 1] = true;
+        visibleMap[position.X, position.Y - 1] = true;
+        visibleMap[position.X + 1, position.Y + 1] = true;
+        visibleMap[position.X + 1, position.Y - 1] = true;
+        visibleMap[position.X - 1, position.Y + 1] = true;
+        visibleMap[position.X - 1, position.Y - 1] = true;
+
+        foreach(var tile in floorData.Map.ToArray())
+        {
+            var visible = visibleMap[tile.Position.X, tile.Position.Y];
+            if (!visible || tile.IsWall)
+                continue;
+            texture.SetPixel(tile.Position.X, tile.Position.Y, new Color(0f, 1f, 1f, 0.5f));
+        }
+        texture.Apply();
     }
 
     private void UpdateEnemies()
@@ -105,11 +141,12 @@ public class Minimap : MonoBehaviour
 
         foreach ((var enemy, var index) in enemies.Select((enemy, index) => (enemy, index)))
         {
-            this.enemies[index].gameObject.SetActive(true);
+            var enemyTile = floorData.Map[enemy.Position.x, enemy.Position.y];
             var position = this.enemies[index].transform.localPosition;
             position.x = enemy.Position.x * tileSize + originalPosition.x;
             position.y = enemy.Position.y * tileSize + originalPosition.y;
             this.enemies[index].transform.localPosition = position;
+            this.enemies[index].gameObject.SetActive(CheckVisible(enemy.Position));
         }
     }
 
@@ -124,12 +161,25 @@ public class Minimap : MonoBehaviour
 
         foreach ((var item, var index) in items.Select((item, index) => (item, index)))
         {
-            this.items[index].gameObject.SetActive(true);
+            var itemTile = floorData.Map[item.Position.x, item.Position.y];
             var position = this.items[index].transform.localPosition;
             position.x = item.Position.x * tileSize + originalPosition.x;
             position.y = item.Position.y * tileSize + originalPosition.y;
             this.items[index].transform.localPosition = position;
+            this.items[index].gameObject.SetActive(CheckVisible(item.Position));
         }
+    }
+
+    private bool CheckVisible(Vector2Int position)
+    {
+        var playerTile = floorData.Map[player.Position.x, player.Position.y];
+        var targetTile = floorData.Map[position.x, position.y];
+        var diff = player.Position - position;
+        // 隣接しているもしくは同じ部屋に存在しているアイテムや敵だけをミニマップに表示
+        var visible = Mathf.Abs(diff.x) <= 1 && Mathf.Abs(diff.y) <= 1;
+        if (playerTile.IsRoom && targetTile.IsRoom)
+            visible = playerTile.Id == targetTile.Id;
+        return visible;
     }
 
     private Image CreateImage(Transform layer, Color color, Sprite sprite)
