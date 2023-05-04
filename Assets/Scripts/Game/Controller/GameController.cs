@@ -57,7 +57,7 @@ public class GameController : MonoBehaviour
             DropItem);
         uiManager.OnCloseMenu = () => status = GameStatus.PlayerControll;
         floorManager.Clear();
-        floorManager.Create(20, 20, 4, false);
+        floorManager.Create(100, 100, 40, false);
         player.Initialize();
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         player.OnMoved += floorManager.OnMoveUnit;
@@ -178,7 +178,7 @@ public class GameController : MonoBehaviour
             .Play();
         tween.onComplete += () =>
         {
-            floorManager.RemoveItem(item);
+            floorManager.RemoveItem(item.Position);
             // 当たる位置にドロップできない場合は周囲からドロップできる場所を探す
             if (targetPosition.enemy != null)
             {
@@ -237,7 +237,7 @@ public class GameController : MonoBehaviour
             player.Data.TakeItem(item.Data);
             Debug.LogError($"{item.Data.Name}を拾った");
         }
-        floorManager.RemoveItem(item);
+        floorManager.RemoveItem(item.Position);
         ServiceLocator.Instance.ItemManager.Despawn(item);
         status = GameStatus.EnemyControll;
     }

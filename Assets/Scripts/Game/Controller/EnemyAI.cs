@@ -2,6 +2,7 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public abstract class EnemyAI
@@ -23,9 +24,10 @@ public abstract class EnemyAI
         return Mathf.Abs(diff.x) <= 1 && Mathf.Abs(diff.y) <= 1;
     }
 
-    public virtual void Move(TweenCallback onComplete = null)
+    public virtual IEnumerator Move(TweenCallback onComplete = null)
     {
         onComplete?.Invoke();
+        return null;
     }
     public virtual IEnumerator Attack()
     {
@@ -39,7 +41,7 @@ public class DefaultAI : EnemyAI
     protected List<int> rootRooms = new List<int>();
     public DefaultAI(FloorManager floorInfo, Enemy enemy, Player player) : base(floorInfo, enemy, player) { }
 
-    public override void Move(TweenCallback onComplete = null)
+    public override IEnumerator Move(TweenCallback onComplete = null)
     {
         if (!Enemy.IsEncounted)
         {
@@ -48,13 +50,24 @@ public class DefaultAI : EnemyAI
             if (playerTile.IsRoom && currentTile.IsRoom)
                 Enemy.IsEncounted = playerTile.Id == currentTile.Id;
         }
-        var root = FindRoot();
-        var nextTile = root.Skip(1).First();
-        if (floorInfo.GetUnit(nextTile) != null)
+        List<Vector2Int> root = null;
+        var task = Task.Run(() => root = FindRoot());
+        while (!task.IsCompleted) yield return null;
+        // ルートが見つからないもしくは現在地点から動けない場合は何もしない
+        if(root == null || root.Count < 2)
         {
             base.Move(onComplete);
             cantMoveTurns++;
-            return;
+            yield break;
+        }
+        // 次の移動先を探す(rootの0番目は現在地なのでスキップ)
+        var nextTile = root.Skip(1).First();
+        if (floorInfo.GetUnit(nextTile) != null)
+        {
+            // 移動できなかった
+            base.Move(onComplete);
+            cantMoveTurns++;
+            yield break;
         }
         Enemy.MoveTo(nextTile, onComplete);
     }
@@ -91,7 +104,6 @@ public class DefaultAI : EnemyAI
                 checkPoints.RemoveAt(0);
             return floorInfo.GetRoot(Enemy.Position, checkPoints.First());
         }
-
         return floorInfo.GetRoot(Enemy.Position, player.Position);
     }
 }

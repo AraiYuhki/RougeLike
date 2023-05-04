@@ -57,7 +57,7 @@ public class EnemyManager : MonoBehaviour
         var attackEnemies = enemies.Where(e => e.CanAttack()).ToList();
         var completedCount = 0;
         foreach(var enemy in moveEnemies)
-            enemy.Move(() => completedCount++);
+            yield return enemy.Move(() => completedCount++);
         while (moveEnemies.Count > completedCount) yield return null;
         foreach (var enemy in attackEnemies)
             yield return enemy.Attack();

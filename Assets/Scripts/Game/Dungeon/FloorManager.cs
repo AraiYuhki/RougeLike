@@ -217,7 +217,6 @@ public class FloorManager : MonoBehaviour
             {
                 if (items[x, y] == item)
                 {
-                    Debug.LogError($"({x}, {y}), {item.Position}");
                     items[x, y] = null;
                     return;
                 }
