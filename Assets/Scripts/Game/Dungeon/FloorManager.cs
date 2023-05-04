@@ -2,9 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class FloorManager : MonoBehaviour
 {
@@ -17,12 +15,11 @@ public class FloorManager : MonoBehaviour
     [SerializeField]
     private GameObject downStair;
 
-    [SerializeField]
-    private Minimap minimap;
-
     private Dijkstra dijkstra = null;
     private AStar aStar = null;
     private bool isTower;
+    private Minimap minimap;
+
     public FloorData FloorData { get; private set; }
     public Vector2Int Size { get; private set; } = new Vector2Int(20, 20);
     public TileData[,] Map => FloorData.Map;
@@ -30,6 +27,12 @@ public class FloorManager : MonoBehaviour
 
     private Unit[,] units;
     private Item[,] items;
+
+    public void SetMinimap(Minimap minimap)
+    {
+        this.minimap = minimap;
+        if (FloorData != null) minimap.Initialize(FloorData);
+    }
 
     public bool CanDrop(int x, int y)
     {
@@ -153,6 +156,8 @@ public class FloorManager : MonoBehaviour
     }
 
     public Room GetRoom(int roomId) => FloorData.Rooms.FirstOrDefault(room => room.Id == roomId);
+
+    public List<Vector2Int> GetCheckpoints(Vector2Int start, Vector2Int end) => dijkstra.GetCheckpoints(start, end);
 
     public List<TileData> CreateCheckPointList(Vector2Int startPosition, Vector2Int targetPosition)
     {

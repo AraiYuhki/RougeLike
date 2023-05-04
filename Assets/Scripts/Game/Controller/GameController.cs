@@ -18,7 +18,7 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private GameObject uiController = null;
     [SerializeField]
-    private MenuUI menuUI = null;
+    private UIManager uiManager;
     [SerializeField]
     private Player player = null;
 
@@ -27,7 +27,6 @@ public class GameController : MonoBehaviour
     private EnemyManager enemyManager => ServiceLocator.Instance.EnemyManager;
     private ItemManager itemManager => ServiceLocator.Instance.ItemManager;
 
-    private InventoryUI inventoryUI => menuUI.InventoryUI;
     private Vector2Int move = Vector2Int.zero;
     private GameStatus status = GameStatus.Wait;
     private bool isExecuteCommand = false;
@@ -50,7 +49,13 @@ public class GameController : MonoBehaviour
     private void Start()
     {
         uiController.gameObject.SetActive(EnableUIControllerPlatforms.Contains(Application.platform));
-        
+
+        uiManager.Initialize(floorManager, player,
+            () => status = GameStatus.EnemyControll,
+            TakeItem,
+            ThrowItem,
+            DropItem);
+        uiManager.OnCloseMenu = () => status = GameStatus.PlayerControll;
         floorManager.Clear();
         floorManager.Create(20, 20, 4, false);
         player.Initialize();
@@ -61,11 +66,6 @@ public class GameController : MonoBehaviour
 
         enemyManager.Initialize(player);
         itemManager.Initialize();
-        menuUI.Initialize(player,
-            () => status = GameStatus.EnemyControll,
-            TakeItem,
-            ThrowItem,
-            DropItem);
     }
 
     private void OnDestroy()
@@ -116,7 +116,7 @@ public class GameController : MonoBehaviour
 
         if (InputUtility.Menu.IsTriggerd())
         {
-            menuUI.Open(() => status = GameStatus.UIControll);
+            uiManager.OpenMenu(() => status = GameStatus.UIControll);
             status = GameStatus.Wait;
             yield break;
         }
@@ -246,12 +246,12 @@ public class GameController : MonoBehaviour
     {
         if (InputUtility.Menu.IsTriggerd())
         {
-            menuUI.Close(() => status = GameStatus.PlayerControll);
+            uiManager.CloseMenu();
             status = GameStatus.Wait;
             yield return null;
             yield break;
         }
 
-        yield return menuUI.Controll();
+        yield return uiManager.UpdateUI();
     }
 }

@@ -11,10 +11,13 @@ public class MenuUI : MonoBehaviour
 {
     enum ControllType
     {
+        Main,
         Inventory,
         UseMenu,
     }
 
+    [SerializeField]
+    private MainMenuUI mainMenu;
     [SerializeField]
     private InventoryUI inventoryUI;
     [SerializeField]
@@ -24,6 +27,10 @@ public class MenuUI : MonoBehaviour
 
     public InventoryUI InventoryUI => inventoryUI;
     public StatusUI StatusUI => statusUI;
+    public Minimap minimap => ServiceLocator.Instance.DungeonUI.Minimap;
+
+    public Action OnClose { get; set; }
+
     private Player Player => ServiceLocator.Instance.GameController.Player;
     private PlayerData Data => Player.Data;
     private bool isOpened = false;
@@ -36,6 +43,12 @@ public class MenuUI : MonoBehaviour
 
     public void Initialize(Player player, Action onUsed, Action onTakeItem, Action<ItemBase> onThrowItem, Action<ItemBase> onDropItem)
     {
+        mainMenu.Initialize(
+            OpenInventory, 
+            CheckStep,
+            Suspend,
+            Retire
+            );
         inventoryUI.Initialize(player);
         statusUI.Initialize(player);
         this.onUsed = onUsed;
@@ -46,24 +59,27 @@ public class MenuUI : MonoBehaviour
 
     public void Open(TweenCallback onComplete = null)
     {
-        inventoryUI.Initialize();
-        inventoryUI.Open();
-        statusUI.Open(() =>
+        statusUI.Open();
+        mainMenu.Open(() =>
         {
-            type = ControllType.Inventory;
+            type = ControllType.Main;
             onComplete?.Invoke();
             isOpened = true;
         });
+        minimap.SetMode(MinimapMode.Menu);
     }
 
     public void Close(TweenCallback onComplete = null)
     {
+        mainMenu.Close();
         inventoryUI.Close();
         useMenuUI.Close();
         statusUI.Close(() => {
             isOpened = false;
             onComplete?.Invoke();
+            OnClose?.Invoke();
         });
+        minimap.SetMode(MinimapMode.Normal);
     }
 
     public void SwitchOpenMenu(TweenCallback onComplete)
@@ -78,6 +94,9 @@ public class MenuUI : MonoBehaviour
     {
         switch(type)
         {
+            case ControllType.Main:
+                MainMenuControll();
+                break;
             case ControllType.Inventory:
                 InventoryControll();
                 break;
@@ -86,6 +105,39 @@ public class MenuUI : MonoBehaviour
                 break;
         }
         yield return null;
+    }
+
+    private void OpenInventory()
+    {
+        inventoryUI.Initialize();
+        inventoryUI.Open(() => type = ControllType.Inventory);
+        minimap.SetMode(MinimapMode.Normal);
+    }
+
+    private void CheckStep()
+    {
+
+    }
+
+    private void Suspend()
+    {
+
+    }
+
+    private void Retire()
+    {
+
+    }
+    private void MainMenuControll()
+    {
+        if (InputUtility.Up.IsTriggerd())
+            mainMenu.Up();
+        else if (InputUtility.Down.IsTriggerd())
+            mainMenu.Down();
+        if (InputUtility.Submit.IsTriggerd())
+            mainMenu.Submit();
+        else if (InputUtility.Cancel.IsTriggerd())
+            Close();
     }
 
     private void InventoryControll()
@@ -122,6 +174,11 @@ public class MenuUI : MonoBehaviour
             useMenuUI.Initialize(menu);
             useMenuUI.Open();
             type = ControllType.UseMenu;
+        }
+        else if (InputUtility.Cancel.IsTriggerd())
+        {
+            ServiceLocator.Instance.DungeonUI.Minimap.SetMode(MinimapMode.Menu);
+            inventoryUI.Close(() => type = ControllType.Main);
         }
     }
 

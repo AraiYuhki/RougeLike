@@ -1,8 +1,17 @@
+using DG.Tweening;
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+
+public enum MinimapMode
+{
+    Normal,
+    Menu,
+    Overlay,
+}
 
 public class Minimap : MonoBehaviour
 {
@@ -24,6 +33,10 @@ public class Minimap : MonoBehaviour
     [SerializeField]
     private Image playerIcon;
 
+    [SerializeField]
+    private Vector2 originalPosition = Vector2.zero;
+
+    private RectTransform rectTransform = null;
     private Texture2D texture;
 
     private List<Image> enemies = new List<Image>();
@@ -33,15 +46,22 @@ public class Minimap : MonoBehaviour
     private EnemyManager enemyManager => ServiceLocator.Instance.EnemyManager;
     private ItemManager itemManager => ServiceLocator.Instance.ItemManager;
 
-    [SerializeField]
-    private Vector2 originalPosition = Vector2.zero;
-
     private float halfTileSize => tileSize * 0.5f;
+
+    private Sequence tween = null;
+
+    public MinimapMode Mode { get; private set; } = MinimapMode.Normal;
+
+    private void Start()
+    {
+        rectTransform = GetComponent<RectTransform>();
+    }
 
     public void Initialize(FloorData data)
     {
         var size = data.Size;
         originalPosition = -halfTileSize * size + Vector2.one * halfTileSize;
+        playerIcon.rectTransform.sizeDelta = Vector2.one * tileSize;
 
         foreach (var enemy in enemies) Destroy(enemy);
         enemies.Clear();
@@ -122,5 +142,29 @@ public class Minimap : MonoBehaviour
         image.color = color;
         image.sprite = sprite;
         return image;
+    }
+
+    public void SetMode(MinimapMode mode)
+    {
+        if (Mode == mode) return;
+        tween?.Kill();
+        tween = DOTween.Sequence();
+        Mode = mode;
+        switch(mode)
+        {
+            case MinimapMode.Normal:
+                tween.Append(rectTransform.DOLocalMove(new Vector3(480f, 145f), 0.5f));
+                tween.Join(rectTransform.DOSizeDelta(new Vector2(250f, 250f), 0.5f));
+                break;
+            case MinimapMode.Menu:
+                tween.Append(rectTransform.DOLocalMove(new Vector3(115f, 85f), 0.5f));
+                tween.Join(rectTransform.DOSizeDelta(new Vector2(910f, 410f), 0.5f));
+                break;
+            case MinimapMode.Overlay:
+                tween.Append(rectTransform.DOLocalMove(Vector3.zero, 0.5f));
+                tween.Join(rectTransform.DOSizeDelta(new Vector2(Screen.width - 10f, Screen.height - 10f), 0.5f));
+                break;
+        }
+        tween.OnComplete(() => tween = null);
     }
 }

@@ -17,8 +17,12 @@ public class DungeonUI : MonoBehaviour
     private TMP_Text walletLabel;
     [SerializeField]
     private Player player;
+    [SerializeField]
+    private Minimap minimap;
 
     private PlayerData Data => player.Data;
+
+    public Minimap Minimap => minimap;
 
     // Update is called once per frame
     void Update()
