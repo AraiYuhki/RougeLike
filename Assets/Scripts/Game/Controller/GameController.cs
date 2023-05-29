@@ -68,6 +68,22 @@ public class GameController : MonoBehaviour
         itemManager.Initialize();
     }
 
+    private int index = 0;
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            OpenDialog();
+        }
+    }
+
+    private void OpenDialog()
+    {
+        var dialog = ServiceLocator.Instance.DialogManager.Open<CommonDialog>();
+        dialog.Initialize($"テスト{index}", $"テストダイアログ{index}", ("さらに開く", () => OpenDialog()), ("閉じる", () => ServiceLocator.Instance.DialogManager.Close(dialog)));
+        index++;
+    }
+
     private void OnDestroy()
     {
         StopCoroutine(turnControll);
@@ -77,6 +93,11 @@ public class GameController : MonoBehaviour
     {
         while (true)
         {
+            if (ServiceLocator.Instance.DialogManager.Controll())
+            {
+                yield return null;
+                continue;
+            }
             switch (status)
             {
                 case GameStatus.PlayerControll:
