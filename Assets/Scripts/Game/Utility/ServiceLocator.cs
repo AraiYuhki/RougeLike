@@ -17,12 +17,14 @@ public class ServiceLocator : MonoBehaviour
     [SerializeField]
     private DialogManager dialogManager;
 
-    public GameController GameController => gameController;
-    public FloorManager FloorManager => floorManager;
-    public EnemyManager EnemyManager => enemyManager;
-    public ItemManager ItemManager => itemManager;
-    public DungeonUI DungeonUI => dungeonUI;
-    public DialogManager DialogManager => dialogManager;
+    public static GameController GameController => instance.gameController;
+
+    
+    public static FloorManager FloorManager => instance.floorManager;
+    public static EnemyManager EnemyManager => instance.enemyManager;
+    public static ItemManager ItemManager => instance.itemManager;
+    public static DungeonUI DungeonUI => instance.dungeonUI;
+    public static DialogManager DialogManager => instance.dialogManager;
     public static ServiceLocator Instance => instance;
 
     private static ServiceLocator instance = null;

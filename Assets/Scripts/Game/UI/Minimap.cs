@@ -46,9 +46,9 @@ public class Minimap : MonoBehaviour
     private FloorData floorData;
     private bool[,] visibleMap;
 
-    private Player player => ServiceLocator.Instance.GameController.Player;
-    private EnemyManager enemyManager => ServiceLocator.Instance.EnemyManager;
-    private ItemManager itemManager => ServiceLocator.Instance.ItemManager;
+    private Player player => ServiceLocator.GameController.Player;
+    private EnemyManager enemyManager => ServiceLocator.EnemyManager;
+    private ItemManager itemManager => ServiceLocator.ItemManager;
 
     private float halfTileSize => tileSize * 0.5f;
 

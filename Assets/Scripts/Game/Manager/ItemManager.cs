@@ -19,7 +19,7 @@ public class ItemManager : MonoBehaviour
     private Item[] shieldTemplates = new Item[0];
 
     public List<Item> ItemList { get; private set; } = new List<Item>();
-    private FloorManager floorManager => ServiceLocator.Instance.FloorManager;
+    private FloorManager floorManager => ServiceLocator.FloorManager;
 
     public void Initialize(int count = 5)
     {

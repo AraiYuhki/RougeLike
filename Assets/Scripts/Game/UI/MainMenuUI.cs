@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MainMenuUI : ScrollMenu
+public class MainMenuUI : ScrollMenu, IControllable
 {
     [SerializeField]
     private SelectableItem inventoryItem;
@@ -31,5 +31,10 @@ public class MainMenuUI : ScrollMenu
         floorItem.Initialize(() => SetSelectIndex(1), onSelectFloor);
         pauseItem.Initialize(() => SetSelectIndex(2), onSelectPause);
         retireItem.Initialize(() => SetSelectIndex(3), onSelectRetire);
+    }
+
+    public IEnumerator Controll()
+    {
+        yield return null;
     }
 }

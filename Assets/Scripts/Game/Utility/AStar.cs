@@ -46,7 +46,7 @@ public class AStar : MonoBehaviour
 
     private Node[,] nodes;
 
-    public FloorManager FloorManager => ServiceLocator.Instance == null ? null : ServiceLocator.Instance.FloorManager;
+    public FloorManager FloorManager => ServiceLocator.Instance == null ? null : ServiceLocator.FloorManager;
 
     private static readonly Vector2Int[] OffsetList = new Vector2Int[]{
             Vector2Int.up,

@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MenuUI : MonoBehaviour
+public class MenuUI : MonoBehaviour, IControllable
 {
     enum ControllType
     {
@@ -27,11 +27,11 @@ public class MenuUI : MonoBehaviour
 
     public InventoryUI InventoryUI => inventoryUI;
     public StatusUI StatusUI => statusUI;
-    public Minimap minimap => ServiceLocator.Instance.DungeonUI.Minimap;
+    public Minimap minimap => ServiceLocator.DungeonUI.Minimap;
 
     public Action OnClose { get; set; }
 
-    private Player Player => ServiceLocator.Instance.GameController.Player;
+    private Player Player => ServiceLocator.GameController.Player;
     private PlayerData Data => Player.Data;
     private bool isOpened = false;
     private ControllType type = ControllType.Inventory;
@@ -163,7 +163,7 @@ public class MenuUI : MonoBehaviour
                 menu.Add(("Žg‚¤", () => UseItem(data)));
             }
             menu.Add(("“Š‚°‚é", () => { ThrowItem(); }));
-            if (ServiceLocator.Instance.FloorManager.GetItem(Player.Position) == null)
+            if (ServiceLocator.FloorManager.GetItem(Player.Position) == null)
                 menu.Add(("’u‚­", DropItem));
             menu.Add(("–ß‚é", () =>
             {
@@ -177,7 +177,7 @@ public class MenuUI : MonoBehaviour
         }
         else if (InputUtility.Cancel.IsTriggerd())
         {
-            ServiceLocator.Instance.DungeonUI.Minimap.SetMode(MinimapMode.Menu);
+            ServiceLocator.DungeonUI.Minimap.SetMode(MinimapMode.Menu);
             inventoryUI.Close(() => type = ControllType.Main);
         }
     }

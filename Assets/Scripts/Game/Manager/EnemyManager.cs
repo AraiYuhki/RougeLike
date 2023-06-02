@@ -11,7 +11,7 @@ public class EnemyManager : MonoBehaviour
 
     private Player player = null;
     private List<EnemyAI> enemies = new List<EnemyAI>();
-    private FloorManager floorManager => ServiceLocator.Instance.FloorManager;
+    private FloorManager floorManager => ServiceLocator.FloorManager;
     private int spawnedCount = 0;
     const int spawnIntervalTurn = 30;
 
