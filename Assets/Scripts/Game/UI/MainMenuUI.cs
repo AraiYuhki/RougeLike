@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MainMenuUI : ScrollMenu, IControllable
+public class MainMenuUI : ScrollMenu
 {
     [SerializeField]
     private SelectableItem inventoryItem;
@@ -33,8 +33,14 @@ public class MainMenuUI : ScrollMenu, IControllable
         retireItem.Initialize(() => SetSelectIndex(3), onSelectRetire);
     }
 
-    public IEnumerator Controll()
+    public override void Cancel()
     {
-        yield return null;
+        base.Cancel();
+        ServiceLocator.GameController.SetStatus(GameStatus.PlayerControll);
+    }
+
+    public override void Submit()
+    {
+        base.Submit();
     }
 }

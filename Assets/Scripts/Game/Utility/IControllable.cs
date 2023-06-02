@@ -10,4 +10,7 @@ public interface IControllable
     public void Left() { }
     public void Wait() { }
     public void TurnMode() { }
+    public void Submit() { }
+    public void Cancel() { }
+    public void Menu() { }
 }

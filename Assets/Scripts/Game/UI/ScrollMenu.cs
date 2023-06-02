@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class ScrollMenu : MonoBehaviour
+public class ScrollMenu : MonoBehaviour, IControllable
 {
     [SerializeField]
     protected ScrollRect scrollView;
@@ -106,7 +106,7 @@ public class ScrollMenu : MonoBehaviour
     {
     }
 
-    public void Up()
+    public virtual void Up()
     {
         items[selectedIndex].Select(false);
         selectedIndex--;
@@ -115,7 +115,7 @@ public class ScrollMenu : MonoBehaviour
         items[selectedIndex].Select(true);
     }
 
-    public void Down()
+    public virtual void Down()
     {
         items[selectedIndex].Select(false);
         selectedIndex++;

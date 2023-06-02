@@ -44,6 +44,8 @@ public class GameController : MonoBehaviour
         RuntimePlatform.WebGLPlayer
     };
 
+    public void SetStatus(GameStatus newStatus) => status = newStatus;
+
 
     private void Awake()
     {
@@ -78,29 +80,31 @@ public class GameController : MonoBehaviour
         };
     }
 
-    private int index = 0;
     private void Update()
     {
         // 現在の操作対象が存在し、ルーチンを進めた結果が処理終了ならそこで処理を止める
         if (currentControllObject != null && !currentControllObject.Controll().MoveNext())
             currentControllObject = null;
+
+        if (InputUtility.Up.IsPressed()) Up();
+        else if (InputUtility.Down.IsPressed()) Down();
+        if (InputUtility.Right.IsPressed()) Right();
+        else if (InputUtility.Left.IsPressed()) Left();
+
+        if (InputUtility.Submit.IsPressed()) Submit();
+        if (InputUtility.Cancel.IsPressed()) Cancel();
+        if (InputUtility.Wait.IsPressed()) Wait();
+        if (InputUtility.TurnMode.IsPressed()) TurnMode();
+        if (InputUtility.Menu.IsTriggerd()) Menu();
+
         ChangeStatus();
     }
-
-    public void SetStatus(GameStatus newStatus) => status = newStatus;
 
     private void ChangeStatus()
     {
         if (!controllers.ContainsKey(status)) throw new System.NotImplementedException($"{status} is not implemeted");
         currentControllObject = controllers[status];
         currentControllObject.Controll().Reset();
-    }
-
-    private void OpenDialog()
-    {
-        var dialog = ServiceLocator.DialogManager.Open<CommonDialog>();
-        dialog.Initialize($"テスト{index}", $"テストダイアログ{index}", ("さらに開く", () => OpenDialog()), ("閉じる", () => ServiceLocator.DialogManager.Close(dialog)));
-        index++;
     }
 
     private void OnDestroy()
@@ -146,6 +150,9 @@ public class GameController : MonoBehaviour
     public void Left() => currentControllObject?.Left();
     public void TurnMode() => currentControllObject?.TurnMode();
     public void Wait() => currentControllObject?.Wait();
+    public void Submit() => currentControllObject.Submit();
+    public void Cancel() => currentControllObject.Cancel();
+    public void Menu() => currentControllObject.Menu();
 
     public void OpenMenu()
     {
