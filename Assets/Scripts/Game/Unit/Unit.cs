@@ -64,7 +64,7 @@ public class Unit : MonoBehaviour
         ChargeStack = 0;
     }
 
-    public virtual void Attack(int weaponPower, AttackAreaData attackArea,  Action onComplete = null)
+    public virtual void Attack(int weaponPower, AttackAreaData attackArea, Action onComplete = null)
     {
         var floorManager = ServiceLocator.Instance.FloorManager;
         var tween = DOTween.Sequence();
@@ -82,6 +82,41 @@ public class Unit : MonoBehaviour
                 if (this is Player player && target is Enemy enemy)
                 {
                     enemy.Damage(DamageUtil.GetDamage(player, weaponPower, enemy), this);
+                }
+            }
+            onComplete?.Invoke();
+        });
+    }
+
+    public virtual void RoomAttack(int weaponPower, Action onComplete = null)
+    {
+        var floorManager = ServiceLocator.Instance.FloorManager;
+        var enemyManager = ServiceLocator.Instance.EnemyManager;
+        var currentTile = floorManager.GetTile(Position);
+        var tween = DOTween.Sequence();
+        tween.Append(transform.DOLocalRotate(transform.localEulerAngles + Vector3.up * 360f * 3f, 0.6f, RotateMode.FastBeyond360));
+        tween.AppendInterval(0.2f);
+        tween.OnComplete(() =>
+        {
+            if (currentTile.IsRoom)
+            {
+                foreach (var enemy in enemyManager.Enemies.Where(enemy =>
+                {
+                    var tile = floorManager.GetTile(enemy.Position);
+                    if (!tile.IsRoom) return false;
+                    return tile.Id == currentTile.Id;
+                }))
+                {
+                    enemy.Damage(DamageUtil.GetDamage(this as Player, weaponPower, enemy), this);
+                }
+            } 
+            else
+            {
+                foreach(var enemy in floorManager.GetAroundTilesAt(Position)
+                    .Select(tile => floorManager.GetUnit(tile.Position) as Enemy)
+                    .Where(enemy => enemy != null))
+                {
+                    enemy.Damage(DamageUtil.GetDamage(this as Player, weaponPower, enemy), this);
                 }
             }
             onComplete?.Invoke();

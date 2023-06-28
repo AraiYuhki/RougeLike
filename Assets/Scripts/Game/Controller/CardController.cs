@@ -65,12 +65,10 @@ public class CardController : MonoBehaviour
         });
         AddToDeck(new CardData()
         {
-            Name = "”ÍˆÍUŒ‚",
-            Param = 50,
-            Type = CardType.RangeAttack,
-            AttackAreaDataId = 0,
-            Price = 200,
-            Range = 10
+            Name = "•”‰®UŒ‚",
+            Param = 30,
+            Type = CardType.RoomAttack,
+            Price = 200
         });
         Shuffle();
         DrawAll();

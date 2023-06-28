@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Linq;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -67,6 +68,9 @@ public class Card : MonoBehaviour
             case CardType.RangeAttack:
                 Owner.Attack((int)Data.Param, Data.AttackAreaData, onComplete);
                 break;
+            case CardType.RoomAttack:
+                Owner.RoomAttack((int)Data.Param, onComplete);
+                break;
             case CardType.Heal:
                 Owner.Heal(Data.Param);
                 onComplete?.Invoke();
@@ -100,17 +104,22 @@ public class Card : MonoBehaviour
         switch (Data.Type)
         {
             case CardType.NormalAttack:
+            case CardType.ResourceAttack:
                 return CheckEnemyInAroundTile() || CheckExistEnemySameRoom();
             case CardType.LongRangeAttack:
                 return CheckEnemyInRange() || CheckEnemyInAroundTile();
             case CardType.RangeAttack:
-                return true;
+                return CheckEnemyInAroundTile() || CheckEnemyInAttackArea();
+            case CardType.RoomAttack:
+                return CheckEnemyInAroundTile() || CheckEnemyInSameRoom();
             case CardType.Heal:
                 return Owner.Hp < Owner.MaxHp;
             case CardType.StaminaHeal:
                 if (Owner is Player player)
                     return player.Data.Stamina < player.Data.MaxStamina;
                 return false;
+            case CardType.Charge:
+                return true;
             default:
                 throw new NotImplementedException();
         }
@@ -136,6 +145,32 @@ public class Card : MonoBehaviour
     {
         var target = ServiceLocator.Instance.FloorManager.GetHitPosition(Owner.Position, Owner.Angle, Data.Range);
         return target.enemy != null;
+    }
+
+    private bool CheckEnemyInAttackArea()
+    {
+        foreach(var offset in Data.AttackAreaData.Data.Select(data => data.Offset - Data.AttackAreaData.Center))
+        {
+            var rotatedOffset = AttackAreaData.GetRotatedOffset(Owner.transform.localEulerAngles.y, offset);
+            var position = Owner.Position + offset;
+            var target = ServiceLocator.Instance.FloorManager.GetUnit(position);
+            if (target != null) return true;
+        }
+        return false;
+    }
+
+    private bool CheckEnemyInSameRoom()
+    {
+        var floorManager = ServiceLocator.Instance.FloorManager;
+        var currenTile = floorManager.GetTile(Owner.Position);
+        if (!currenTile.IsRoom) return false;
+        return ServiceLocator.Instance.EnemyManager.Enemies.Any(enemy =>
+        {
+            // ìØÇ∂ïîâÆÇ…ìGÇ™ë∂ç›Ç∑ÇÍÇŒTrue
+            var tile = floorManager.GetTile(enemy.Position);
+            if (!tile.IsRoom) return false;
+            return tile.Id == currenTile.Id;
+        });
     }
 
 #if UNITY_EDITOR
