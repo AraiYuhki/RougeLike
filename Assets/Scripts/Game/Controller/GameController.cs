@@ -20,7 +20,11 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private UIManager uiManager;
     [SerializeField]
+    private CardController cardController = null;
+    [SerializeField]
     private Player player = null;
+
+    public CardController CardController => cardController;
 
     public Player Player => player;
     private FloorManager floorManager => ServiceLocator.Instance.FloorManager;
@@ -57,12 +61,16 @@ public class GameController : MonoBehaviour
             DropItem);
         uiManager.OnCloseMenu = () => status = GameStatus.PlayerControll;
         floorManager.Clear();
-        floorManager.Create(100, 100, 40, false);
+        floorManager.Create(20, 20, 4, false);
+
+        turnControll = StartCoroutine(TurnControll());
+
+        cardController.Owner = player;
+        cardController.Initialize();
+
         player.Initialize();
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         player.OnMoved += floorManager.OnMoveUnit;
-
-        turnControll = StartCoroutine(TurnControll());
 
         enemyManager.Initialize(player);
         itemManager.Initialize();
@@ -71,10 +79,6 @@ public class GameController : MonoBehaviour
     private int index = 0;
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            OpenDialog();
-        }
     }
 
     private void OpenDialog()
@@ -148,21 +152,47 @@ public class GameController : MonoBehaviour
         else if (InputUtility.Left.IsPressed()) Left();
         isTurnMode |= InputUtility.TurnMode.IsPressed();
 
+        Card card = null;
+        var handIndex = -1;
+        if (InputUtility.One.IsPressed())
+        {
+            card = cardController.GetHandCard(0);
+            handIndex = 0;
+        }
+        else if (InputUtility.Two.IsPressed())
+        {
+            card = cardController.GetHandCard(1);
+            handIndex = 1;
+        }
+        else if (InputUtility.Three.IsPressed())
+        {
+            card = cardController.GetHandCard(2);
+            handIndex = 2;
+        }
+        else if (InputUtility.Four.IsPressed())
+        {
+            card = cardController.GetHandCard(3);
+            handIndex = 3;
+        }
+
+        if (card != null && card.CanUse())
+        {
+            status = GameStatus.Wait;
+            card.Use(() =>
+            {
+                status = GameStatus.EnemyControll;
+                cardController.Use(handIndex);
+            });
+            yield break;
+        }
+
         if (move.x != 0 || move.y != 0)
         {
             var currentPosition = player.Position;
             var destPosition = currentPosition + move;
             var destTile = floorManager.GetTile(destPosition);
             var enemy = floorManager.GetUnit(destPosition);
-            if (enemy != null)
-            {
-                status = GameStatus.Wait;
-                player.SetDestAngle(move);
-                move = Vector2Int.zero;
-                player.Attack(enemy, () => status = GameStatus.EnemyControll);
-                yield break;
-            }
-            if (destTile.IsWall || isTurnMode)
+            if (destTile.IsWall || isTurnMode || enemy != null)
             {
                 player.SetDestAngle(move);
             }
