@@ -10,7 +10,7 @@ public abstract class UnitData
     public const int MaxInventorySize = 20;
     public const int MaxAtk = 8;
     [SerializeField]
-    protected int atk = 1;
+    protected int atk = 10;
 
     public int TotalExp { get; set; } = 0;
     public virtual int MaxHP { get; protected set; } = 15;
@@ -46,7 +46,7 @@ public abstract class UnitData
 public partial class PlayerData : UnitData
 {
     private float stamina = 100f;
-    public float Stamina { get => stamina; set => Mathf.Clamp(stamina, 0, MaxStamina); }
+    public float Stamina { get => stamina; set => stamina = Mathf.Clamp(value, 0, MaxStamina); }
     public float MaxStamina { get; set; } = 100f;
     private int gems = 0;
     public int Gems { get => gems; set => gems = Mathf.Max(0, value); }

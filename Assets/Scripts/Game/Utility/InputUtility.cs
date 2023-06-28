@@ -19,7 +19,13 @@ public static class InputUtility
         Left,
         Menu,
         Wait,
-        TurnMode
+        TurnMode,
+
+        // ŽèŽD
+        One,
+        Two,
+        Trhee,
+        Four
     }
 
     public class InputDelegater
@@ -40,4 +46,9 @@ public static class InputUtility
     public static InputDelegater Menu => new InputDelegater(Keyboard.current?.escapeKey, DualShockGamepad.current?.triangleButton, XInputController.current?.yButton);
     public static InputDelegater Wait => new InputDelegater(Keyboard.current?.spaceKey, DualShockGamepad.current?.squareButton, XInputController.current?.xButton);
     public static InputDelegater TurnMode => new InputDelegater(Keyboard.current?.leftShiftKey, Keyboard.current?.rightShiftKey, DualShockGamepad.current?.rightShoulder, XInputController.current?.rightShoulder);
+
+    public static InputDelegater One => new InputDelegater(Keyboard.current?.digit1Key);
+    public static InputDelegater Two => new InputDelegater(Keyboard.current?.digit2Key);
+    public static InputDelegater Three => new InputDelegater(Keyboard.current?.digit3Key);
+    public static InputDelegater Four => new InputDelegater(Keyboard.current?.digit4Key);
 }

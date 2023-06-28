@@ -124,6 +124,17 @@ public class FloorData
                 }
             }
         }
+
+        foreach (var path in paths)
+        {
+            foreach (var position in path.PathPositionList)
+            {
+                map[position.X, position.Y].Position = position;
+                map[position.X, position.Y].Type = TileType.Path;
+                map[position.X, position.Y].Id = path.Id;
+            }
+        }
+
         foreach (var room in rooms)
         {
             var x = room.X;
@@ -138,16 +149,6 @@ public class FloorData
                     map[column, row].Type = TileType.Room;
                     map[column, row].Id = room.Id;
                 }
-            }
-        }
-
-        foreach (var path in paths)
-        {
-            foreach (var position in path.PathPositionList)
-            {
-                map[position.X, position.Y].Position = position;
-                map[position.X, position.Y].Type = TileType.Path;
-                map[position.X, position.Y].Id = path.Id;
             }
         }
     }
