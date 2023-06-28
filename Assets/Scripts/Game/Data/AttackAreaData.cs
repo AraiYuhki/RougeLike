@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.PlasticSCM.Editor.WebApi;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.GameCenter;
 
 [Serializable]
 public class AttackData
@@ -26,10 +25,19 @@ public class AttackData
         get => rate;
         set => rate = value;
     }
+
+    public AttackData Clone()
+    {
+        return new AttackData()
+        {
+            offset = new Vector2Int(offset.x, offset.y),
+            rate = rate
+        };
+    }
 }
 
 [Serializable]
-public class AttackAreaData
+public class AttackAreaData : ICloneable
 {
     private enum Direction
     {
@@ -38,12 +46,12 @@ public class AttackAreaData
         Left,
         Up,
     }
-    [SerializeField]
+    [SerializeField, Range(3, 99)]
     private int maxSize;
     [SerializeField]
     private Vector2Int center;
     [SerializeField]
-    private AttackData[,] data;
+    private List<AttackData> data;
 
     private List<AttackData>[] stripedData;
 
@@ -62,7 +70,7 @@ public class AttackAreaData
         set => center = value;
     }
 
-    public AttackData[,] Data
+    public List<AttackData> Data
     {
         get => data;
         set => data = value;
@@ -109,11 +117,6 @@ public class AttackAreaData
             }
             offsetMap[radius] = offsetList;
         }
-        foreach(var radius in offsetMap.Keys)
-        {
-            foreach (var offset in offsetMap[radius])
-                Debug.LogError($"{radius} {offset}");
-        }
     }
 
 
@@ -156,49 +159,24 @@ public class AttackAreaData
         center = Vector2Int.one * maxSize / 2;
         center.x = Mathf.FloorToInt(center.x);
         center.y = Mathf.FloorToInt(center.y);
-        data = new AttackData[maxSize, maxSize];
-        for (var x = 0; x < maxSize; x++)
-            for (var y = 0; y < maxSize; y++)
-                data[x, y] = new AttackData() { Offset = new Vector2Int(x, y) - center };
-        Strip();
+        // TODO: 配列に変更するので、初期化時にデータを突っ込むようにしたい
+        //data = new AttackData[maxSize, maxSize];
+        //for (var x = 0; x < maxSize; x++)
+        //    for (var y = 0; y < maxSize; y++)
+        //        data[x, y] = new AttackData() { Offset = new Vector2Int(x, y) - center };
     }
 
-    public void Strip()
+    public object Clone()
     {
-        var radius = Mathf.FloorToInt(MaxSize / 2);
-        stripedData = new List<AttackData>[radius];
-        foreach(var index in Enumerable.Range(0, radius))
-            stripedData[index] = new List<AttackData>();
-
-        for (var i = 1; i <= radius; i++)
+        var instance = new AttackAreaData()
         {
-            var currentPosition = new Vector2Int(-i, -i);// 初期位置は半径1の左上
-            var index = currentPosition + center;
-            stripedData[i].Add(data[index.x, index.y]);
-            foreach (var dir in Enum.GetValues(typeof(Direction)).Cast<Direction>())
-            {
-                for (var j = 0; j < i + 1; j++)
-                {
-                    switch (dir)
-                    {
-                        case Direction.Left:
-                            currentPosition.x--;
-                            break;
-                        case Direction.Right:
-                            currentPosition.x++;
-                            break;
-                        case Direction.Up:
-                            currentPosition.y--;
-                            break;
-                        case Direction.Down:
-                            currentPosition.y++;
-                            break;
-                    }
-                    if (currentPosition.x == -i && currentPosition.y == -i) break;
-                    index = currentPosition + center;
-                    stripedData[i].Add(data[index.x, index.y]);
-                }
-            }
+            maxSize = MaxSize,
+            center = Center
+        };
+        foreach(var row in data)
+        {
+            instance.data.Add(row.Clone());
         }
+        return instance;
     }
 }

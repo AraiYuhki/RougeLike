@@ -12,6 +12,7 @@ public class Player : Unit
     public override void PowerUp(int value) => Data.Atk += value;
 
     public bool IsLockInput { get; set; }
+    private int healInterval = 0;
 
     public void Initialize(int lv, int hp, int atk, int def)
     {
@@ -27,9 +28,15 @@ public class Player : Unit
         }
     }
 
+    public override void Damage(int damage, Unit attacker)
+    {
+        base.Damage(damage, attacker);
+        healInterval = 10;
+    }
+
     public override void Initialize()
     {
-        Initialize(1, 10, 1, 1);
+        Initialize(1, MaxHp, 1, 1);
     }
 
     public override void Update()
@@ -48,7 +55,29 @@ public class Player : Unit
         Data.Stamina -= 0.1f;
         if (Data.Stamina <= 0)
             Damage(1, null);
+        else if (healInterval > 0)
+            healInterval--;
         else
             Heal(Data.MaxHP * 0.095f);
+    }
+
+    public void Attack(int weaponAttack, Enemy target, TweenCallback onEndAttack = null)
+    {
+        var damage = DamageUtil.GetDamage(this, weaponAttack, target);
+        var targetPosition = new Vector3(target.Position.x, target.transform.localPosition.y, target.Position.y);
+        var currentPosition = transform.localPosition;
+        var sequence = DOTween.Sequence();
+        sequence.Append(transform.DOLocalMove(targetPosition, 0.2f).SetEase(Ease.InCubic));
+        sequence.Append(transform.DOLocalMove(currentPosition, 0.2f).SetEase(Ease.OutCubic));
+        sequence.OnComplete(() =>
+        {
+            OnAttack?.Invoke(this, target);
+            target.Damage(damage, this);
+            onEndAttack?.Invoke();
+        });
+        sequence.SetAutoKill(true);
+        sequence.Play();
+        Debug.LogError($"{this.name} ÇÕ {target.name} Ç… {damage}É_ÉÅÅ[ÉWÇó^Ç¶ÇΩ");
+        ChargeStack = 0;
     }
 }

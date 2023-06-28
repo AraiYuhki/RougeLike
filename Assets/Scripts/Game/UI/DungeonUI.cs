@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -28,8 +26,8 @@ public class DungeonUI : MonoBehaviour
     void Update()
     {
         if (Data == null) return;
-        
-        hpGauge.Max = Data.MaxHP;
+
+        hpGauge.Max = player.MaxHp;
         staminaGauge.Max = (int)Data.MaxStamina;
         levelLabel.text = Data.Lv.ToString();
         expGauge.Max = Data.NextLevelExp;

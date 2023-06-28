@@ -2,25 +2,29 @@ using UnityEngine;
 using DG.Tweening;
 using System;
 using UnityEngine.ProBuilder;
+using UnityEditor;
 
 public class Unit : MonoBehaviour
 {
+    public const float MaxChargeStack = 4f;
     public Vector2Int Position { get; set; }
     public float DestAngle { get; set; }
 
     public bool EndRotation { get; protected set; }
     public Vector2Int Angle { get; protected set; } = Vector2Int.up;
 
-    public event Action<Unit, Vector2Int> OnMoved;
-    public event Action<Unit, Unit> OnAttack;
-    public event Action<Unit, int> OnDamage;
-    public event Action OnDead;
+    public Action<Unit, Vector2Int> OnMoved{get;set;}
+    public Action<Unit, Unit> OnAttack{get;set;}
+    public Action<Unit, int> OnDamage{get;set;}
+    public Action OnDead { get; set; }
 
     public virtual int Hp { get; set; }
     public virtual int MaxHp { get; set; }
+    public virtual float ChargeStack { get; set; }
     public virtual void AddExp(int exp) { }
     public virtual void RecoveryStamina(float value) { }
     public virtual void PowerUp(int value) { }
+    public virtual void Charge(float value) => ChargeStack = Mathf.Min(ChargeStack + value, MaxChargeStack);
 
     public void Awake()
     {
@@ -55,6 +59,7 @@ public class Unit : MonoBehaviour
         sequence.SetAutoKill(true);
         sequence.Play();
         Debug.LogError($"{this.name} ÇÕ {target.name} Ç… {damage}É_ÉÅÅ[ÉWÇó^Ç¶ÇΩ");
+        ChargeStack = 0;
     }
 
     public void MoveTo(Vector2Int destPosition, TweenCallback onComplete = null)
@@ -68,6 +73,7 @@ public class Unit : MonoBehaviour
     public void Move(Vector2Int move, TweenCallback onComplete = null)
     {
         var dest = Position + move;
+        ChargeStack = 0;
         OnMoved?.Invoke(this, dest);
         SetPosition(dest, onComplete);
         SetDestAngle(move);
