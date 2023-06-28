@@ -120,7 +120,7 @@ public class AttackAreaData : ICloneable
     }
 
 
-    public static (int x, int y) GetRotatedOffset(int angle, Vector2Int original)
+    public static (int x, int y) GetRotatedOffset(float angle, Vector2Int original)
     {
         var radius = Math.Max(Math.Abs(original.x), Math.Abs(original.y));
         if (maxRadius < radius)

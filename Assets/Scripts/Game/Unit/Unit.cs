@@ -3,6 +3,8 @@ using DG.Tweening;
 using System;
 using UnityEngine.ProBuilder;
 using UnityEditor;
+using System.Drawing.Imaging;
+using System.Linq;
 
 public class Unit : MonoBehaviour
 {
@@ -60,6 +62,49 @@ public class Unit : MonoBehaviour
         sequence.Play();
         Debug.LogError($"{this.name} は {target.name} に {damage}ダメージを与えた");
         ChargeStack = 0;
+    }
+
+    public virtual void Attack(int weaponPower, AttackAreaData attackArea,  Action onComplete = null)
+    {
+        var floorManager = ServiceLocator.Instance.FloorManager;
+        var tween = DOTween.Sequence();
+        // 角度はアニメーション前に取得しておく
+        var angle = transform.localEulerAngles.y;
+        tween.Append(transform.DOLocalRotate(transform.localEulerAngles + Vector3.up * 360f, 0.6f, RotateMode.FastBeyond360));
+        tween.AppendInterval(0.2f);
+        tween.OnComplete(() =>
+        {
+            foreach (var offset in attackArea.Data.Select(data => data.Offset - attackArea.Center))
+            {
+                var rotatedOffset = AttackAreaData.GetRotatedOffset(angle, offset);
+                var position = Position + offset;
+                var target = floorManager.GetUnit(position);
+                if (this is Player player && target is Enemy enemy)
+                {
+                    enemy.Damage(DamageUtil.GetDamage(player, weaponPower, enemy), this);
+                }
+            }
+            onComplete?.Invoke();
+        });
+    }
+
+    public virtual void Shoot(int weaponPower, int range, Action onComplete = null)
+    {
+        var target = ServiceLocator.Instance.FloorManager.GetHitPosition(Position, Angle, range);
+        var bullet = ServiceLocator.Instance.GameController.CreateBullet(transform.localPosition, transform.rotation);
+        var tween = bullet.transform
+            .DOLocalMove(new Vector3(target.position.x, 0.5f, target.position.y), 0.1f * target.length)
+            .SetEase(Ease.Linear)
+            .Play();
+        tween.OnComplete(() =>
+        {
+            Destroy(bullet);
+            onComplete?.Invoke();
+            if (this is Player player && target.enemy != null)
+            {
+                target.enemy.Damage(DamageUtil.GetDamage(player, weaponPower, target.enemy), this);
+            }
+        });
     }
 
     public void MoveTo(Vector2Int destPosition, TweenCallback onComplete = null)

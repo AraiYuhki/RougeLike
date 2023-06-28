@@ -50,6 +50,12 @@ public class CardData : ICloneable
         set => param = value;
     }
 
+    public int Range
+    {
+        get => range;
+        set => range = value;
+    }
+
     public int Price
     {
         get => price;
@@ -60,6 +66,15 @@ public class CardData : ICloneable
     {
         get => attackAreaDataId;
         set => attackAreaDataId = value;
+    }
+
+    public AttackAreaData AttackAreaData
+    {
+        get
+        {
+            if (attackAreaDataId < 0) return null;
+            return DataBase.Instance.GetTable<MAttackArea>().GetData(attackAreaDataId);
+        }
     }
 
     //public AttackAreaData AttackAreaData

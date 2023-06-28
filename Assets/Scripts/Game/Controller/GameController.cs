@@ -24,6 +24,9 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private Player player = null;
 
+    [SerializeField]
+    private GameObject bulletPrefab = null;
+
     public CardController CardController => cardController;
 
     public Player Player => player;
@@ -217,6 +220,41 @@ public class GameController : MonoBehaviour
     {
         itemManager.Drop(target, 0, Player.Position);
         status = GameStatus.EnemyControll;
+    }
+
+    public GameObject CreateBullet(Vector3 position, Quaternion rotation)
+    {
+        var bullet = Instantiate(bulletPrefab, floorManager.transform);
+        bullet.transform.localScale = Vector3.one;
+        bullet.transform.localPosition = position;
+        bullet.transform.localRotation = rotation;
+        return bullet;
+    }
+
+    private void Shoot(int baseAttack, int range, Unit attacker)
+    {
+        var target = floorManager.GetHitPosition(attacker.Position, attacker.Angle, range);
+        var bullet = Instantiate(bulletPrefab, attacker.transform.parent);
+        bullet.transform.localPosition = attacker.transform.localPosition;
+        bullet.transform.localScale = Vector3.one;
+        var tween = bullet.transform
+            .DOLocalMove(new Vector3(target.position.x, 0.5f, target.position.y), 0.1f * target.length)
+            .SetEase(Ease.Linear)
+            .Play();
+        tween.onComplete += () =>
+        {
+            Destroy(bullet);
+            var enemy = target.enemy;
+            status = GameStatus.EnemyControll;
+            if (enemy == null) return;
+            var damage = 0;
+            if (attacker is Player player)
+            {
+                damage = DamageUtil.GetDamage(player, baseAttack, enemy);
+                enemy.Damage(damage, attacker);
+            }
+        };
+        status = GameStatus.Wait;
     }
 
     private void ThrowItem(ItemBase target)

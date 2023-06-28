@@ -1,10 +1,6 @@
 using DG.Tweening;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
-using System.Security.Cryptography;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -65,6 +61,12 @@ public class Card : MonoBehaviour
             case CardType.NormalAttack:
                 NormalAttack(onComplete);
                 break;
+            case CardType.LongRangeAttack:
+                LongRangeAttack(onComplete);
+                break;
+            case CardType.RangeAttack:
+                Owner.Attack((int)Data.Param, Data.AttackAreaData, onComplete);
+                break;
             case CardType.Heal:
                 Owner.Heal(Data.Param);
                 onComplete?.Invoke();
@@ -88,12 +90,21 @@ public class Card : MonoBehaviour
             onComplete?.Invoke();
     }
 
+    private void LongRangeAttack(Action onComplete = null)
+    {
+        Owner.Shoot((int)Data.Param, Data.Range, onComplete);
+    }
+
     public bool CanUse()
     {
         switch (Data.Type)
         {
             case CardType.NormalAttack:
-                return CheckExistEnemySameRoom();
+                return CheckEnemyInAroundTile() || CheckExistEnemySameRoom();
+            case CardType.LongRangeAttack:
+                return CheckEnemyInRange() || CheckEnemyInAroundTile();
+            case CardType.RangeAttack:
+                return true;
             case CardType.Heal:
                 return Owner.Hp < Owner.MaxHp;
             case CardType.StaminaHeal:
@@ -105,18 +116,26 @@ public class Card : MonoBehaviour
         }
     }
 
+    private bool CheckEnemyInAroundTile()
+    {
+        var floorManager = ServiceLocator.Instance.FloorManager;
+        return floorManager.GetAroundTilesAt(Owner.Position).Select(tile => floorManager.GetUnit(tile.Position) != null).Any();
+    }
+
     private bool CheckExistEnemySameRoom()
     {
         var floorManager = ServiceLocator.Instance.FloorManager;
         var currentTile = floorManager.GetTile(Owner.Position);
-        if (currentTile.IsRoom)
-        {
-            return ServiceLocator.Instance.EnemyManager.Enemies
+        if (!currentTile.IsRoom) return false;
+        return ServiceLocator.Instance.EnemyManager.Enemies
                 .Select(enemy => floorManager.GetTile(enemy.Position))
                 .Where(tile => tile.IsRoom).Any(tile => tile.Id == currentTile.Id);
-        }
-        var aroundTiles = floorManager.GetAroundTilesAt(Owner.Position);
-        return aroundTiles.Select(tile => floorManager.GetUnit(tile.Position) != null).Any();
+    }
+
+    private bool CheckEnemyInRange()
+    {
+        var target = ServiceLocator.Instance.FloorManager.GetHitPosition(Owner.Position, Owner.Angle, Data.Range);
+        return target.enemy != null;
     }
 
 #if UNITY_EDITOR

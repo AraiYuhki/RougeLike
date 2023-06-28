@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class CardController : MonoBehaviour
@@ -17,6 +18,9 @@ public class CardController : MonoBehaviour
     [SerializeField]
     private List<Transform> handContainers;
 
+    [SerializeField]
+    private TMP_Text deckCardCountLabel;
+
     private List<Card> deck = new List<Card>();
     private Card[] hands = new Card[4];
     private List<Card> cemetary = new List<Card>();
@@ -27,6 +31,11 @@ public class CardController : MonoBehaviour
 
     public int AllCards => deck.Count + cemetary.Count + hands.Count(hand => hand != null);
 
+    private void Update()
+    {
+        deckCardCountLabel.text = deck.Count.ToString();
+    }
+
     public void Initialize()
     {
         var weakAttack = new CardData()
@@ -36,7 +45,7 @@ public class CardController : MonoBehaviour
             Type = CardType.NormalAttack,
             Price = 50
         };
-        for (var count = 0; count < 10; count++)
+        for (var count = 0; count < 1; count++)
             AddToDeck(weakAttack);
 
         AddToDeck(new CardData()
@@ -53,6 +62,15 @@ public class CardController : MonoBehaviour
             Param = 50,
             Type = CardType.StaminaHeal,
             Price = 100
+        });
+        AddToDeck(new CardData()
+        {
+            Name = "”ÍˆÍUŒ‚",
+            Param = 50,
+            Type = CardType.RangeAttack,
+            AttackAreaDataId = 0,
+            Price = 200,
+            Range = 10
         });
         Shuffle();
         DrawAll();
