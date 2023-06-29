@@ -60,7 +60,10 @@ public class Card : MonoBehaviour
         switch (Data.Type)
         {
             case CardType.NormalAttack:
-                NormalAttack(onComplete);
+                NormalAttack(onComplete, false);
+                break;
+            case CardType.ResourceAttack:
+                NormalAttack(onComplete, true);
                 break;
             case CardType.LongRangeAttack:
                 LongRangeAttack(onComplete);
@@ -84,12 +87,12 @@ public class Card : MonoBehaviour
         }
     }
 
-    private void NormalAttack(Action onComplete = null)
+    private void NormalAttack(Action onComplete, bool isResourceAttack)
     {
         var destPosition = Owner.Position + Owner.Angle;
         var target = ServiceLocator.Instance.FloorManager.GetUnit(destPosition) as Enemy;
         if (target != null)
-            Owner.Attack((int)Data.Param, target, () => onComplete?.Invoke());
+            Owner.Attack((int)Data.Param, target, () => onComplete?.Invoke(), isResourceAttack);
         else
             onComplete?.Invoke();
     }

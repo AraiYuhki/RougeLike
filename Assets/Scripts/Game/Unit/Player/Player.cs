@@ -27,9 +27,9 @@ public class Player : Unit
         }
     }
 
-    public override void Damage(int damage, Unit attacker)
+    public override void Damage(int damage, Unit attacker, bool isResourceAttack = false)
     {
-        base.Damage(damage, attacker);
+        base.Damage(damage, attacker, isResourceAttack);
         healInterval = 10;
     }
 
@@ -60,7 +60,7 @@ public class Player : Unit
             Heal(Data.MaxHP * 0.095f);
     }
 
-    public void Attack(int weaponAttack, Enemy target, TweenCallback onEndAttack = null)
+    public void Attack(int weaponAttack, Enemy target, TweenCallback onEndAttack = null, bool isResourceAttack = false)
     {
         var damage = DamageUtil.GetDamage(this, weaponAttack, target);
         var targetPosition = new Vector3(target.Position.x, target.transform.localPosition.y, target.Position.y);
@@ -71,7 +71,7 @@ public class Player : Unit
         sequence.OnComplete(() =>
         {
             OnAttack?.Invoke(this, target);
-            target.Damage(damage, this);
+            target.Damage(damage, this, isResourceAttack);
             onEndAttack?.Invoke();
         });
         sequence.SetAutoKill(true);

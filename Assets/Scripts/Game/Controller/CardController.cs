@@ -25,7 +25,7 @@ public class CardController : MonoBehaviour
     private Card[] hands = new Card[4];
     private List<Card> cemetary = new List<Card>();
 
-    public Player Owner { get; set; }
+    public Player Player { get; set; }
 
     public Card GetHandCard(int handIndex) => hands[handIndex];
 
@@ -65,9 +65,9 @@ public class CardController : MonoBehaviour
         });
         AddToDeck(new CardData()
         {
-            Name = "ïîâÆçUåÇ",
-            Param = 30,
-            Type = CardType.RoomAttack,
+            Name = "ã≠íD",
+            Param = 100,
+            Type = CardType.ResourceAttack,
             Price = 200
         });
         Shuffle();
@@ -79,7 +79,7 @@ public class CardController : MonoBehaviour
         var card = Instantiate(originalCard, transform);
         card.transform.localPosition = new Vector3(0f, -500f, 0f);
         card.transform.localScale = Vector3.one;
-        card.SetData(data, Owner);
+        card.SetData(data, Player);
         card.VisibleFrontSide = false;
         deck.Add(card);
         var sequence = DOTween.Sequence();
@@ -98,7 +98,7 @@ public class CardController : MonoBehaviour
         var card = Instantiate(originalCard, deckContainer);
         card.transform.localPosition = Vector3.zero;
         card.transform.localScale = Vector3.one;
-        card.SetData(data, Owner);
+        card.SetData(data, Player);
         card.VisibleFrontSide = false;
         deck.Add(card);
     }

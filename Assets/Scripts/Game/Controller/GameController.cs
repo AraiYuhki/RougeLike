@@ -68,7 +68,7 @@ public class GameController : MonoBehaviour
 
         turnControll = StartCoroutine(TurnControll());
 
-        cardController.Owner = player;
+        cardController.Player = player;
         cardController.Initialize();
 
         player.Initialize();
@@ -76,7 +76,7 @@ public class GameController : MonoBehaviour
         player.OnMoved += floorManager.OnMoveUnit;
 
         enemyManager.Initialize(player);
-        itemManager.Initialize();
+        itemManager.Initialize(150, 1, 5);
     }
 
     private int index = 0;

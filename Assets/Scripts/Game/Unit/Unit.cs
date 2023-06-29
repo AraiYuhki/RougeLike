@@ -44,7 +44,7 @@ public class Unit : MonoBehaviour
     public void Move(int x, int z) => Move(new Vector2Int(x, z));
     public virtual void Move(Vector2Int move) => Move(move, null);
 
-    public virtual void Attack(Unit target, TweenCallback onEndAttack = null)
+    public virtual void Attack(Unit target, TweenCallback onEndAttack = null, bool isResourceAttack = false)
     {
         var damage = DamageUtil.GetDamage(this, target);
         var targetPosition = new Vector3(target.Position.x, target.transform.localPosition.y, target.Position.y);
@@ -55,7 +55,7 @@ public class Unit : MonoBehaviour
         sequence.OnComplete(() =>
         {
             OnAttack?.Invoke(this, target);
-            target.Damage(damage, this);
+            target.Damage(damage, this, isResourceAttack);
             onEndAttack?.Invoke();
         });
         sequence.SetAutoKill(true);
@@ -64,7 +64,7 @@ public class Unit : MonoBehaviour
         ChargeStack = 0;
     }
 
-    public virtual void Attack(int weaponPower, AttackAreaData attackArea, Action onComplete = null)
+    public virtual void Attack(int weaponPower, AttackAreaData attackArea, Action onComplete = null, bool isResourceAttack = false)
     {
         var floorManager = ServiceLocator.Instance.FloorManager;
         var tween = DOTween.Sequence();
@@ -81,7 +81,7 @@ public class Unit : MonoBehaviour
                 var target = floorManager.GetUnit(position);
                 if (this is Player player && target is Enemy enemy)
                 {
-                    enemy.Damage(DamageUtil.GetDamage(player, weaponPower, enemy), this);
+                    enemy.Damage(DamageUtil.GetDamage(player, weaponPower, enemy), this, isResourceAttack);
                 }
             }
             onComplete?.Invoke();
@@ -165,21 +165,22 @@ public class Unit : MonoBehaviour
         Hp = Mathf.Min(Hp, MaxHp);
     }
 
-    public virtual void Damage(int damage, Unit attacker)
+    public virtual void Damage(int damage, Unit attacker, bool isResourceAttack = false)
     {
         Hp -= damage;
         OnDamage?.Invoke(attacker, damage);
         Debug.LogError($"{name}ÇÕ{damage}É_ÉÅÅ[ÉWÇéÛÇØÇΩ");
         if (Hp <= 0)
-            Dead(attacker);
+            Dead(attacker, isResourceAttack);
     }
 
-    public void Dead(Unit attacker)
+    public void Dead(Unit attacker, bool isResourceAttack = false)
     {
         if (this is Enemy enemy && attacker != null)
         {
             attacker.AddExp(enemy.Data.Exp);
             Debug.LogError($"{enemy.Data.Name}ÇÕì|ÇÍÇΩ");
+            if (isResourceAttack) ServiceLocator.Instance.ItemManager.Drop(UnityEngine.Random.Range(1, 20), Position, true);
         }
         OnDead?.Invoke();
     }
