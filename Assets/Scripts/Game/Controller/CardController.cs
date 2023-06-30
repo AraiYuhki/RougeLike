@@ -29,7 +29,8 @@ public class CardController : MonoBehaviour
 
     public Card GetHandCard(int handIndex) => hands[handIndex];
 
-    public int AllCards => deck.Count + cemetary.Count + hands.Count(hand => hand != null);
+    public int AllCardsCount => deck.Count + cemetary.Count + hands.Count(hand => hand != null);
+    public List<Card> AllCards => deck.Concat(cemetary).Concat(hands).ToList();
 
     private void Update()
     {
@@ -158,5 +159,24 @@ public class CardController : MonoBehaviour
         card.Goto(cemetaryContainer);
         Draw(handIndex);
         if (hands.All(hand => hand == null)) Reload();
+    }
+
+    public void Remove(Card card)
+    {
+        if (deck.Contains(card)) deck.Remove(card);
+        else if (cemetary.Contains(card)) cemetary.Remove(card);
+        else
+        {
+            for (var index = 0; index < hands.Length; index++)
+            {
+                if (hands[index] == card)
+                {
+                    hands[index] = null;
+                    break;
+                }
+            }
+        }
+        Destroy(card.gameObject);
+
     }
 }

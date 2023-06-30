@@ -44,6 +44,11 @@ public class MenuUI : MonoBehaviour
 
     public bool IsOpened { get; set; } = false;
 
+    public void Awake()
+    {
+        inventoryUI.OnSubmit = SelectedItem;
+    }
+
     public void Initialize(Player player, Action onUsed, Action onTakeItem, Action<ItemBase> onThrowItem, Action<ItemBase> onDropItem)
     {
         mainMenu.Initialize(
@@ -153,37 +158,42 @@ public class MenuUI : MonoBehaviour
 
         if (InputUtility.Submit.IsTriggerd())
         {
-            var menu = new List<(string, UnityAction)>();
-            if (inventoryUI.SelectedItem is WeaponData weapon)
-            {
-                menu.Add(("装備", () => EquipWeapon(weapon)));
-            }
-            else if (inventoryUI.SelectedItem is ShieldData shield)
-            {
-                menu.Add(("装備", () => EquipShield(shield)));
-            }
-            else if (inventoryUI.SelectedItem is UsableItemData data)
-            {
-                menu.Add(("使う", () => UseItem(data)));
-            }
-            menu.Add(("投げる", () => { ThrowItem(); }));
-            if (ServiceLocator.Instance.FloorManager.GetItem(Player.Position) == null)
-                menu.Add(("置く", DropItem));
-            menu.Add(("戻る", () =>
-            {
-                useMenuUI.Close();
-                type = ControllType.Inventory;
-            }
-            ));
-            useMenuUI.Initialize(menu);
-            useMenuUI.Open();
-            type = ControllType.UseMenu;
+            SelectedItem(InventoryUI.SelectedItem);
         }
         else if (InputUtility.Cancel.IsTriggerd())
         {
             ServiceLocator.Instance.DungeonUI.Minimap.SetMode(MinimapMode.Menu);
             inventoryUI.Close(() => type = ControllType.Main);
         }
+    }
+
+    private void SelectedItem(ItemBase item)
+    {
+        var menu = new List<(string, UnityAction)>();
+        if (item is WeaponData weapon)
+        {
+            menu.Add(("装備", () => EquipWeapon(weapon)));
+        }
+        else if (item is ShieldData shield)
+        {
+            menu.Add(("装備", () => EquipShield(shield)));
+        }
+        else if (item is UsableItemData data)
+        {
+            menu.Add(("使う", () => UseItem(data)));
+        }
+        menu.Add(("投げる", () => { ThrowItem(); }));
+        if (ServiceLocator.Instance.FloorManager.GetItem(Player.Position) == null)
+            menu.Add(("置く", DropItem));
+        menu.Add(("戻る", () =>
+        {
+            useMenuUI.Close();
+            type = ControllType.Inventory;
+        }
+        ));
+        useMenuUI.Initialize(menu);
+        useMenuUI.Open();
+        type = ControllType.UseMenu;
     }
 
     private void UseMenuControll()

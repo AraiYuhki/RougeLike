@@ -11,6 +11,7 @@ public enum GameStatus
     UIControll,
     EnemyControll,
     TurnEnd,
+    Shop,
 }
 
 public class GameController : MonoBehaviour
@@ -21,6 +22,8 @@ public class GameController : MonoBehaviour
     private UIManager uiManager;
     [SerializeField]
     private CardController cardController = null;
+    [SerializeField]
+    private ShopWindow shopWindow;
     [SerializeField]
     private Player player = null;
 
@@ -80,16 +83,15 @@ public class GameController : MonoBehaviour
         Fade.Instance.FadeIn(() => status = GameStatus.PlayerControll);
     }
 
-    private int index = 0;
     private void Update()
     {
-    }
-
-    private void OpenDialog()
-    {
-        var dialog = ServiceLocator.Instance.DialogManager.Open<CommonDialog>();
-        dialog.Initialize($"�e�X�g{index}", $"�e�X�g�_�C�A���O{index}", ("����ɊJ��", () => OpenDialog()), ("����", () => ServiceLocator.Instance.DialogManager.Close(dialog)));
-        index++;
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (!shopWindow.IsOpened)
+                OpenShop();
+            else
+                shopWindow.Close();
+        }
     }
 
     private void OnDestroy()
@@ -122,6 +124,9 @@ public class GameController : MonoBehaviour
                     foreach (var unit in FindObjectsOfType<Unit>())
                         unit.TurnEnd();
                     status = GameStatus.PlayerControll;
+                    break;
+                case GameStatus.Shop:
+                    yield return shopWindow.Controll();
                     break;
                 case GameStatus.Wait:
                 default:
@@ -221,7 +226,7 @@ public class GameController : MonoBehaviour
             {
                 player.Move(move);
                 TakeItem();
-                // �K�i���Ȃ���΂��̂܂܎���
+                // 移動先が階段か確認する
                 isExecuteCommand = !CheckStair();
             }
         }
@@ -287,7 +292,7 @@ public class GameController : MonoBehaviour
         tween.onComplete += () =>
         {
             floorManager.RemoveItem(item.Position);
-            // ������ʒu�Ƀh���b�v�ł��Ȃ��ꍇ�͎��͂���h���b�v�ł���ꏊ��T��
+            // 飛んでいった先に敵がいるか？
             if (targetPosition.enemy != null)
             {
                 var enemy = targetPosition.enemy;
@@ -295,7 +300,7 @@ public class GameController : MonoBehaviour
                     enemy.Damage(DamageUtil.GetDamage(player, weapon.Atk), player);
                 else if (target is ShieldData shield)
                     enemy.Damage(DamageUtil.GetDamage(player, shield.Def), player);
-                // ����A�C�e���𓊂������ꍇ�́A�����I�ɂ��̌��ʂ𔭓�������
+                // ぶつけたアイテムを強制的に使用させる
                 else if (target is UsableItemData usableItem)
                     usableItem.Use(enemy);
                 itemManager.Despawn(item);
@@ -304,12 +309,12 @@ public class GameController : MonoBehaviour
             }
             if (!floorManager.CanDrop(targetPosition.position))
             {
-                // ���͂̃h���b�v�ł���ꏊ�����
+                // ドロップ可能タイルを検索
                 var candidate = floorManager.GetCanDropTile(targetPosition.position);
-                // ��₠��
+                // ドロップ可能
                 if (candidate != null)
                 {
-                    // �h���b�v�A�j��
+                    // ドロップ
                     Debug.LogError(candidate.Position);
                     var dropTween = item.transform
                     .DOLocalMove(new Vector3(candidate.Position.X, 0f, candidate.Position.Y), 0.5f)
@@ -322,7 +327,7 @@ public class GameController : MonoBehaviour
                     };
                     return;
                 }
-                // ��₪�Ȃ��̂ŏ���
+                // ドロップできる場所がなかったので消滅
                 itemManager.Despawn(item);
                 return;
             }
@@ -338,12 +343,12 @@ public class GameController : MonoBehaviour
         if (item.IsGem)
         {
             player.Data.Gems += item.GemCount;
-            Debug.LogError($"�W�F����{item.GemCount}�E����");
+            Debug.LogError($"�ジェムを{item.GemCount}個手に入れた");
         }
         else
         {
             player.Data.TakeItem(item.Data);
-            Debug.LogError($"{item.Data.Name}��E����");
+            Debug.LogError($"{item.Data.Name}を拾った");
         }
         floorManager.RemoveItem(item.Position);
         ServiceLocator.Instance.ItemManager.Despawn(item);
@@ -356,12 +361,12 @@ public class GameController : MonoBehaviour
         if (stairPosition.X == player.Position.x && stairPosition.Y == player.Position.y)
         {
             var dialog = ServiceLocator.Instance.DialogManager.Open<CommonDialog>();
-            dialog.Initialize("�m�F", "���̊K�ɐi�݂܂����H", ("�͂�", () =>
+            dialog.Initialize("確認", "次の階ヘ進みますか？", ("はい", () =>
             {
                 ServiceLocator.Instance.DialogManager.Close(dialog);
                 Fade.Instance.FadeOut(OpenShop);
             }),
-            ("������", () =>
+            ("いいえ", () =>
             {
                 ServiceLocator.Instance.DialogManager.Close(dialog);
                 status = GameStatus.EnemyControll;
@@ -373,7 +378,14 @@ public class GameController : MonoBehaviour
 
     private void OpenShop()
     {
-
+        floorManager.gameObject.SetActive(false);
+        status = GameStatus.Shop;
+        shopWindow.Open();
+        shopWindow.OnClose = () =>
+        {
+            floorManager.gameObject.SetActive(true);
+            status = GameStatus.PlayerControll;
+        };
     }
 
     private IEnumerator UIControll()

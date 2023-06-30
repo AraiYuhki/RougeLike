@@ -13,7 +13,7 @@ public class Player : Unit
             if (ServiceLocator.Instance == null) return Data.MaxHP;
             if (ServiceLocator.Instance.GameController == null) return Data.MaxHP;
             if (ServiceLocator.Instance.GameController.CardController == null) return Data.MaxHP;
-            return ServiceLocator.Instance.GameController.CardController.AllCards * 10;
+            return ServiceLocator.Instance.GameController.CardController.AllCardsCount * 10;
         }
     }
     public override void RecoveryStamina(float value) => Data.Stamina += value;

@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using System;
 
 public class InventoryUI : ScrollMenu
 {
@@ -13,6 +14,8 @@ public class InventoryUI : ScrollMenu
 
     public ItemBase SelectedItem => (items[selectedIndex] as ItemRowController).ItemData;
     public ItemRowController SelectedRow => items[selectedIndex] as ItemRowController;
+
+    public Action<ItemBase> OnSubmit { get; set; }
 
     public void Initialize(Player player)
     {
@@ -28,7 +31,7 @@ public class InventoryUI : ScrollMenu
             var item = Instantiate(template as ItemRowController, baseObject);
             item.gameObject.SetActive(true);
             var isEquip = data.EquipmentWeapon == pair.Key || data.EquipmentShield == pair.Key;
-            item.Initialize(pair.Key, pair.Value, isEquip, () => SetSelectIndex(index));
+            item.Initialize(pair.Key, pair.Value, isEquip, () => SetSelectIndex(index), () => OnSubmit?.Invoke(pair.Key));
             items.Add(item);
         }
     }

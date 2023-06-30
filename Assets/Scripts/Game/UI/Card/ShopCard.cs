@@ -5,23 +5,32 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ShopCard : MonoBehaviour
+public class ShopCard : SelectableItem
 {
     [SerializeField]
     private Image illust;
     [SerializeField]
-    private TMP_Text label;
-    [SerializeField]
-    private Button button;
+    private TMP_Text priceLabel;
 
     private CardData data;
+
+    public int Price => data.Price;
+
+    public bool Enable
+    {
+        get => button.interactable;
+        set => button.interactable = value;
+    }
 
     public void SetData(CardData data, Action onClick = null)
     {
         this.data = data;
         label.text = data.Name;
+        priceLabel.text = $"{data.Price}G";
 
         button.onClick.AddListener(() => onClick?.Invoke());
     }
+
+    public void Click() => button.onClick?.Invoke();
 
 }
