@@ -58,7 +58,8 @@ public class Player : Unit
         else if (healInterval > 0)
             healInterval--;
         else
-            Heal(Data.MaxHP * 0.095f);
+            //Heal(Data.MaxHP * 0.095f);
+            Heal(1f);
     }
 
     public void Attack(int weaponAttack, Enemy target, TweenCallback onEndAttack = null)

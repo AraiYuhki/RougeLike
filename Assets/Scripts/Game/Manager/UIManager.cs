@@ -19,6 +19,8 @@ public class UIManager : MonoBehaviour
         set => menuUI.OnClose = value;
     }
 
+    public bool IsMenuOpened => menuUI.IsOpened;
+
     private Minimap minimap => dungeonUI.Minimap;
     private InventoryUI inventoryUI => menuUI.InventoryUI;
 

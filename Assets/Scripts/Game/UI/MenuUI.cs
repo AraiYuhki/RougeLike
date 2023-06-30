@@ -24,6 +24,8 @@ public class MenuUI : MonoBehaviour
     private StatusUI statusUI;
     [SerializeField]
     private UseMenuUI useMenuUI;
+    [SerializeField]
+    private SelectableItem closeButton;
 
     public InventoryUI InventoryUI => inventoryUI;
     public StatusUI StatusUI => statusUI;
@@ -33,7 +35,6 @@ public class MenuUI : MonoBehaviour
 
     private Player Player => ServiceLocator.Instance.GameController.Player;
     private PlayerData Data => Player.Data;
-    private bool isOpened = false;
     private ControllType type = ControllType.Inventory;
     private Action onUsed;
     private Action<ItemBase> onDropItem;
@@ -41,13 +42,16 @@ public class MenuUI : MonoBehaviour
     private Action onTakeItem;
     private Action onEquiped;
 
+    public bool IsOpened { get; set; } = false;
+
     public void Initialize(Player player, Action onUsed, Action onTakeItem, Action<ItemBase> onThrowItem, Action<ItemBase> onDropItem)
     {
         mainMenu.Initialize(
             OpenInventory, 
             CheckStep,
             Suspend,
-            Retire
+            Retire,
+            () => Close()
             );
         inventoryUI.Initialize(player);
         statusUI.Initialize(player);
@@ -64,7 +68,7 @@ public class MenuUI : MonoBehaviour
         {
             type = ControllType.Main;
             onComplete?.Invoke();
-            isOpened = true;
+            IsOpened = true;
         });
         minimap.SetMode(MinimapMode.Menu);
     }
@@ -75,7 +79,7 @@ public class MenuUI : MonoBehaviour
         inventoryUI.Close();
         useMenuUI.Close();
         statusUI.Close(() => {
-            isOpened = false;
+            IsOpened = false;
             onComplete?.Invoke();
             OnClose?.Invoke();
         });
@@ -84,7 +88,7 @@ public class MenuUI : MonoBehaviour
 
     public void SwitchOpenMenu(TweenCallback onComplete)
     {
-        if (!isOpened)
+        if (!IsOpened)
             Open(onComplete);
         else
             Close(onComplete);
