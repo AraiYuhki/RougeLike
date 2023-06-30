@@ -6,7 +6,16 @@ public class Player : Unit
 {
     public PlayerData Data { get; private set; } = new PlayerData(10);
     public override int Hp { get => Mathf.FloorToInt(Data.Hp); set => Data.Hp = value; }
-    public override int MaxHp { get => ServiceLocator.Instance.GameController.CardController.AllCards * 10; }
+    public override int MaxHp
+    {
+        get
+        {
+            if (ServiceLocator.Instance == null) return Data.MaxHP;
+            if (ServiceLocator.Instance.GameController == null) return Data.MaxHP;
+            if (ServiceLocator.Instance.GameController.CardController == null) return Data.MaxHP;
+            return ServiceLocator.Instance.GameController.CardController.AllCards * 10;
+        }
+    }
     public override void RecoveryStamina(float value) => Data.Stamina += value;
     public override void PowerUp(int value) => Data.Atk += value;
 
