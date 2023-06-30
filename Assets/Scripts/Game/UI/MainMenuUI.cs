@@ -15,15 +15,18 @@ public class MainMenuUI : ScrollMenu
     private SelectableItem pauseItem;
     [SerializeField]
     private SelectableItem retireItem;
+    [SerializeField]
+    private SelectableItem closeItem;
 
-    public void Initialize(UnityAction onSelectInventory, UnityAction onSelectFloor, UnityAction onSelectPause, UnityAction onSelectRetire)
+    public void Initialize(UnityAction onSelectInventory, UnityAction onSelectFloor, UnityAction onSelectPause, UnityAction onSelectRetire, UnityAction onSelectClose)
     {
         items = new List<SelectableItem>()
         {
             inventoryItem,
             floorItem,
             pauseItem,
-            retireItem
+            retireItem,
+            closeItem
         };
         group.alpha = 0f;
         gameObject.SetActive(false);
@@ -31,5 +34,6 @@ public class MainMenuUI : ScrollMenu
         floorItem.Initialize(() => SetSelectIndex(1), onSelectFloor);
         pauseItem.Initialize(() => SetSelectIndex(2), onSelectPause);
         retireItem.Initialize(() => SetSelectIndex(3), onSelectRetire);
+        closeItem.Initialize(() => SetSelectIndex(4), onSelectClose);
     }
 }

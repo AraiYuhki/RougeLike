@@ -50,7 +50,7 @@ public class GameController : MonoBehaviour
 
     private void Awake()
     {
-        status = GameStatus.PlayerControll;
+        status = GameStatus.Wait;
     }
 
     private void Start()
@@ -77,6 +77,7 @@ public class GameController : MonoBehaviour
 
         enemyManager.Initialize(player);
         itemManager.Initialize(150, 1, 5);
+        Fade.Instance.FadeIn(() => status = GameStatus.PlayerControll);
     }
 
     private int index = 0;
@@ -87,7 +88,7 @@ public class GameController : MonoBehaviour
     private void OpenDialog()
     {
         var dialog = ServiceLocator.Instance.DialogManager.Open<CommonDialog>();
-        dialog.Initialize($"ƒeƒXƒg{index}", $"ƒeƒXƒgƒ_ƒCƒAƒƒO{index}", ("‚³‚ç‚ÉŠJ‚­", () => OpenDialog()), ("•Â‚¶‚é", () => ServiceLocator.Instance.DialogManager.Close(dialog)));
+        dialog.Initialize($"ï¿½eï¿½Xï¿½g{index}", $"ï¿½eï¿½Xï¿½gï¿½_ï¿½Cï¿½Aï¿½ï¿½ï¿½O{index}", ("ï¿½ï¿½ï¿½ï¿½ÉŠJï¿½ï¿½", () => OpenDialog()), ("ï¿½Â‚ï¿½ï¿½ï¿½", () => ServiceLocator.Instance.DialogManager.Close(dialog)));
         index++;
     }
 
@@ -138,14 +139,31 @@ public class GameController : MonoBehaviour
     public void TurnMode() => isTurnMode = true;
     public void Wait() => isExecuteCommand = true;
 
+    public void SwitchMenu()
+    {
+        if (uiManager.IsMenuOpened) CloseMenu();
+        else OpenMenu();
+    }
+
+    public void OpenMenu()
+    {
+        uiManager.OpenMenu(() => status = GameStatus.UIControll);
+        status = GameStatus.Wait;
+    }
+
+    public void CloseMenu()
+    {
+        uiManager.CloseMenu(() => status = GameStatus.PlayerControll);
+        status = GameStatus.Wait;
+    }
+
     private IEnumerator PlayerControll()
     {
         if (player.IsLockInput) yield break;
 
         if (InputUtility.Menu.IsTriggerd())
         {
-            uiManager.OpenMenu(() => status = GameStatus.UIControll);
-            status = GameStatus.Wait;
+            OpenMenu();
             yield break;
         }
         if (InputUtility.Wait.IsPressed()) isExecuteCommand = true;
@@ -203,7 +221,8 @@ public class GameController : MonoBehaviour
             {
                 player.Move(move);
                 TakeItem();
-                isExecuteCommand = true;
+                // ï¿½Kï¿½iï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½Î‚ï¿½ï¿½Ì‚Ü‚Üï¿½ï¿½ï¿½
+                isExecuteCommand = !CheckStair();
             }
         }
         move = Vector2Int.zero;
@@ -268,7 +287,7 @@ public class GameController : MonoBehaviour
         tween.onComplete += () =>
         {
             floorManager.RemoveItem(item.Position);
-            // “–‚½‚éˆÊ’u‚Éƒhƒƒbƒv‚Å‚«‚È‚¢ê‡‚ÍüˆÍ‚©‚çƒhƒƒbƒv‚Å‚«‚éêŠ‚ğ’T‚·
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê’uï¿½Éƒhï¿½ï¿½ï¿½bï¿½vï¿½Å‚ï¿½ï¿½È‚ï¿½ï¿½ê‡ï¿½Íï¿½ï¿½Í‚ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½bï¿½vï¿½Å‚ï¿½ï¿½ï¿½êŠï¿½ï¿½Tï¿½ï¿½
             if (targetPosition.enemy != null)
             {
                 var enemy = targetPosition.enemy;
@@ -276,7 +295,7 @@ public class GameController : MonoBehaviour
                     enemy.Damage(DamageUtil.GetDamage(player, weapon.Atk), player);
                 else if (target is ShieldData shield)
                     enemy.Damage(DamageUtil.GetDamage(player, shield.Def), player);
-                // Á”ïƒAƒCƒeƒ€‚ğ“Š‚°‚Â‚¯‚½ê‡‚ÍA‹­§“I‚É‚»‚ÌŒø‰Ê‚ğ”­“®‚³‚¹‚é
+                // ï¿½ï¿½ï¿½ï¿½Aï¿½Cï¿½eï¿½ï¿½ï¿½ğ“Š‚ï¿½ï¿½Â‚ï¿½ï¿½ï¿½ï¿½ê‡ï¿½ÍAï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½É‚ï¿½ï¿½ÌŒï¿½ï¿½Ê‚ğ”­“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
                 else if (target is UsableItemData usableItem)
                     usableItem.Use(enemy);
                 itemManager.Despawn(item);
@@ -285,12 +304,12 @@ public class GameController : MonoBehaviour
             }
             if (!floorManager.CanDrop(targetPosition.position))
             {
-                // üˆÍ‚Ìƒhƒƒbƒv‚Å‚«‚éêŠ‚ğŒŸõ
+                // ï¿½ï¿½ï¿½Í‚Ìƒhï¿½ï¿½ï¿½bï¿½vï¿½Å‚ï¿½ï¿½ï¿½êŠï¿½ï¿½ï¿½ï¿½ï¿½
                 var candidate = floorManager.GetCanDropTile(targetPosition.position);
-                // Œó•â‚ ‚è
+                // ï¿½ï¿½â‚ ï¿½ï¿½
                 if (candidate != null)
                 {
-                    // ƒhƒƒbƒvƒAƒjƒ
+                    // ï¿½hï¿½ï¿½ï¿½bï¿½vï¿½Aï¿½jï¿½ï¿½
                     Debug.LogError(candidate.Position);
                     var dropTween = item.transform
                     .DOLocalMove(new Vector3(candidate.Position.X, 0f, candidate.Position.Y), 0.5f)
@@ -303,7 +322,7 @@ public class GameController : MonoBehaviour
                     };
                     return;
                 }
-                // Œó•â‚ª‚È‚¢‚Ì‚ÅÁ–Å
+                // ï¿½ï¿½â‚ªï¿½È‚ï¿½ï¿½Ì‚Åï¿½ï¿½ï¿½
                 itemManager.Despawn(item);
                 return;
             }
@@ -319,26 +338,50 @@ public class GameController : MonoBehaviour
         if (item.IsGem)
         {
             player.Data.Gems += item.GemCount;
-            Debug.LogError($"ƒWƒFƒ€‚ğ{item.GemCount}ŒÂE‚Á‚½");
+            Debug.LogError($"ï¿½Wï¿½Fï¿½ï¿½ï¿½ï¿½{item.GemCount}ï¿½ÂEï¿½ï¿½ï¿½ï¿½");
         }
         else
         {
             player.Data.TakeItem(item.Data);
-            Debug.LogError($"{item.Data.Name}‚ğE‚Á‚½");
+            Debug.LogError($"{item.Data.Name}ï¿½ï¿½Eï¿½ï¿½ï¿½ï¿½");
         }
         floorManager.RemoveItem(item.Position);
         ServiceLocator.Instance.ItemManager.Despawn(item);
         status = GameStatus.EnemyControll;
     }
 
+    private bool CheckStair()
+    {
+        var stairPosition = floorManager.FloorData.StairPosition;
+        if (stairPosition.X == player.Position.x && stairPosition.Y == player.Position.y)
+        {
+            var dialog = ServiceLocator.Instance.DialogManager.Open<CommonDialog>();
+            dialog.Initialize("ï¿½mï¿½F", "ï¿½ï¿½ï¿½ÌŠKï¿½Éiï¿½İ‚Ü‚ï¿½ï¿½ï¿½ï¿½H", ("ï¿½Í‚ï¿½", () =>
+            {
+                ServiceLocator.Instance.DialogManager.Close(dialog);
+                Fade.Instance.FadeOut(OpenShop);
+            }),
+            ("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½", () =>
+            {
+                ServiceLocator.Instance.DialogManager.Close(dialog);
+                status = GameStatus.EnemyControll;
+            }));
+            return true;
+        }
+        return false;
+    }
+
+    private void OpenShop()
+    {
+
+    }
+
     private IEnumerator UIControll()
     {
         if (InputUtility.Menu.IsTriggerd())
         {
-            uiManager.CloseMenu();
-            status = GameStatus.Wait;
+            CloseMenu();
             yield return null;
-            yield break;
         }
 
         yield return uiManager.UpdateUI();

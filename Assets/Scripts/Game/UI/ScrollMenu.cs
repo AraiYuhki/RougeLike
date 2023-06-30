@@ -126,8 +126,14 @@ public class ScrollMenu : MonoBehaviour
 
     protected void SetSelectIndex(int index)
     {
+        var prevIndex = selectedIndex;
         selectedIndex = index;
         FixIndex();
+        if (prevIndex != selectedIndex)
+        {
+            items[selectedIndex].Select(true);
+            items[prevIndex].Select(false);
+        }
     }
 
     protected virtual void FixIndex()

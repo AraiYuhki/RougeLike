@@ -49,7 +49,11 @@ public class SelectableItem : MonoBehaviour
         tween.Play();
     }
 
+    public void OnHover()
+    {
+        onSelect?.Invoke();
+    }
+
     public void Submit() => button.onClick?.Invoke();
-    public void OnMouseOver() => onSelect?.Invoke();
     protected void OnDestroy() => tween?.Kill();
 }
