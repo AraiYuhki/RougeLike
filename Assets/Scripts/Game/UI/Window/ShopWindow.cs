@@ -35,7 +35,12 @@ public class ShopWindow : MonoBehaviour
     private Sequence tween;
 
     private int columnCount = 0;
-    private int GetRowCount(int elementCounts) => Mathf.CeilToInt(elementCounts / columnCount) + 1;
+    private int GetRowCount(int elementCounts)
+    {
+        var result = Mathf.CeilToInt(elementCounts / columnCount);
+        if (elementCounts % columnCount > 0) result++;
+        return result;
+    }
     private int GetIndex(Vector2Int index) => columnCount * index.y + index.x;
 
     private Vector2Int shopSelectCardIndex = Vector2Int.zero;
@@ -67,7 +72,7 @@ public class ShopWindow : MonoBehaviour
         InitializeShop();
         tabGroups.OnChangeTab = () =>
         {
-            if (tabGroups.SelectIndex != 1) return;
+            if (tabGroups.SelectIndex != (int)TabType.Deck) return;
             InitializeDeck();
         };
     }
@@ -122,7 +127,14 @@ public class ShopWindow : MonoBehaviour
             if (prevIndex.x != deckSelectCardIndex.x || prevIndex.y != deckSelectCardIndex.y)
             {
                 deckCards[GetIndex(prevIndex)].Select(false);
-                deckCards[GetIndex(deckSelectCardIndex)].Select(true);
+                try {
+                    deckCards[GetIndex(deckSelectCardIndex)].Select(true);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError(deckSelectCardIndex);
+                    Debug.LogException(e);
+                }
             }
         }
 
@@ -133,7 +145,6 @@ public class ShopWindow : MonoBehaviour
     {
         // 行数を取得
         var rowCount = GetRowCount(elementCount);
-        Debug.LogError(index);
         // Y軸のインデックスを補正する
         if (index.y < 0) index.y += rowCount;
         else if (index.y >= rowCount) index.y -= rowCount;
@@ -218,6 +229,7 @@ public class ShopWindow : MonoBehaviour
                 }));
             });
             obj.Enable = canRemove;
+            deckCards.Add(obj);
         }
         deckCards[GetIndex(deckSelectCardIndex)].Select(true);
     }
