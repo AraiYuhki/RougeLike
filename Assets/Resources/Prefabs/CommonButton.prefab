@@ -135,6 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c52a59702cb25a478b927aeb16e1180, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  initialColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
   button: {fileID: 3961902169387616622}
   label: {fileID: 3720408829539493160}
 --- !u!1 &4278507639626700732

@@ -6,7 +6,7 @@ using UnityEngine;
 public class TabGroups : MonoBehaviour
 {
     [SerializeField]
-    private List<SelectableItem> tabs = new List<SelectableItem>();
+    private List<ExToggle> tabs = new List<ExToggle>();
     [SerializeField]
     private List<GameObject> contents = new List<GameObject>();
     [SerializeField]
@@ -14,27 +14,45 @@ public class TabGroups : MonoBehaviour
 
     public Action OnChangeTab { get; set; }
 
-    public int SelectIndex => selectIndex;
+    private bool isChanging = false;
+
+    public int SelectIndex
+    {
+        get => selectIndex;
+        set => UpdateView(value);
+    }
 
     private void Start()
     {
         foreach((var tab, var index) in tabs.Select((tab, index) => (tab, index)))
         {
-            tab.Initialize(null, () => UpdateView(index));
+            tab.OnValueChanged = _ => 
+            {
+                UpdateView(index);
+            };
         }
     }
 
     private void UpdateView(int newIndex)
     {
+        if (isChanging) return;
+        isChanging = true;
+        if (newIndex < 0) newIndex += tabs.Count;
+        else if (newIndex >= tabs.Count) newIndex -= tabs.Count;
         for (var index = 0; index < tabs.Count; index++)
         {
             tabs[index].Select(index == newIndex);
             contents[index].gameObject.SetActive(index == newIndex);
         }
-        if (selectIndex == newIndex) return;
+        if (selectIndex == newIndex)
+        {
+            isChanging = false;
+            return;
+        }
 
         selectIndex = newIndex;
         OnChangeTab?.Invoke();
+        isChanging = false;
     }
 
 #if UNITY_EDITOR
