@@ -30,7 +30,7 @@ public class CardController : MonoBehaviour
     public Card GetHandCard(int handIndex) => hands[handIndex];
 
     public int AllCardsCount => deck.Count + cemetary.Count + hands.Count(hand => hand != null);
-    public List<Card> AllCards => deck.Concat(cemetary).Concat(hands).ToList();
+    public List<Card> AllCards => deck.Concat(cemetary).Concat(hands).Where(card => card != null).ToList();
 
     private void Update()
     {

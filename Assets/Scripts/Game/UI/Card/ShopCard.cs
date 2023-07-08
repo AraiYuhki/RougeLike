@@ -22,13 +22,12 @@ public class ShopCard : SelectableItem
         set => button.interactable = value;
     }
 
-    public void SetData(CardData data, Action onClick = null)
+    public void SetData(CardData data, Action onSelect = null, Action onClick = null)
     {
         this.data = data;
         label.text = data.Name;
         priceLabel.text = $"{data.Price}G";
-
-        button.onClick.AddListener(() => onClick?.Invoke());
+        Initialize(onSelect, () => onClick?.Invoke());
     }
 
     public void Click() => button.onClick?.Invoke();
