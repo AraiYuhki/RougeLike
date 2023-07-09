@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 830426458121572175}
   - component: {fileID: 8490391559374926875}
   - component: {fileID: 2132508341458326402}
+  - component: {fileID: 3922674195455557173}
   m_Layer: 5
   m_Name: Deck
   m_TagString: Untagged
@@ -78,6 +79,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3922674195455557173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 438647493590422160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d32b71f142840764d9524f234085527a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scrollView: {fileID: 2132508341458326402}
+  container: {fileID: 1548775518736518030}
+  rectTransform: {fileID: 867472625569632641}
+  grid: {fileID: 3048570211898563656}
 --- !u!1 &1626247088055036526
 GameObject:
   m_ObjectHideFlags: 0
@@ -566,6 +583,7 @@ GameObject:
   - component: {fileID: 6183201665103137151}
   - component: {fileID: 6183201665103137149}
   - component: {fileID: 6183201665103137148}
+  - component: {fileID: 317703268456324317}
   m_Layer: 5
   m_Name: Shop
   m_TagString: Untagged
@@ -633,6 +651,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &317703268456324317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6183201665103137150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d32b71f142840764d9524f234085527a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scrollView: {fileID: 6183201665103137148}
+  container: {fileID: 6183201665439186460}
+  rectTransform: {fileID: 6183201665108865123}
+  grid: {fileID: 6882080629893123553}
 --- !u!1 &6183201665108865122
 GameObject:
   m_ObjectHideFlags: 0
@@ -1034,7 +1068,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6183201665566105353}
   m_HandleRect: {fileID: 6183201665566105352}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1168,6 +1202,9 @@ MonoBehaviour:
   shopContainer: {fileID: 6183201665439186460}
   deckContainer: {fileID: 1548775518736518030}
   originalCard: {fileID: 8059155535396764827, guid: 0d67fca554683bf4ca53d60d2c511f4a, type: 3}
+  shopMenu: {fileID: 317703268456324317}
+  deckMenu: {fileID: 3922674195455557173}
+  rowCountInScreen: 0
 --- !u!1 &6297739763994956457
 GameObject:
   m_ObjectHideFlags: 0

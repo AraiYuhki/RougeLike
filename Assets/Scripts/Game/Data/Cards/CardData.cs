@@ -86,7 +86,15 @@ public class CardData : ICloneable
 
     public virtual object Clone()
     {
-        throw new NotImplementedException();
+        return new CardData
+        {
+            Name = Name,
+            Type = Type,
+            Param = Param,
+            Range = Range,
+            Price = Price,
+            AttackAreaDataId = AttackAreaDataId,
+        };
     }
 
     public virtual bool CanUse(Unit user)

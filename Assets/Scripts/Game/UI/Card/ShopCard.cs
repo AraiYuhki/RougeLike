@@ -12,9 +12,9 @@ public class ShopCard : SelectableItem
     [SerializeField]
     private TMP_Text priceLabel;
 
-    private CardData data;
-
-    public int Price => data.Price;
+    public CardData Data { get; private set; }
+    public Card Card { get; private set; }
+    public int Price => Data.Price;
 
     public bool Enable
     {
@@ -22,9 +22,10 @@ public class ShopCard : SelectableItem
         set => button.interactable = value;
     }
 
-    public void SetData(CardData data, Action onSelect = null, Action onClick = null)
+    public void SetData(CardData data, Card card, Action onSelect = null, Action onClick = null)
     {
-        this.data = data;
+        Card = card;
+        Data = data;
         label.text = data.Name;
         priceLabel.text = $"{data.Price}G";
         Initialize(onSelect, () => onClick?.Invoke());

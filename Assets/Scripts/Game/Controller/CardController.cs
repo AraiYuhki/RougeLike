@@ -39,38 +39,8 @@ public class CardController : MonoBehaviour
 
     public void Initialize()
     {
-        var weakAttack = new CardData()
-        {
-            Name = "é„çUåÇ",
-            Param = 50,
-            Type = CardType.NormalAttack,
-            Price = 50
-        };
-        for (var count = 0; count < 1; count++)
-            AddToDeck(weakAttack);
-
-        AddToDeck(new CardData()
-        {
-            Name = "ñÚëê",
-            Param = 50,
-            Type = CardType.Heal,
-            Price = 100
-        });
-
-        AddToDeck(new CardData()
-        {
-            Name = "Ç®Ç…Ç¨ÇË",
-            Param = 50,
-            Type = CardType.StaminaHeal,
-            Price = 100
-        });
-        AddToDeck(new CardData()
-        {
-            Name = "ã≠íD",
-            Param = 100,
-            Type = CardType.ResourceAttack,
-            Price = 200
-        });
+        foreach(var _ in Enumerable.Range(0, 25))
+            AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First().Clone() as CardData);
         Shuffle();
         DrawAll();
     }

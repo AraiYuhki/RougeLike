@@ -22,45 +22,63 @@ public class ShopWindow : MonoBehaviour
     [SerializeField]
     private CanvasGroup canvasGroup;
     [SerializeField]
-    private ScrollRect shopScroll;
-    [SerializeField]
-    private ScrollRect deckScroll;
-    [SerializeField]
-    private Transform shopContainer;
-    [SerializeField]
-    private Transform deckContainer;
-    [SerializeField]
     private ShopCard originalCard;
 
-    private List<ShopCard> shopCards = new List<ShopCard>();
-    private List<ShopCard> deckCards = new List<ShopCard>();
+    [SerializeField]
+    private GridScrollMenu shopMenu;
+    [SerializeField]
+    private GridScrollMenu deckMenu;
+
     private Sequence tween;
 
-    private int columnCount = 0;
-    private int rowCountInScreen = 0;
-    private int GetRowCount(int elementCounts)
-    {
-        var result = Mathf.CeilToInt(elementCounts / columnCount);
-        if (elementCounts % columnCount > 0) result++;
-        return result;
-    }
-    private int GetIndex(Vector2Int index) => columnCount * index.y + index.x;
-
-    private Vector2Int shopSelectCardIndex = Vector2Int.zero;
-    private Vector2Int deckSelectCardIndex = Vector2Int.zero;
-    private int topRowNumber = 0;
-    private int bottomRowNumber = 0;
     private CardController cardController => ServiceLocator.Instance.GameController.CardController;
+    private GridScrollMenu currentMenu
+    {
+        get
+        {
+            if (tabGroups.SelectIndex == (int)TabType.Shop)
+                return shopMenu;
+            return deckMenu;
+        }
+    }
 
     public Action OnClose { get; set; }
     public bool IsOpened { get; private set; }
 
     private void Start()
     {
-        // 列数は事前に計算しておく
-        columnCount = Mathf.FloorToInt(window.rectTransform.sizeDelta.x / 200f);
-        rowCountInScreen = Mathf.FloorToInt(shopScroll.GetComponent<RectTransform>().rect.height / 200f) - 1;
-        bottomRowNumber = rowCountInScreen;
+        shopMenu.OnSubmit = selectedItem =>
+        {
+            if (selectedItem is ShopCard card)
+            {
+                var data = card.Data;
+                var dialog = DialogManager.Instance.Open<CommonDialog>();
+                dialog.Initialize("確認", $"{data.Name}を{data.Price}Gで購入しますか？", 
+                    ("はい", () => BuyCard(dialog, data)),
+                    ("いいえ", () => DialogManager.Instance.Close(dialog))
+                );
+            }
+        };
+
+        deckMenu.OnSubmit = selectedItem =>
+        {
+            if (selectedItem is ShopCard card)
+            {
+                var data = card.Data;
+                var dialog = DialogManager.Instance.Open<CommonDialog>();
+                dialog.Initialize("確認", $"{card.Data.Name}を200Gで破棄しますか？", ("はい", () =>
+                {
+                    deckMenu.RemoveItem(selectedItem);
+                    RemoveCard(dialog, card.Card, card);
+                }
+                ),
+                ("いいえ", () =>
+                {
+                    DialogManager.Instance.Close(dialog);
+                }
+                ));
+            }
+        };
     }
 
     public void Open(Action onComplete = null)
@@ -110,29 +128,17 @@ public class ShopWindow : MonoBehaviour
 
         var move = Vector2Int.zero;
         if (InputUtility.Right.IsTriggerd())
-            move.x = 1;
+            currentMenu.Right();
         else if (InputUtility.Left.IsTriggerd())
-            move.x = -1;
+            currentMenu.Left();
         if (InputUtility.Up.IsTriggerd())
-            move.y = -1;
+            currentMenu.Down();
         else if (InputUtility.Down.IsTriggerd())
-            move.y = 1;
+            currentMenu.Up();
 
         if (InputUtility.Submit.IsTriggerd())
         {
-            var gems = ServiceLocator.Instance.GameController.Player.Data.Gems;
-            if (tabGroups.SelectIndex == (int)TabType.Shop)
-            {
-                var card = shopCards[GetIndex(shopSelectCardIndex)];
-                if (gems >= card.Price)
-                    card.Submit();
-            }
-            else
-            {
-                if (gems >= 200)
-                    deckCards[GetIndex(deckSelectCardIndex)].Submit();
-            }
-            move = Vector2Int.zero;
+            currentMenu.Submit();
         }
         else if (InputUtility.Cancel.IsTriggerd())
         {
@@ -140,133 +146,34 @@ public class ShopWindow : MonoBehaviour
             yield break;
         }
 
-        if (tabGroups.SelectIndex == (int)TabType.Shop)
-        {
-            var prevIndex = shopSelectCardIndex;
-            shopSelectCardIndex = FixIndex(shopSelectCardIndex + move, shopCards.Count);
-            if (prevIndex.x != shopSelectCardIndex.x || prevIndex.y != shopSelectCardIndex.y)
-            {
-                shopCards[GetIndex(prevIndex)].Select(false);
-                shopCards[GetIndex(shopSelectCardIndex)].Select(true);
-                FixScroll(shopScroll, shopSelectCardIndex, shopCards.Count);
-            }
-        }
-        else if (tabGroups.SelectIndex == (int)TabType.Deck)
-        {
-            var prevIndex = deckSelectCardIndex;
-            deckSelectCardIndex = FixIndex(deckSelectCardIndex + move, deckCards.Count);
-            if (prevIndex.x != deckSelectCardIndex.x || prevIndex.y != deckSelectCardIndex.y)
-            {
-                deckCards[GetIndex(prevIndex)].Select(false);
-                deckCards[GetIndex(deckSelectCardIndex)].Select(true);
-                FixScroll(deckScroll, deckSelectCardIndex, deckCards.Count);
-            }
-        }
-
         yield return null;
-    }
-
-    private Vector2Int FixIndex(Vector2Int index, int elementCount)
-    {
-        // 行数を取得
-        var rowCount = GetRowCount(elementCount);
-        // Y軸のインデックスを補正する
-        if (index.y < 0) index.y += rowCount;
-        else if (index.y >= rowCount) index.y -= rowCount;
-
-        // 現在の行の列数を算出する
-        var currentLineColumnCount = columnCount;
-        var lastIndex = (index.y + 1) * columnCount - 1; // 現在の行の末尾のインデックスを算出
-        // 現在の行末のインデックスが要素数より大きい場合は、列数が足りていないので差分だけ減らす
-        if (lastIndex > elementCount)
-        {
-            var diff = lastIndex - elementCount;
-            currentLineColumnCount = columnCount - (diff + 1);
-            index.x = Mathf.Clamp(index.x, 0, currentLineColumnCount);
-        }
-        // X軸のインデックスを補正する
-        if (index.x < 0) index.x += currentLineColumnCount;
-        else if (index.x >= currentLineColumnCount) index.x -= currentLineColumnCount;
-
-        return index;
     }
 
     public void InitializeShop()
     {
-        foreach (var card in shopCards)
-            Destroy(card.gameObject);
-        shopCards.Clear();
-
+        shopMenu.Clear();
         foreach ((var data, var index) in DataBase.Instance.GetTable<MCard>().Data.Select((data, index) => (data, index)))
         {
-            var card = Instantiate(originalCard, shopContainer);
-            card.SetData(data, () =>
-            {
-                shopCards[GetIndex(shopSelectCardIndex)].Select(false);
-                card.Select(true);
-                // インデックスを逆算する
-                var index = shopCards.IndexOf(card);
-                shopSelectCardIndex.x = index % columnCount;
-                shopSelectCardIndex.y = index / columnCount;
-            },
-            () =>
-            {
-                var dialog = DialogManager.Instance.Open<CommonDialog>();
-                dialog.Initialize("確認", $"{data.Name}を{data.Price}Gで購入しますか？", ("はい", () =>
-                {
-                    BuyCard(dialog, data);
-                }
-                ),
-                ("いいえ", () =>
-                {
-                    DialogManager.Instance.Close(dialog);
-                }
-                ));
-            });
-            card.Enable = card.Price <= ServiceLocator.Instance.GameController.Player.Data.Gems;
-            shopCards.Add(card);
+            var card = Instantiate(originalCard);
+            card.SetData(data, null);
+            card.Enable = ServiceLocator.Instance.GameController.Player.Data.Gems >= data.Price;
+            shopMenu.AddItem(card);
         }
-        shopCards[GetIndex(shopSelectCardIndex)].Select(true);
+        shopMenu.Initialize();
     }
 
     public void InitializeDeck()
     {
-        foreach (var card in deckCards)
-            Destroy(card.gameObject);
-        deckCards.Clear();
-
+        deckMenu.Clear();
         var canRemove = ServiceLocator.Instance.GameController.Player.Data.Gems >= 200;
-
         foreach (var card in cardController.AllCards)
         {
-            var obj = Instantiate(originalCard, deckContainer);
-            obj.SetData(card.Data, () =>
-            {
-                deckCards[GetIndex(deckSelectCardIndex)].Select(false);
-                obj.Select(true);
-                // インデックスを逆算する
-                var index = Math.Max(0, deckCards.IndexOf(obj));
-                deckSelectCardIndex.x = index % columnCount;
-                deckSelectCardIndex.y = index / columnCount;
-            },
-            () =>
-            {
-                var dialog = DialogManager.Instance.Open<CommonDialog>();
-                dialog.Initialize("確認", $"{card.Data.Name}を200Gで破棄しますか？", ("はい", () =>
-                {
-                    RemoveCard(dialog, card, obj);
-                }
-                ),
-                ("いいえ", () =>
-                {
-                    DialogManager.Instance.Close(dialog);
-                }
-                ));
-            });
+            var obj = Instantiate(originalCard);
+            obj.SetData(card.Data, card);
             obj.Enable = canRemove;
-            deckCards.Add(obj);
+            deckMenu.AddItem(obj);
         }
-        deckCards[GetIndex(deckSelectCardIndex)].Select(true);
+        deckMenu.Initialize();
     }
 
     private void BuyCard(DialogBase dialog, CardData data)
@@ -283,44 +190,22 @@ public class ShopWindow : MonoBehaviour
         DialogManager.Instance.Close(dialog);
         ServiceLocator.Instance.GameController.Player.Data.Gems -= 200;
         cardController.Remove(card);
-        deckCards.Remove(shopCard);
-        Destroy(shopCard.gameObject);
+        deckMenu.RemoveItem(shopCard as SelectableItem);
         UpdateDeck();
         UpdateShop();
-        deckSelectCardIndex = FixIndex(deckSelectCardIndex, deckCards.Count);
-        deckCards[GetIndex(deckSelectCardIndex)].Select(true);
     }
 
     private void UpdateShop()
     {
-        foreach (var card in shopCards)
+        foreach (var card in shopMenu.Items.Select(item => item as ShopCard))
             card.Enable = card.Price <= ServiceLocator.Instance.GameController.Player.Data.Gems;
     }
 
     private void UpdateDeck()
     {
         var canRemove = ServiceLocator.Instance.GameController.Player.Data.Gems >= 200;
-        foreach (var card in deckCards)
+        foreach (var card in deckMenu.Items.Select(item => item as ShopCard))
             card.Enable = canRemove;
-    }
-
-    private void FixScroll(ScrollRect scroll, Vector2Int selectIndex, int elementCount)
-    {
-        if (selectIndex.y <= topRowNumber)
-        {
-            topRowNumber = selectIndex.y;
-            bottomRowNumber = topRowNumber + rowCountInScreen;
-        }
-        else if (selectIndex.y >= bottomRowNumber)
-        {
-            bottomRowNumber = selectIndex.y;
-            topRowNumber = bottomRowNumber - rowCountInScreen;
-        }
-        if (bottomRowNumber == GetRowCount(elementCount))
-            scroll.verticalNormalizedPosition = 0f;
-        else
-            scroll.verticalNormalizedPosition = topRowNumber == 0 ? 1f : 1f - (float)topRowNumber / (selectIndex.y - rowCountInScreen);
-        Debug.LogError(topRowNumber);
-        Debug.LogError(bottomRowNumber);
+        deckMenu.ReselectCurrentItem();
     }
 }
