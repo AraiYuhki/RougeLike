@@ -54,6 +54,13 @@ public class ItemManager : MonoBehaviour
         }
     }
 
+    public void Clear()
+    {
+        foreach (var item in ItemList)
+            Destroy(item);
+        ItemList.Clear();
+    }
+
     public Item Drop(ItemBase data, int index, Vector2Int position, bool isAnimation = false)
     {
         var template = GetTemplate(data, index);

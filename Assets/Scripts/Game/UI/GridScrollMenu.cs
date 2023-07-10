@@ -37,7 +37,17 @@ public class GridScrollMenu : MonoBehaviour
         ReselectCurrentItem();
     }
 
-    public void ReselectCurrentItem() => Items[SelectedIndex].Select(true);
+    public void ReselectCurrentItem()
+    {
+        try
+        {
+            Items[SelectedIndex].Select(true);
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
+    }
 
     private void Awake()
     {

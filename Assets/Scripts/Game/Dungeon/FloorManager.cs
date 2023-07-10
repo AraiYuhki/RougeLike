@@ -245,13 +245,14 @@ public class FloorManager : MonoBehaviour
 
     public void Clear()
     {
+        ServiceLocator.Instance.EnemyManager.Clear();
+        ServiceLocator.Instance.ItemManager.Clear();
         while (transform.childCount > 0) DestroyImmediate(transform.GetChild(0).gameObject);
     }
 
     private void CreateVoxel(TileData tileInfo, int x, int z)
     {
-        GameObject obj;
-        GameObject voxel;
+        GameObject obj, voxel;
         var y = 0f;
         if (FloorData.IsStair(x, z))
         {

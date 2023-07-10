@@ -380,12 +380,26 @@ public class GameController : MonoBehaviour
     {
         floorManager.gameObject.SetActive(false);
         status = GameStatus.Shop;
-        shopWindow.Open();
+        shopWindow.Open(() => Fade.Instance.FadeIn(null));
         shopWindow.OnClose = () =>
         {
-            floorManager.gameObject.SetActive(true);
-            status = GameStatus.PlayerControll;
+            Fade.Instance.FadeOut(() =>
+            {
+                floorManager.gameObject.SetActive(true);
+                GotoNextFloor();
+                Fade.Instance.FadeIn(() => status = GameStatus.PlayerControll);
+            });
+            status = GameStatus.Wait;
         };
+    }
+
+    private void GotoNextFloor()
+    {
+        floorManager.Clear();
+        floorManager.Create(20, 20, 4, false);
+        player.SetPosition(floorManager.FloorData.SpawnPoint);
+        enemyManager.Initialize(player);
+        itemManager.Initialize(150, 1, 5);
     }
 
     private IEnumerator UIControll()
