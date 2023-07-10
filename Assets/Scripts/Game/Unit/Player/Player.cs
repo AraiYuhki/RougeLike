@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -17,7 +18,17 @@ public class Player : Unit
         }
     }
     public override void RecoveryStamina(float value) => Data.Stamina += value;
-    public override void PowerUp(int value) => Data.Atk += value;
+    public override void PowerUp(int value, Action onComplete = null)
+    {
+        var sequence = DOTween.Sequence();
+
+        transform.DOPunchScale(Vector3.one * 2f, 0.5f).OnComplete(() =>
+        {
+            Data.Atk += value;
+            onComplete?.Invoke();
+        });
+        
+    }
 
     public bool IsLockInput { get; set; }
     private int healInterval = 0;
@@ -72,7 +83,7 @@ public class Player : Unit
 
     public void Attack(int weaponAttack, Enemy target, TweenCallback onEndAttack = null, bool isResourceAttack = false)
     {
-        var damage = DamageUtil.GetDamage(this, weaponAttack, target);
+        var damage = DamageUtil.GetDamage(this, weaponAttack, target) * Mathf.FloorToInt(ChargeStack + 1);
         var targetPosition = new Vector3(target.Position.x, target.transform.localPosition.y, target.Position.y);
         var currentPosition = transform.localPosition;
         var sequence = DOTween.Sequence();

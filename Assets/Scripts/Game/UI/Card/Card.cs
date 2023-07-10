@@ -82,6 +82,9 @@ public class Card : MonoBehaviour
                 Owner.RecoveryStamina(Data.Param);
                 onComplete?.Invoke();
                 break;
+            case CardType.Charge:
+                Owner.Charge(Data.Param, onComplete);
+                break;
             default:
                 throw new NotImplementedException();
         }

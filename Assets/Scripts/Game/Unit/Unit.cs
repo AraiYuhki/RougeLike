@@ -25,8 +25,15 @@ public class Unit : MonoBehaviour
     public virtual float ChargeStack { get; set; }
     public virtual void AddExp(int exp) { }
     public virtual void RecoveryStamina(float value) { }
-    public virtual void PowerUp(int value) { }
-    public virtual void Charge(float value) => ChargeStack = Mathf.Min(ChargeStack + value, MaxChargeStack);
+    public virtual void PowerUp(int value, Action onComplete = null) { }
+    public virtual void Charge(float value, Action onComplete = null)
+    {
+        transform.DOPunchScale(Vector3.one * 0.5f, 0.5f).OnComplete(() =>
+        {
+            ChargeStack = Mathf.Min(ChargeStack + value, MaxChargeStack);
+            onComplete?.Invoke();
+        });
+    }
 
     public void Awake()
     {
