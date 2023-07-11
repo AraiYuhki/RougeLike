@@ -28,9 +28,14 @@ public class GridScrollMenu : MonoBehaviour
     private int SelectedIndex => columnCount * selectedIndex.y + selectedIndex.x;
 
     public List<SelectableItem> Items { get; private set; } = new List<SelectableItem>();
+    public bool Enable { get; set; } = true;
     public Action<SelectableItem> OnSubmit { get; set; }
     public T GetSelectedItem<T>() where T : SelectableItem => Items[SelectedIndex] as T;
-    public void Submit() => Items[SelectedIndex].Submit();
+    public void Submit()
+    {
+        if (!Enable) return;
+        Items[SelectedIndex].Submit();
+    }
     public void Initialize()
     {
         selectedIndex = Vector2Int.zero;
@@ -39,14 +44,8 @@ public class GridScrollMenu : MonoBehaviour
 
     public void ReselectCurrentItem()
     {
-        try
-        {
-            Items[SelectedIndex].Select(true);
-        }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-        }
+        if (Items.Count <= 0) return;
+        Items[SelectedIndex].Select(true);
     }
 
     private void Awake()
@@ -70,7 +69,11 @@ public class GridScrollMenu : MonoBehaviour
             selectedIndex.y = index / columnCount;
             Items[SelectedIndex].Select(true);
         },
-        () => OnSubmit?.Invoke(item));
+        () =>
+        {
+            if (!Enable) return;
+            OnSubmit?.Invoke(item);
+        });
         if (Items.Count > 0)
         {
             rowCount = Mathf.CeilToInt(Items.Count / columnCount);

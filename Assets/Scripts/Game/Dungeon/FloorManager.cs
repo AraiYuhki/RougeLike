@@ -76,6 +76,7 @@ public class FloorManager : MonoBehaviour
 
     public TileData GetCanDropTile(Vector2Int candidate)
     {
+        if (CanDrop(candidate)) return GetTile(candidate);
         var tiles = GetAroundTilesAt(candidate).Where(tile => CanDrop(tile.Position)).ToArray();
         return tiles.Any() ? tiles.Random() : null;
     }

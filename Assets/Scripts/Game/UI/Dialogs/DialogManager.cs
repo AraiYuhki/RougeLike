@@ -21,7 +21,7 @@ public class DialogManager : MonoSingleton<DialogManager>
     public void Start()
     {
         basePanel.color = new Color(0f, 0f, 0f, 0f);
-        basePanel.gameObject.SetActive(false);
+        basePanel.enabled = false;
     }
 
     public T Open<T>(Action onOpened = null) where T : DialogBase
@@ -40,7 +40,7 @@ public class DialogManager : MonoSingleton<DialogManager>
         else
         {
             tween?.Kill();
-            basePanel.gameObject.SetActive(true);
+            basePanel.enabled = true;
             tween = basePanel.DOFade(0.5f, 0.2f);
             tween.OnComplete(() => tween = null);
         }
@@ -69,7 +69,7 @@ public class DialogManager : MonoSingleton<DialogManager>
                 tween.OnComplete(() =>
                 {
                     tween = null;
-                    basePanel.gameObject.SetActive(false);
+                    basePanel.enabled = false;
                 });
             }
             return;

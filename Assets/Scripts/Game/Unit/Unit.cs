@@ -187,7 +187,12 @@ public class Unit : MonoBehaviour
         {
             attacker.AddExp(enemy.Data.Exp);
             Debug.LogError($"{enemy.Data.Name}‚Í“|‚ê‚½");
-            if (isResourceAttack) ServiceLocator.Instance.ItemManager.Drop(UnityEngine.Random.Range(1, 20), Position, true);
+            if (isResourceAttack)
+            {
+                var dropPosition = ServiceLocator.Instance.FloorManager.GetCanDropTile(Position);
+                if (dropPosition != null)
+                    ServiceLocator.Instance.ItemManager.Drop(UnityEngine.Random.Range(1, 20), dropPosition.Position, true);
+            }
         }
         OnDead?.Invoke();
     }

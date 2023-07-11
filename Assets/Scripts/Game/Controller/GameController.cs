@@ -307,32 +307,23 @@ public class GameController : MonoBehaviour
                 status = GameStatus.EnemyControll;
                 return;
             }
-            if (!floorManager.CanDrop(targetPosition.position))
+            // ドロップ可能タイルを検索
+            var candidate = floorManager.GetCanDropTile(targetPosition.position);
+            if (candidate == null)
             {
-                // ドロップ可能タイルを検索
-                var candidate = floorManager.GetCanDropTile(targetPosition.position);
-                // ドロップ可能
-                if (candidate != null)
-                {
-                    // ドロップ
-                    Debug.LogError(candidate.Position);
-                    var dropTween = item.transform
-                    .DOLocalMove(new Vector3(candidate.Position.X, 0f, candidate.Position.Y), 0.5f)
-                    .SetEase(Ease.OutExpo)
-                    .Play();
-                    dropTween.onComplete += () =>
-                    {
-                        floorManager.SetItem(item, candidate.Position);
-                        status = GameStatus.EnemyControll;
-                    };
-                    return;
-                }
-                // ドロップできる場所がなかったので消滅
                 itemManager.Despawn(item);
                 return;
             }
-            floorManager.SetItem(item, targetPosition.position);
-            status = GameStatus.EnemyControll;
+            // ドロップ可能
+            var dropTween = item.transform
+            .DOLocalMove(new Vector3(candidate.Position.X, 0f, candidate.Position.Y), 0.5f)
+            .SetEase(Ease.OutExpo)
+            .Play();
+            dropTween.onComplete += () =>
+            {
+                floorManager.SetItem(item, candidate.Position);
+                status = GameStatus.EnemyControll;
+            };
         };
     }
 

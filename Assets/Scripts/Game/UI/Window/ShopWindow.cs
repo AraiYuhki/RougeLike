@@ -51,11 +51,21 @@ public class ShopWindow : MonoBehaviour
         {
             if (selectedItem is ShopCard card)
             {
+                shopMenu.Enable = false;
                 var data = card.Data;
                 var dialog = DialogManager.Instance.Open<CommonDialog>();
                 dialog.Initialize("確認", $"{data.Name}を{data.Price}Gで購入しますか？", 
-                    ("はい", () => BuyCard(dialog, data)),
-                    ("いいえ", () => DialogManager.Instance.Close(dialog))
+                    ("はい", () => {
+                        BuyCard(dialog, data);
+                        shopMenu.Enable = true;
+                    }
+                ),
+                    ("いいえ", () =>
+                    {
+                        DialogManager.Instance.Close(dialog);
+                        shopMenu.Enable = true;
+                    }
+                )
                 );
             }
         };
@@ -64,17 +74,20 @@ public class ShopWindow : MonoBehaviour
         {
             if (selectedItem is ShopCard card)
             {
+                deckMenu.Enable = false;
                 var data = card.Data;
                 var dialog = DialogManager.Instance.Open<CommonDialog>();
                 dialog.Initialize("確認", $"{card.Data.Name}を200Gで破棄しますか？", ("はい", () =>
                 {
                     deckMenu.RemoveItem(selectedItem);
                     RemoveCard(dialog, card.Card, card);
+                    deckMenu.Enable = true;
                 }
                 ),
                 ("いいえ", () =>
                 {
                     DialogManager.Instance.Close(dialog);
+                    deckMenu.Enable = true;
                 }
                 ));
             }
