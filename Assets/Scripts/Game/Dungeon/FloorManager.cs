@@ -76,6 +76,7 @@ public class FloorManager : MonoBehaviour
 
     public TileData GetCanDropTile(Vector2Int candidate)
     {
+        if (CanDrop(candidate)) return GetTile(candidate);
         var tiles = GetAroundTilesAt(candidate).Where(tile => CanDrop(tile.Position)).ToArray();
         return tiles.Any() ? tiles.Random() : null;
     }
@@ -245,13 +246,14 @@ public class FloorManager : MonoBehaviour
 
     public void Clear()
     {
+        ServiceLocator.Instance.EnemyManager.Clear();
+        ServiceLocator.Instance.ItemManager.Clear();
         while (transform.childCount > 0) DestroyImmediate(transform.GetChild(0).gameObject);
     }
 
     private void CreateVoxel(TileData tileInfo, int x, int z)
     {
-        GameObject obj;
-        GameObject voxel;
+        GameObject obj, voxel;
         var y = 0f;
         if (FloorData.IsStair(x, z))
         {

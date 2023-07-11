@@ -24,6 +24,16 @@ public class EnemyManager : MonoBehaviour
             Spawn();
     }
 
+    public void Clear()
+    {
+        foreach (var enemy in Enemies)
+        {
+            floorManager.RemoveUnit(enemy.Position);
+            Destroy(enemy.gameObject);
+        }
+        enemies.Clear();
+    }
+
     public void Spawn()
     {
         var instance = Instantiate(prefabs.First(), floorManager.transform);
