@@ -54,13 +54,13 @@ public class ShopWindow : MonoBehaviour
                 shopMenu.Enable = false;
                 var data = card.Data;
                 var dialog = DialogManager.Instance.Open<CommonDialog>();
-                dialog.Initialize("Šm”F", $"{data.Name}‚ð{data.Price}G‚Åw“ü‚µ‚Ü‚·‚©H", 
-                    ("‚Í‚¢", () => {
+                dialog.Initialize("ç¢ºèª", $"{data.Name}ã‚’{data.Price}Gã§è³¼å…¥ã—ã¾ã™ã‹ï¼Ÿ", 
+                    ("ã¯ã„", () => {
                         BuyCard(dialog, data);
                         shopMenu.Enable = true;
                     }
                 ),
-                    ("‚¢‚¢‚¦", () =>
+                    ("ã„ã„ãˆ", () =>
                     {
                         DialogManager.Instance.Close(dialog);
                         shopMenu.Enable = true;
@@ -77,14 +77,14 @@ public class ShopWindow : MonoBehaviour
                 deckMenu.Enable = false;
                 var data = card.Data;
                 var dialog = DialogManager.Instance.Open<CommonDialog>();
-                dialog.Initialize("Šm”F", $"{card.Data.Name}‚ð200G‚Å”jŠü‚µ‚Ü‚·‚©H", ("‚Í‚¢", () =>
+                dialog.Initialize("ç¢ºèª", $"{card.Data.Name}ã‚’200Gã§ç ´æ£„ã—ã¾ã™ã‹ï¼Ÿ", ("ã¯ã„", () =>
                 {
                     deckMenu.RemoveItem(selectedItem);
                     RemoveCard(dialog, card.Card, card);
                     deckMenu.Enable = true;
                 }
                 ),
-                ("‚¢‚¢‚¦", () =>
+                ("ã„ã„ãˆ", () =>
                 {
                     DialogManager.Instance.Close(dialog);
                     deckMenu.Enable = true;
