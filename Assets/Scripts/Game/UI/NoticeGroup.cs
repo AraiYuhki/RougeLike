@@ -21,6 +21,7 @@ public class NoticeGroup : MonoBehaviour
     public void Add(string message, Color? color = null)
     {
         var destColor = color.HasValue ? color.Value : Color.black;
+        destColor.a = 0.5f;
         var item = Instantiate(originalItem, transform);
         item.transform.SetSiblingIndex(0);
         item.SetMessage(message, destColor, () => items.Remove(item));
