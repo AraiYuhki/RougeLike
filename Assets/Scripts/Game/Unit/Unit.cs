@@ -58,7 +58,7 @@ public class Unit : MonoBehaviour
         });
         sequence.SetAutoKill(true);
         sequence.Play();
-        Debug.LogError($"{this.name} は {target.name} に {damage}ダメージを与えた");
+        ServiceLocator.Instance.GameController.Notice.Add($"{this.name} は {target.name} に {damage}ダメージを与えた", Color.red);
         ChargeStack = 0;
     }
 
@@ -89,7 +89,7 @@ public class Unit : MonoBehaviour
     {
         Hp -= damage;
         OnDamage?.Invoke(attacker, damage);
-        Debug.LogError($"{name}は{damage}ダメージを受けた");
+        ServiceLocator.Instance.GameController.Notice.Add($"{name}は{damage}ダメージを受けた", Color.yellow);
         if (Hp <= 0)
             Dead(attacker);
     }
@@ -99,7 +99,7 @@ public class Unit : MonoBehaviour
         if (this is Enemy enemy && attacker != null)
         {
             attacker.AddExp(enemy.Data.Exp);
-            Debug.LogError($"{enemy.Data.Name}は倒れた");
+            ServiceLocator.Instance.GameController.Notice.Add($"{enemy.Data.Name}は倒れた", Color.yellow);
         }
         OnDead?.Invoke();
     }

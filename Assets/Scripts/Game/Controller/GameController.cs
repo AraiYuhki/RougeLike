@@ -20,12 +20,15 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private UIManager uiManager;
     [SerializeField]
+    private NoticeGroup noticeGroup = null;
+    [SerializeField]
     private Player player = null;
 
     public Player Player => player;
     private FloorManager floorManager => ServiceLocator.Instance.FloorManager;
     private EnemyManager enemyManager => ServiceLocator.Instance.EnemyManager;
     private ItemManager itemManager => ServiceLocator.Instance.ItemManager;
+    public NoticeGroup Notice => noticeGroup;
 
     private Vector2Int move = Vector2Int.zero;
     private GameStatus status = GameStatus.Wait;
@@ -57,7 +60,7 @@ public class GameController : MonoBehaviour
             DropItem);
         uiManager.OnCloseMenu = () => status = GameStatus.PlayerControll;
         floorManager.Clear();
-        floorManager.Create(100, 100, 40, false);
+        floorManager.Create(40, 40, 10, false);
         player.Initialize();
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         player.OnMoved += floorManager.OnMoveUnit;
@@ -67,22 +70,6 @@ public class GameController : MonoBehaviour
         enemyManager.Initialize(player);
         itemManager.Initialize();
         Fade.Instance.FadeIn(() => status = GameStatus.PlayerControll);
-    }
-
-    private int index = 0;
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            OpenDialog();
-        }
-    }
-
-    private void OpenDialog()
-    {
-        var dialog = ServiceLocator.Instance.DialogManager.Open<CommonDialog>();
-        dialog.Initialize($"�e�X�g{index}", $"�e�X�g�_�C�A���O{index}", ("����ɊJ��", () => OpenDialog()), ("����", () => ServiceLocator.Instance.DialogManager.Close(dialog)));
-        index++;
     }
 
     private void OnDestroy()
@@ -219,7 +206,7 @@ public class GameController : MonoBehaviour
         tween.onComplete += () =>
         {
             floorManager.RemoveItem(item.Position);
-            // ������ʒu�Ƀh���b�v�ł��Ȃ��ꍇ�͎��͂���h���b�v�ł���ꏊ��T��
+            // 飛んでいった先に敵がいるか？
             if (targetPosition.enemy != null)
             {
                 var enemy = targetPosition.enemy;
@@ -227,7 +214,7 @@ public class GameController : MonoBehaviour
                     enemy.Damage(DamageUtil.GetDamage(player, weapon.Atk), player);
                 else if (target is ShieldData shield)
                     enemy.Damage(DamageUtil.GetDamage(player, shield.Def), player);
-                // ����A�C�e���𓊂������ꍇ�́A�����I�ɂ��̌��ʂ𔭓�������
+                // ぶつけたアイテムを強制的に使用させる
                 else if (target is UsableItemData usableItem)
                     usableItem.Use(enemy);
                 itemManager.Despawn(item);
@@ -236,13 +223,11 @@ public class GameController : MonoBehaviour
             }
             if (!floorManager.CanDrop(targetPosition.position))
             {
-                // ���͂̃h���b�v�ł���ꏊ�����
+                // ドロップ可能タイルを検索
                 var candidate = floorManager.GetCanDropTile(targetPosition.position);
-                // ��₠��
+                // ドロップ可能
                 if (candidate != null)
                 {
-                    // �h���b�v�A�j��
-                    Debug.LogError(candidate.Position);
                     var dropTween = item.transform
                     .DOLocalMove(new Vector3(candidate.Position.X, 0f, candidate.Position.Y), 0.5f)
                     .SetEase(Ease.OutExpo)
@@ -254,7 +239,7 @@ public class GameController : MonoBehaviour
                     };
                     return;
                 }
-                // ��₪�Ȃ��̂ŏ���
+                // ドロップできる場所がないので消滅
                 itemManager.Despawn(item);
                 return;
             }
@@ -270,12 +255,12 @@ public class GameController : MonoBehaviour
         if (item.IsGem)
         {
             player.Data.Gems += item.GemCount;
-            Debug.LogError($"�W�F����{item.GemCount}�E����");
+            Notice.Add($"ジェムを{item.GemCount}個拾った", Color.cyan);
         }
         else
         {
             player.Data.TakeItem(item.Data);
-            Debug.LogError($"{item.Data.Name}��E����");
+            Notice.Add($"{item.Data.Name}を拾った", Color.cyan);
         }
         floorManager.RemoveItem(item.Position);
         ServiceLocator.Instance.ItemManager.Despawn(item);
@@ -288,12 +273,12 @@ public class GameController : MonoBehaviour
         if (stairPosition.X == player.Position.x && stairPosition.Y == player.Position.y)
         {
             var dialog = ServiceLocator.Instance.DialogManager.Open<CommonDialog>();
-            dialog.Initialize("�m�F", "���̊K�ɐi�݂܂����H", ("�͂�", () =>
+            dialog.Initialize("確認", "次の階へ進みますか？", ("はい", () =>
             {
                 ServiceLocator.Instance.DialogManager.Close(dialog);
                 Fade.Instance.FadeOut(OpenShop);
             }),
-            ("������", () =>
+            ("いいえ", () =>
             {
                 ServiceLocator.Instance.DialogManager.Close(dialog);
                 status = GameStatus.EnemyControll;

@@ -78,7 +78,7 @@ public class Player : Unit
         });
         sequence.SetAutoKill(true);
         sequence.Play();
-        Debug.LogError($"{this.name} は {target.name} に {damage}ダメージを与えた");
+        ServiceLocator.Instance.GameController.Notice.Add($"{this.name} は {target.name} に {damage}ダメージを与えた", Color.red);
         ChargeStack = 0;
     }
 }

@@ -220,7 +220,7 @@ public class MenuUI : MonoBehaviour
             default:
                 throw new NotImplementedException();
         }
-        Debug.LogError($"{data.Name}:を使用した");
+        ServiceLocator.Instance.GameController.Notice.Add($"{data.Name}:を使用した", Color.green);
         if (!data.IsStackable)
         {
             Data.Inventory.Remove(data);
@@ -237,7 +237,7 @@ public class MenuUI : MonoBehaviour
     private void EquipWeapon(WeaponData weapon)
     {
         Player.Data.EquipmentWeapon = weapon;
-        Debug.LogError($"{weapon.Name}を装備した");
+        ServiceLocator.Instance.GameController.Notice.Add($"{weapon.Name}を装備した", Color.green);
         inventoryUI.UpdateStatus();
         CloseUseMenu();
     }
@@ -245,7 +245,7 @@ public class MenuUI : MonoBehaviour
     private void EquipShield(ShieldData shield)
     {
         Player.Data.EquipmentShield = shield;
-        Debug.LogError($"{shield.Name}を装備した");
+        ServiceLocator.Instance.GameController.Notice.Add($"{shield.Name}を装備した", Color.green);
         inventoryUI.UpdateStatus();
         CloseUseMenu();
     }
@@ -254,7 +254,7 @@ public class MenuUI : MonoBehaviour
     {
         var target = inventoryUI.SelectedItem;
         Player.Data.Inventory.Remove(target);
-        Debug.LogError($"{target.Name}を投げた");
+        ServiceLocator.Instance.GameController.Notice.Add($"{target.Name}を投げた", Color.cyan);
         Close(() => onThrowItem?.Invoke(target));
     }
 
@@ -268,7 +268,7 @@ public class MenuUI : MonoBehaviour
     {
         var target = inventoryUI.SelectedItem;
         Player.Data.Inventory.Remove(target);
-        Debug.LogError($"{target.Name}を地面に置いた");
+        ServiceLocator.Instance.GameController.Notice.Add($"{target.Name}を地面に置いた", Color.green);
         Close(() => onDropItem?.Invoke(target));
     }
 }
