@@ -4581,7 +4581,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6300662175980749335, guid: bf05bb186b9f6e84d91471d9192699c8, type: 3}
       propertyPath: m_Name
-      value: Player
+      value: PlayerContainer
       objectReference: {fileID: 0}
     - target: {fileID: 8143199404068641857, guid: bf05bb186b9f6e84d91471d9192699c8, type: 3}
       propertyPath: m_Mesh
@@ -4589,7 +4589,7 @@ PrefabInstance:
       objectReference: {fileID: 1852964007}
     - target: {fileID: 8143199404068641857, guid: bf05bb186b9f6e84d91471d9192699c8, type: 3}
       propertyPath: m_VersionIndex
-      value: 4
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 8143199404068641857, guid: bf05bb186b9f6e84d91471d9192699c8, type: 3}
       propertyPath: m_MeshFormatVersion

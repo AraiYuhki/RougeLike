@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Player : Unit
 {
+    [SerializeField]
+    private GameObject pointLight;
+
     public PlayerData Data { get; private set; } = new PlayerData(10);
     public override int Hp { get => Mathf.FloorToInt(Data.Hp); set => Data.Hp = value; }
     public override int MaxHp { get => Data.MaxHP; }
@@ -47,7 +50,19 @@ public class Player : Unit
     public override void Move(Vector2Int move)
     {
         IsLockInput = true;
-        Move(move, () => IsLockInput = false);
+        Move(move, () =>
+        {
+            IsLockInput = false;
+            var flag = ServiceLocator.Instance.FloorManager.GetTile(Position).IsRoom;
+            pointLight.SetActive(flag);
+        });
+    }
+
+    public override void SetPosition(Vector2Int position)
+    {
+        base.SetPosition(position);
+        var flag = ServiceLocator.Instance.FloorManager.GetTile(position).IsRoom;
+        pointLight.SetActive(flag);
     }
 
     public override void TurnEnd()
@@ -65,11 +80,9 @@ public class Player : Unit
     public void Attack(int weaponAttack, Enemy target, TweenCallback onEndAttack = null)
     {
         var damage = DamageUtil.GetDamage(this, weaponAttack, target);
-        var targetPosition = new Vector3(target.Position.x, target.transform.localPosition.y, target.Position.y);
-        var currentPosition = transform.localPosition;
         var sequence = DOTween.Sequence();
-        sequence.Append(transform.DOLocalMove(targetPosition, 0.2f).SetEase(Ease.InCubic));
-        sequence.Append(transform.DOLocalMove(currentPosition, 0.2f).SetEase(Ease.OutCubic));
+        sequence.Append(unit.transform.DOLocalMove(Vector3.forward * 2f, 0.2f).SetEase(Ease.InCubic));
+        sequence.Append(unit.transform.DOLocalMove(Vector3.zero, 0.2f).SetEase(Ease.OutCubic));
         sequence.OnComplete(() =>
         {
             OnAttack?.Invoke(this, target);

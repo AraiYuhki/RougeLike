@@ -6,6 +6,9 @@ using UnityEditor;
 
 public class Unit : MonoBehaviour
 {
+    [SerializeField]
+    protected GameObject unit;
+
     public const float MaxChargeStack = 4f;
     public Vector2Int Position { get; set; }
     public float DestAngle { get; set; }
@@ -45,11 +48,10 @@ public class Unit : MonoBehaviour
     public virtual void Attack(Unit target, TweenCallback onEndAttack = null)
     {
         var damage = DamageUtil.GetDamage(this, target);
-        var targetPosition = new Vector3(target.Position.x, target.transform.localPosition.y, target.Position.y);
         var currentPosition = transform.localPosition;
         var sequence = DOTween.Sequence();
-        sequence.Append(transform.DOLocalMove(targetPosition, 0.2f).SetEase(Ease.InCubic));
-        sequence.Append(transform.DOLocalMove(currentPosition, 0.2f).SetEase(Ease.OutCubic));
+        sequence.Append(unit.transform.DOLocalMove(Vector3.forward * 2f, 0.2f).SetEase(Ease.InCubic));
+        sequence.Append(unit.transform.DOLocalMove(Vector3.zero, 0.2f).SetEase(Ease.OutCubic));
         sequence.OnComplete(() =>
         {
             OnAttack?.Invoke(this, target);
@@ -89,7 +91,6 @@ public class Unit : MonoBehaviour
     {
         Hp -= damage;
         OnDamage?.Invoke(attacker, damage);
-        ServiceLocator.Instance.GameController.Notice.Add($"{name}ÇÕ{damage}É_ÉÅÅ[ÉWÇéÛÇØÇΩ", Color.yellow);
         if (Hp <= 0)
             Dead(attacker);
     }
