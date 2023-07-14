@@ -7,6 +7,8 @@ using UnityEditor;
 public class Unit : MonoBehaviour
 {
     [SerializeField]
+    protected NoticeGroup notice;
+    [SerializeField]
     protected GameObject unit;
 
     public const float MaxChargeStack = 4f;
@@ -33,6 +35,7 @@ public class Unit : MonoBehaviour
     {
         Initialize();
     }
+    public void SetNoticeGroup(NoticeGroup noticeGroup) => this.notice = noticeGroup;
 
     public virtual void Initialize()
     {
@@ -60,7 +63,7 @@ public class Unit : MonoBehaviour
         });
         sequence.SetAutoKill(true);
         sequence.Play();
-        ServiceLocator.Instance.GameController.Notice.Add($"{this.name} ÇÕ {target.name} Ç… {damage}É_ÉÅÅ[ÉWÇó^Ç¶ÇΩ", Color.red);
+        notice.Add($"{this.name} „ÅØ {target.name} „Å´ {damage}„ÉÄ„É°„Éº„Ç∏„Çí‰∏é„Åà„Åü", Color.red);
         ChargeStack = 0;
     }
 
@@ -100,7 +103,7 @@ public class Unit : MonoBehaviour
         if (this is Enemy enemy && attacker != null)
         {
             attacker.AddExp(enemy.Data.Exp);
-            ServiceLocator.Instance.GameController.Notice.Add($"{enemy.Data.Name}ÇÕì|ÇÍÇΩ", Color.yellow);
+            notice.Add($"{enemy.Data.Name}„ÅØÂÄí„Çå„Åü", Color.yellow);
         }
         OnDead?.Invoke();
     }

@@ -15,7 +15,14 @@ public class MenuUI : MonoBehaviour
         Inventory,
         UseMenu,
     }
-
+    [SerializeField]
+    private FloorManager floorManager;
+    [SerializeField]
+    private Player player;
+    [SerializeField]
+    private NoticeGroup notice;
+    [SerializeField]
+    private Minimap minimap;
     [SerializeField]
     private MainMenuUI mainMenu;
     [SerializeField]
@@ -29,12 +36,10 @@ public class MenuUI : MonoBehaviour
 
     public InventoryUI InventoryUI => inventoryUI;
     public StatusUI StatusUI => statusUI;
-    public Minimap minimap => ServiceLocator.Instance.DungeonUI.Minimap;
 
     public Action OnClose { get; set; }
 
-    private Player Player => ServiceLocator.Instance.GameController.Player;
-    private PlayerData Data => Player.Data;
+    private PlayerData Data => player.Data;
     private ControllType type = ControllType.Inventory;
     private Action onUsed;
     private Action<ItemBase> onDropItem;
@@ -156,20 +161,20 @@ public class MenuUI : MonoBehaviour
             var menu = new List<(string, UnityAction)>();
             if (inventoryUI.SelectedItem is WeaponData weapon)
             {
-                menu.Add(("ëïîı", () => EquipWeapon(weapon)));
+                menu.Add(("Ë£ÖÂÇô", () => EquipWeapon(weapon)));
             }
             else if (inventoryUI.SelectedItem is ShieldData shield)
             {
-                menu.Add(("ëïîı", () => EquipShield(shield)));
+                menu.Add(("Ë£ÖÂÇô", () => EquipShield(shield)));
             }
             else if (inventoryUI.SelectedItem is UsableItemData data)
             {
-                menu.Add(("égÇ§", () => UseItem(data)));
+                menu.Add(("‰Ωø„ÅÜ", () => UseItem(data)));
             }
-            menu.Add(("ìäÇ∞ÇÈ", () => { ThrowItem(); }));
-            if (ServiceLocator.Instance.FloorManager.GetItem(Player.Position) == null)
-                menu.Add(("íuÇ≠", DropItem));
-            menu.Add(("ñﬂÇÈ", () =>
+            menu.Add(("Êäï„Åí„Çã", () => { ThrowItem(); }));
+            if (floorManager.GetItem(player.Position) == null)
+                menu.Add(("ÁΩÆ„Åè", DropItem));
+            menu.Add(("Êàª„Çã", () =>
             {
                 useMenuUI.Close();
                 type = ControllType.Inventory;
@@ -181,7 +186,7 @@ public class MenuUI : MonoBehaviour
         }
         else if (InputUtility.Cancel.IsTriggerd())
         {
-            ServiceLocator.Instance.DungeonUI.Minimap.SetMode(MinimapMode.Menu);
+            minimap.SetMode(MinimapMode.Menu);
             inventoryUI.Close(() => type = ControllType.Main);
         }
     }
@@ -209,18 +214,18 @@ public class MenuUI : MonoBehaviour
         switch(data.Type)
         {
             case ItemType.HPHeal:
-                Player.Heal(data.Parameter);
+                player.Heal(data.Parameter);
                 break;
             case ItemType.PowerUp:
-                Player.PowerUp((int)data.Parameter);
+                player.PowerUp((int)data.Parameter);
                 break;
             case ItemType.StaminaHeal:
-                Player.RecoveryStamina(data.Parameter);
+                player.RecoveryStamina(data.Parameter);
                 break;
             default:
                 throw new NotImplementedException();
         }
-        ServiceLocator.Instance.GameController.Notice.Add($"{data.Name}:ÇégópÇµÇΩ", Color.green);
+        notice.Add($"{data.Name}:„Çí‰ΩøÁî®„Åó„Åü", Color.green);
         if (!data.IsStackable)
         {
             Data.Inventory.Remove(data);
@@ -230,22 +235,22 @@ public class MenuUI : MonoBehaviour
 
         Data.Inventory[data]--;
         if (Data.Inventory[data] <= 0)
-            Player.Data.Inventory.Remove(data);
+            player.Data.Inventory.Remove(data);
         Close(() => onUsed?.Invoke());
     }
 
     private void EquipWeapon(WeaponData weapon)
     {
-        Player.Data.EquipmentWeapon = weapon;
-        ServiceLocator.Instance.GameController.Notice.Add($"{weapon.Name}ÇëïîıÇµÇΩ", Color.green);
+        player.Data.EquipmentWeapon = weapon;
+        notice.Add($"{weapon.Name}„ÇíË£ÖÂÇô„Åó„Åü", Color.green);
         inventoryUI.UpdateStatus();
         CloseUseMenu();
     }
 
     private void EquipShield(ShieldData shield)
     {
-        Player.Data.EquipmentShield = shield;
-        ServiceLocator.Instance.GameController.Notice.Add($"{shield.Name}ÇëïîıÇµÇΩ", Color.green);
+        player.Data.EquipmentShield = shield;
+        notice.Add($"{shield.Name}„ÇíË£ÖÂÇô„Åó„Åü", Color.green);
         inventoryUI.UpdateStatus();
         CloseUseMenu();
     }
@@ -253,8 +258,8 @@ public class MenuUI : MonoBehaviour
     private void ThrowItem()
     {
         var target = inventoryUI.SelectedItem;
-        Player.Data.Inventory.Remove(target);
-        ServiceLocator.Instance.GameController.Notice.Add($"{target.Name}ÇìäÇ∞ÇΩ", Color.cyan);
+        player.Data.Inventory.Remove(target);
+        notice.Add($"{target.Name}„ÇíÊäï„Åí„Åü", Color.cyan);
         Close(() => onThrowItem?.Invoke(target));
     }
 
@@ -267,8 +272,8 @@ public class MenuUI : MonoBehaviour
     private void DropItem()
     {
         var target = inventoryUI.SelectedItem;
-        Player.Data.Inventory.Remove(target);
-        ServiceLocator.Instance.GameController.Notice.Add($"{target.Name}Çínñ Ç…íuÇ¢ÇΩ", Color.green);
+        player.Data.Inventory.Remove(target);
+        notice.Add($"{target.Name}„ÇíÂú∞Èù¢„Å´ÁΩÆ„ÅÑ„Åü", Color.green);
         Close(() => onDropItem?.Invoke(target));
     }
 }

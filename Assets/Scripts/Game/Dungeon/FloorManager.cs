@@ -134,7 +134,7 @@ public class FloorManager : MonoBehaviour
             }
         }
         transform.parent.position = new Vector3(-width * 0.5f, 0f, -height * 0.5f);
-        aStar = new AStar(Map);
+        aStar = new AStar(Map, this);
         dijkstra = new Dijkstra(FloorData);
         minimap.Initialize(FloorData);
     }

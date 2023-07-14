@@ -46,7 +46,7 @@ public class AStar : MonoBehaviour
 
     private Node[,] nodes;
 
-    public FloorManager FloorManager => ServiceLocator.Instance == null ? null : ServiceLocator.Instance.FloorManager;
+    private FloorManager floorManager;
 
     private static readonly Vector2Int[] OffsetList = new Vector2Int[]{
             Vector2Int.up,
@@ -59,9 +59,10 @@ public class AStar : MonoBehaviour
             Vector2Int.down + Vector2Int.left
             };
 
-    public AStar(TileData[,] map)
+    public AStar(TileData[,] map, FloorManager floorManager)
     {
         this.map = map;
+        this.floorManager = floorManager;
         size = new Vector2Int(map.GetLength(0), map.GetLength(1));
         nodes = new Node[size.x, size.y];
         for (var x = 0; x < size.x; x++)
@@ -151,7 +152,7 @@ public class AStar : MonoBehaviour
                 targetNode.Cost = node.Cost + 1.5f;
             else
                 targetNode.Cost = node.Cost + 1f;
-            if (FloorManager != null && FloorManager.GetUnit(targetPosition) != null)
+            if (floorManager != null && floorManager.GetUnit(targetPosition) != null)
                 targetNode.Cost += 100f;
             targetNode.CalculateEstimatedCost(EndPoint);
             if (targetNode.Position.X == EndPoint.x && targetNode.Position.Y == EndPoint.y)

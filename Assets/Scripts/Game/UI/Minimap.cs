@@ -16,6 +16,13 @@ public enum MinimapMode
 public class Minimap : MonoBehaviour
 {
     [SerializeField]
+    private Player player;
+    [SerializeField]
+    private EnemyManager enemyManager;
+    [SerializeField]
+    private ItemManager itemManager;
+
+    [SerializeField]
     private float tileSize = 30f;
     [SerializeField]
     private Image tileLayer;
@@ -45,10 +52,6 @@ public class Minimap : MonoBehaviour
 
     private FloorData floorData;
     private bool[,] visibleMap;
-
-    private Player player => ServiceLocator.Instance.GameController.Player;
-    private EnemyManager enemyManager => ServiceLocator.Instance.EnemyManager;
-    private ItemManager itemManager => ServiceLocator.Instance.ItemManager;
 
     private float halfTileSize => tileSize * 0.5f;
 

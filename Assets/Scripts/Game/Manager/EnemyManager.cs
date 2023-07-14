@@ -7,11 +7,14 @@ using UnityEngine;
 public class EnemyManager : MonoBehaviour
 {
     [SerializeField]
+    private FloorManager floorManager;
+    [SerializeField]
+    private NoticeGroup notice;
+    [SerializeField]
     private Enemy[] prefabs = new Enemy[0];
 
     private Player player = null;
     private List<EnemyAI> enemies = new List<EnemyAI>();
-    private FloorManager floorManager => ServiceLocator.Instance.FloorManager;
     private int spawnedCount = 0;
     const int spawnIntervalTurn = 30;
 
@@ -30,6 +33,7 @@ public class EnemyManager : MonoBehaviour
         var ai = new DefaultAI(floorManager, instance, player);
         var playerTile = floorManager.GetTile(player.Position);
         var tiles = floorManager.GetEmptyRoomTiles(playerTile.Id);
+        instance.SetNoticeGroup(notice);
         instance.SetPosition(tiles.Random().Position);
         floorManager.SetUnit(instance, instance.Position);
         instance.OnMoved += floorManager.OnMoveUnit;

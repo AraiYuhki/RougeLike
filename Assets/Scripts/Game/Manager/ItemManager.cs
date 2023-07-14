@@ -10,6 +10,8 @@ using UnityEngine;
 public class ItemManager : MonoBehaviour
 {
     [SerializeField]
+    private FloorManager floorManager;
+    [SerializeField]
     private Item[] gemTemplates = new Item[0];
     [SerializeField]
     private Item[] itemTemplates = new Item[0];
@@ -19,7 +21,6 @@ public class ItemManager : MonoBehaviour
     private Item[] shieldTemplates = new Item[0];
 
     public List<Item> ItemList { get; private set; } = new List<Item>();
-    private FloorManager floorManager => ServiceLocator.Instance.FloorManager;
 
     public void Initialize(int count = 5)
     {

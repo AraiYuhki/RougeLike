@@ -5,6 +5,8 @@ using UnityEngine;
 public class Player : Unit
 {
     [SerializeField]
+    private FloorManager floorManager;
+    [SerializeField]
     private GameObject pointLight;
 
     public PlayerData Data { get; private set; } = new PlayerData(10);
@@ -53,7 +55,7 @@ public class Player : Unit
         Move(move, () =>
         {
             IsLockInput = false;
-            var flag = ServiceLocator.Instance.FloorManager.GetTile(Position).IsRoom;
+            var flag = floorManager.GetTile(Position).IsRoom;
             pointLight.SetActive(flag);
         });
     }
@@ -61,7 +63,7 @@ public class Player : Unit
     public override void SetPosition(Vector2Int position)
     {
         base.SetPosition(position);
-        var flag = ServiceLocator.Instance.FloorManager.GetTile(position).IsRoom;
+        var flag = floorManager.GetTile(position).IsRoom;
         pointLight.SetActive(flag);
     }
 
@@ -91,7 +93,7 @@ public class Player : Unit
         });
         sequence.SetAutoKill(true);
         sequence.Play();
-        ServiceLocator.Instance.GameController.Notice.Add($"{this.name} ÇÕ {target.name} Ç… {damage}É_ÉÅÅ[ÉWÇó^Ç¶ÇΩ", Color.red);
+        notice.Add($"{this.name} „ÅØ {target.name} „Å´ {damage}„ÉÄ„É°„Éº„Ç∏„Çí‰∏é„Åà„Åü", Color.red);
         ChargeStack = 0;
     }
 }

@@ -48,7 +48,6 @@ public class Dijkstra
     private FloorData floorData;
 
     public Dictionary<int, Node> Nodes => nodes;
-
     public Dijkstra(FloorData data)
     {
         floorData = data;
@@ -173,7 +172,7 @@ public class Dijkstra
         points.AddRange(checkPoints);
         points.Add(endPoint);
         var root = new List<Vector2Int>();
-        var aStar = new AStar(floorData.Map);
+        var aStar = new AStar(floorData.Map, GameObject.FindObjectOfType<FloorManager>());
         var timer = new Stopwatch();
         for (var index = 0; index < points.Count - 2; index++)
         {
