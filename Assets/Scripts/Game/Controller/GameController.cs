@@ -38,6 +38,8 @@ public class GameController : MonoBehaviour
     private bool isTurnMode = false;
     private Coroutine turnControll = null;
 
+    private DungeonStateMachine stateMachine;
+
     private static readonly RuntimePlatform[] EnableUIControllerPlatforms = new RuntimePlatform[]
     {
         RuntimePlatform.Android,
@@ -49,6 +51,10 @@ public class GameController : MonoBehaviour
     private void Awake()
     {
         status = GameStatus.Wait;
+        stateMachine = new DungeonStateMachine();
+        stateMachine.AddState(GameState.Wait, new WaitState());
+        stateMachine.AddState(GameState.PlayerTurn, new PlayerTurnState(stateMachine, floorManager, itemManager, dialogManager, noticeGroup, player));
+        stateMachine.AddState(GameState.EnemyTurn, new EnemyTurnState(stateMachine, enemyManager));
     }
 
     private void Start()
@@ -67,7 +73,9 @@ public class GameController : MonoBehaviour
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         player.OnMoved += floorManager.OnMoveUnit;
 
-        turnControll = StartCoroutine(TurnControll());
+        //turnControll = StartCoroutine(TurnControll());
+        turnControll = StartCoroutine(stateMachine.Update());
+        stateMachine.Goto(GameState.PlayerTurn);
 
         enemyManager.Initialize(player);
         itemManager.Initialize();

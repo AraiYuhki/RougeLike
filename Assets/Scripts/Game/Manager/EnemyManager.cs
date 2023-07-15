@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -46,7 +47,7 @@ public class EnemyManager : MonoBehaviour
         enemies.Add(ai);
     }
 
-    public IEnumerator Controll()
+    public async UniTask Controll()
     {
         if (spawnIntervalTurn < spawnedCount)
         {
@@ -61,9 +62,9 @@ public class EnemyManager : MonoBehaviour
         var attackEnemies = enemies.Where(e => e.CanAttack()).ToList();
         var completedCount = 0;
         foreach(var enemy in moveEnemies)
-            yield return enemy.Move(() => completedCount++);
-        while (moveEnemies.Count > completedCount) yield return null;
+            await enemy.Move(() => completedCount++);
+        while (moveEnemies.Count > completedCount) await UniTask.Yield();
         foreach (var enemy in attackEnemies)
-            yield return enemy.Attack();
+            await enemy.Attack();
     }
 }
