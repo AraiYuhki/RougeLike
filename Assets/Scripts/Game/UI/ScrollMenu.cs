@@ -63,7 +63,7 @@ public class ScrollMenu : MonoBehaviour
         }
     }
 
-    public void Open(UnityAction onComplete = null)
+    public virtual void Open(UnityAction onComplete = null)
     {
         if (tween != null)
         {
@@ -82,7 +82,7 @@ public class ScrollMenu : MonoBehaviour
         });
     }
 
-    public void Close(UnityAction onComplete = null)
+    public virtual void Close(UnityAction onComplete = null)
     {
         if (tween != null)
         {

@@ -64,7 +64,7 @@ public class StatusUI : MonoBehaviour
 
     private void Update()
     {
-        if (data == null) return;
+        if (player == null || data == null) return;
         weaponLabel.text = data.EquipmentWeapon == null ? "•Ší: ‘fè" : $"•Ší: {data.EquipmentWeapon.Name}";
         shieldLabel.text = data.EquipmentShield == null ? "‚: ‚È‚µ" : $"‚: {data.EquipmentShield.Name}";
         currentExpLabel.text = $"EXP: {data.TotalExp}";

@@ -22,7 +22,6 @@ public class RotationTester : EditorWindow
     private int angle = 0;
 
     private bool[,] original = new bool[3,3];
-    private List<bool>[] striped = null;
     private int size = 3;
     public void OnGUI()
     {

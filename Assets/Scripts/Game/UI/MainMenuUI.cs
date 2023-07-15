@@ -8,6 +8,8 @@ using UnityEngine.Events;
 public class MainMenuUI : ScrollMenu
 {
     [SerializeField]
+    private Canvas canvas;
+    [SerializeField]
     private SelectableItem inventoryItem;
     [SerializeField]
     private SelectableItem floorItem;
@@ -35,5 +37,20 @@ public class MainMenuUI : ScrollMenu
         pauseItem.Initialize(() => SetSelectIndex(2), onSelectPause);
         retireItem.Initialize(() => SetSelectIndex(3), onSelectRetire);
         closeItem.Initialize(() => SetSelectIndex(4), onSelectClose);
+    }
+
+    public override void Open(UnityAction onComplete = null)
+    {
+        canvas.enabled = true;
+        base.Open(onComplete);
+    }
+
+    public override void Close(UnityAction onComplete = null)
+    {
+        base.Close(() =>
+        {
+            onComplete?.Invoke();
+            canvas.enabled = false;
+        });
     }
 }
