@@ -99,9 +99,9 @@ public class MenuUI : MonoBehaviour
             Close(onComplete);
     }
 
-    public IEnumerator Controll()
+    public void Controll()
     {
-        switch(type)
+        switch (type)
         {
             case ControllType.Main:
                 MainMenuControll();
@@ -113,7 +113,6 @@ public class MenuUI : MonoBehaviour
                 UseMenuControll();
                 break;
         }
-        yield return null;
     }
 
     private void OpenInventory()

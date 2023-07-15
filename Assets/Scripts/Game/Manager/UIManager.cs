@@ -40,5 +40,5 @@ public class UIManager : MonoBehaviour
         dungeonUI.Minimap.SetMode(MinimapMode.Normal);
         menuUI.Close(onComplete);
     }
-    public IEnumerator UpdateUI() => menuUI.Controll();
+    public void UpdateUI() => menuUI.Controll();
 }

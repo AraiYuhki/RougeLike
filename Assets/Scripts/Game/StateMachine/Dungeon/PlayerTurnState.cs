@@ -1,47 +1,4 @@
-ï»¿using Cysharp.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
-
-public enum GameState
-{
-    Wait,
-    PlayerTurn,
-    EnemyTurn,
-    UIControll,
-    MainMenu,
-    NextFloorLoad,
-    TurnEnd,
-}
-
-public class DungeonStateMachine
-{
-    private GameState currentState = GameState.Wait;
-    private IState current => states.ContainsKey(currentState) ? states[currentState] : null;
-    private Dictionary<GameState, IState> states = new Dictionary<GameState, IState>();
-
-    public void AddState(GameState state, IState instance) => states[state] = instance;
-
-    public void Goto(GameState state)
-    {
-        current?.OnExit();
-        currentState = state;
-        current?.OnEnter();
-    }
-
-    public IEnumerator Update()
-    {
-        while (true)
-        {
-            if (current != null)
-            {
-                current.Update();
-                yield return null;
-            }
-        }
-    }
-}
 
 public class PlayerTurnState : IState
 {
@@ -116,7 +73,7 @@ public class PlayerTurnState : IState
             {
                 player.Move(move);
                 TakeItem();
-                // ç§»å‹•å…ˆãŒéšæ®µã‹ç¢ºèªã™ã‚‹
+                // ˆÚ“®æ‚ªŠK’i‚©Šm”F‚·‚é
                 isExecuteCommand = !CheckStair();
             }
         }
@@ -134,12 +91,12 @@ public class PlayerTurnState : IState
         if (item.IsGem)
         {
             player.Data.Gems += item.GemCount;
-            notice.Add($"ã‚¸ã‚§ãƒ ã‚’{item.GemCount}å€‹æ‹¾ã£ãŸ", Color.cyan);
+            notice.Add($"ƒWƒFƒ€‚ğ{item.GemCount}ŒÂE‚Á‚½", Color.cyan);
         }
         else
         {
             player.Data.TakeItem(item.Data);
-            notice.Add($"{item.Data.Name}ã‚’æ‹¾ã£ãŸ", Color.cyan);
+            notice.Add($"{item.Data.Name}‚ğE‚Á‚½", Color.cyan);
         }
         floorManager.RemoveItem(item.Position);
         itemManager.Despawn(item);
@@ -152,8 +109,8 @@ public class PlayerTurnState : IState
         if (stairPosition.X == player.Position.x && stairPosition.Y == player.Position.y)
         {
             var dialog = dialogManager.Open<CommonDialog>();
-            dialog.Initialize("ç¢ºèª", "æ¬¡ã®éšã¸é€²ã¿ã¾ã™ã‹ï¼Ÿ",
-                ("ã¯ã„", () =>
+            dialog.Initialize("Šm”F", "Ÿ‚ÌŠK‚Öi‚İ‚Ü‚·‚©H",
+                ("‚Í‚¢", () =>
                 {
                     dialogManager.Close(dialog);
                     stateMachine.Goto(GameState.Wait);
@@ -163,7 +120,7 @@ public class PlayerTurnState : IState
                     });
                 }
             ),
-                ("ã„ã„ãˆ", () =>
+                ("‚¢‚¢‚¦", () =>
                 {
                     dialogManager.Close(dialog);
                     stateMachine.Goto(GameState.EnemyTurn);
@@ -172,48 +129,5 @@ public class PlayerTurnState : IState
             return true;
         }
         return false;
-    }
-}
-
-public class EnemyTurnState : IState
-{
-    private DungeonStateMachine stateMachine;
-    private EnemyManager enemyManager;
-    private UniTask task;
-
-    public EnemyTurnState(DungeonStateMachine stateMachine, EnemyManager enemyManager)
-    {
-        this.stateMachine = stateMachine;
-        this.enemyManager = enemyManager;
-    }
-
-    public void OnEnter()
-    {
-        task = enemyManager.Controll();
-    }
-
-    public void OnExit()
-    {
-    }
-
-    public void Update()
-    {
-        if (task.Status == UniTaskStatus.Succeeded)
-            stateMachine.Goto(GameState.PlayerTurn);
-    }
-}
-
-public class WaitState : IState
-{
-    public void OnEnter()
-    {
-    }
-
-    public void OnExit()
-    {
-    }
-
-    public void Update()
-    {
     }
 }

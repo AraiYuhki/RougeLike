@@ -305,12 +305,13 @@ public class GameController : MonoBehaviour
 
     private IEnumerator UIControll()
     {
-        if (InputUtility.Menu.IsTriggerd())
-        {
-            CloseMenu();
-            yield return null;
-        }
+        //if (InputUtility.Menu.IsTriggerd())
+        //{
+        //    CloseMenu();
+        //    yield return null;
+        //}
 
-        yield return uiManager.UpdateUI();
+        //yield return uiManager.UpdateUI();
+        yield return null;
     }
 }
