@@ -37,8 +37,8 @@ public class DungeonStateMachine
             if (current != null)
             {
                 current.Update();
-                yield return null;
             }
+            yield return null;
         }
     }
 }

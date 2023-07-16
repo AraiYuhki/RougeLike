@@ -10,9 +10,10 @@ public class MainMenuState : IState
 
     private bool isOpened = false;
 
-    public MainMenuState(DungeonStateMachine stateMachine, MenuUI menuUI)
+    public MainMenuState(DungeonStateMachine stateMachine, MainMenuUI mainMenuUI, MenuUI menuUI)
     {
         this.stateMachine = stateMachine;
+        this.mainMenuUI = mainMenuUI;
         this.menuUI = menuUI;
     }
 

@@ -24,6 +24,10 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private DialogManager dialogManager;
     [SerializeField]
+    private MenuUI menuUI;
+    [SerializeField]
+    private MainMenuUI mainMenuUI;
+    [SerializeField]
     private GameObject uiController = null;
     [SerializeField]
     private UIManager uiManager;
@@ -55,6 +59,7 @@ public class GameController : MonoBehaviour
         stateMachine.AddState(GameState.Wait, new WaitState());
         stateMachine.AddState(GameState.PlayerTurn, new PlayerTurnState(stateMachine, floorManager, itemManager, dialogManager, noticeGroup, player));
         stateMachine.AddState(GameState.EnemyTurn, new EnemyTurnState(stateMachine, enemyManager));
+        stateMachine.AddState(GameState.MainMenu, new MainMenuState(stateMachine, mainMenuUI, menuUI));
     }
 
     private void Start()
