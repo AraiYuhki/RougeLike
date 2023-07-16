@@ -43,4 +43,24 @@ public class MainMenuState : IState
         else if (InputUtility.Submit.IsTriggerd())
             mainMenuUI.Submit();
     }
+
+    private void OpenInventory()
+    {
+
+    }
+
+    private void CheckStep()
+    {
+
+    }
+
+    private void Suspend()
+    {
+
+    }
+
+    private void Retire()
+    {
+
+    }
 }

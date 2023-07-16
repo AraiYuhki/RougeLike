@@ -50,19 +50,25 @@ public class CommonDialog : DialogBase
             item.Select(index == currentSelected);
     }
 
+    public override void Left()
+    {
+        currentSelected--;
+        if (currentSelected < 0) currentSelected += items.Count;
+    }
+
+    public override void Right()
+    {
+        currentSelected++;
+        if (currentSelected >= items.Count) currentSelected -= items.Count;
+    }
+
     public override void Controll()
     {
         var prevIndex = currentSelected;
         if (InputUtility.Left.IsTriggerd())
-        {
-            currentSelected--;
-            if (currentSelected < 0) currentSelected += items.Count;
-        }
+            Left();
         else if (InputUtility.Right.IsTriggerd())
-        {
-            currentSelected++;
-            if (currentSelected >= items.Count) currentSelected -= items.Count;
-        }
+            Right();
         else if (InputUtility.Submit.IsTriggerd())
             items[currentSelected].Submit();
         if (prevIndex != currentSelected) UpdateView();

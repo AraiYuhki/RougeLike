@@ -72,6 +72,12 @@ public class DialogBase : MonoBehaviour
     {
     }
 
+    public virtual void Left() { }
+    public virtual void Right() { }
+    public virtual void Up() { }
+    public virtual void Down() { }
+    public virtual void Submit() { }
+
     private void OnDestroy()
     {
         OnDestroyed?.Invoke();
