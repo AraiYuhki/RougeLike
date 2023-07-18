@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class ScrollMenu : MonoBehaviour
+public class ScrollMenu : MonoBehaviour, IControllable
 {
     [SerializeField]
     protected ScrollRect scrollView;
@@ -50,7 +50,7 @@ public class ScrollMenu : MonoBehaviour
         this.items.Clear();
     }
 
-    public virtual void Initialize(IEnumerable<(string, UnityAction)> items)
+    public virtual void Initialize(IEnumerable<(string, Action)> items)
     {
         Clean();
         foreach ((var label, var callback, var index) in items.Select((pair, index) => (pair.Item1, pair.Item2, index)))
@@ -63,7 +63,7 @@ public class ScrollMenu : MonoBehaviour
         }
     }
 
-    public void Open(UnityAction onComplete = null)
+    public virtual void Open(Action onComplete = null)
     {
         if (tween != null)
         {
@@ -82,7 +82,7 @@ public class ScrollMenu : MonoBehaviour
         });
     }
 
-    public void Close(UnityAction onComplete = null)
+    public virtual void Close(Action onComplete = null)
     {
         if (tween != null)
         {
@@ -123,6 +123,9 @@ public class ScrollMenu : MonoBehaviour
         FixScroll();
         items[selectedIndex].Select(true);
     }
+
+    public virtual void Left() { }
+    public virtual void Right() { }
 
     protected void SetSelectIndex(int index)
     {

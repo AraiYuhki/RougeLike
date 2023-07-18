@@ -126,6 +126,9 @@ public class Dijkstra
         var endTile = floorData.Map[end.x, end.y];
         var nodeList = GetRoot(startTile, endTile);
         var checkPoints = new List<Vector2Int>();
+        
+        if (nodeList == null) return checkPoints;
+
         for (var index = 0;index < nodeList.Count; index++)
         {
             var currentNode = nodes[nodeList[index]];

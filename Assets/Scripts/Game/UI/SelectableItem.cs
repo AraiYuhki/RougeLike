@@ -27,10 +27,10 @@ public class SelectableItem : MonoBehaviour
     }
 
     private void OnEnable() => initialColor = button.image.color;
-    public virtual void Initialize(Action onSelect = null, UnityAction onSubmit = null)
+    public virtual void Initialize(Action onSelect = null, Action onSubmit = null)
     {
         this.onSelect = onSelect;
-        button.onClick.AddListener(onSubmit);
+        button.onClick.AddListener(() => onSubmit?.Invoke());
     }
 
     public void Select(bool isSelect)

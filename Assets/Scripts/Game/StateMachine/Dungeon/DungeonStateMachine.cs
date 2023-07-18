@@ -41,7 +41,7 @@ public class DungeonStateMachine
         prevState = GameState.Wait;
     }
 
-    public void OpenCommonDialog(string title, string message, params (string label, UnityAction onClick)[] data)
+    public void OpenCommonDialog(string title, string message, params (string label, Action onClick)[] data)
     {
         prevState = currentState;
         var dialog = DialogManager.Instance.Open<CommonDialog>();

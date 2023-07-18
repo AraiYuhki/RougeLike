@@ -89,7 +89,7 @@ public class AStar : MonoBehaviour
         openedNode.Add(nodes[StartPoint.x, StartPoint.y]);
         Node goal = null;
         var count = 0;
-        while (openedNode.Any())
+        while (openedNode.Count > 0)
         {
             count++;
             foreach (var node in openedNode.OrderBy(node => node.Score).ToList())

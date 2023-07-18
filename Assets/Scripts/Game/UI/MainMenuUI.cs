@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ public class MainMenuUI : ScrollMenu
     [SerializeField]
     private SelectableItem closeItem;
 
-    public void Initialize(UnityAction onSelectInventory, UnityAction onSelectFloor, UnityAction onSelectPause, UnityAction onSelectRetire, UnityAction onSelectClose)
+    public void Initialize(Action onSelectInventory, Action onSelectFloor, Action onSelectPause, Action onSelectRetire, Action onSelectClose)
     {
         items = new List<SelectableItem>()
         {

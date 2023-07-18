@@ -24,7 +24,7 @@ public class CommonDialog : DialogBase
         set => message.text = value;
     }
 
-    public void Initialize(string title, string message, params (string label, UnityAction onClick)[] data)
+    public void Initialize(string title, string message, params (string label, Action onClick)[] data)
     {
         foreach (var item in items) Destroy(item.gameObject);
         items.Clear();

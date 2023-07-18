@@ -11,7 +11,7 @@ public enum DialogType
     Common,
 }
 
-public class DialogBase : MonoBehaviour
+public class DialogBase : MonoBehaviour, IControllable
 {
     [SerializeField]
     protected Image window;
@@ -77,6 +77,7 @@ public class DialogBase : MonoBehaviour
     public virtual void Up() { }
     public virtual void Down() { }
     public virtual void Submit() { }
+    public virtual void Cancel() { }
 
     private void OnDestroy()
     {

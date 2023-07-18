@@ -24,11 +24,7 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private DialogManager dialogManager;
     [SerializeField]
-    private MenuUI menuUI;
-    [SerializeField]
-    private MainMenuUI mainMenuUI;
-    [SerializeField]
-    private GameObject uiController = null;
+    private GameObject controllerUI = null;
     [SerializeField]
     private UIManager uiManager;
     [SerializeField]
@@ -36,10 +32,6 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private Player player = null;
 
-    private Vector2Int move = Vector2Int.zero;
-    private GameStatus status = GameStatus.Wait;
-    private bool isExecuteCommand = false;
-    private bool isTurnMode = false;
     private Coroutine turnControll = null;
 
     private DungeonStateMachine stateMachine;
@@ -54,37 +46,28 @@ public class GameController : MonoBehaviour
 
     private void Awake()
     {
-        status = GameStatus.Wait;
         stateMachine = new DungeonStateMachine();
         stateMachine.AddState(GameState.Wait, new WaitState());
         stateMachine.AddState(GameState.PlayerTurn, new PlayerTurnState(stateMachine, floorManager, itemManager, dialogManager, noticeGroup, player));
         stateMachine.AddState(GameState.EnemyTurn, new EnemyTurnState(stateMachine, enemyManager));
-        stateMachine.AddState(GameState.MainMenu, new MainMenuState(stateMachine, mainMenuUI, menuUI));
+        stateMachine.AddState(GameState.MainMenu, new MenuState(stateMachine, uiManager));
     }
 
     private void Start()
     {
-        uiController.gameObject.SetActive(EnableUIControllerPlatforms.Contains(Application.platform));
+        controllerUI.gameObject.SetActive(EnableUIControllerPlatforms.Contains(Application.platform));
 
-        uiManager.Initialize(floorManager, player,
-            () => status = GameStatus.EnemyControll,
-            TakeItem,
-            ThrowItem,
-            DropItem);
-        uiManager.OnCloseMenu = () => status = GameStatus.PlayerControll;
         floorManager.Clear();
         floorManager.Create(40, 40, 10, false);
         player.Initialize();
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         player.OnMoved += floorManager.OnMoveUnit;
 
-        //turnControll = StartCoroutine(TurnControll());
         turnControll = StartCoroutine(stateMachine.Update());
-        stateMachine.Goto(GameState.PlayerTurn);
 
         enemyManager.Initialize(player);
         itemManager.Initialize();
-        Fade.Instance.FadeIn(() => status = GameStatus.PlayerControll);
+        Fade.Instance.FadeIn(() => stateMachine.Goto(GameState.PlayerTurn));
     }
 
     private void OnDestroy()
@@ -92,125 +75,25 @@ public class GameController : MonoBehaviour
         StopCoroutine(turnControll);
     }
 
-    public IEnumerator TurnControll()
-    {
-        while (true)
-        {
-            if (dialogManager.Controll())
-            {
-                yield return null;
-                continue;
-            }
-            switch (status)
-            {
-                case GameStatus.PlayerControll:
-                    yield return PlayerControll();
-                    break;
-                case GameStatus.UIControll:
-                    yield return UIControll();
-                    break;
-                case GameStatus.EnemyControll:
-                    yield return enemyManager.Controll();
-                    status = GameStatus.TurnEnd;
-                    break;
-                case GameStatus.TurnEnd:
-                    foreach (var unit in FindObjectsOfType<Unit>())
-                        unit.TurnEnd();
-                    status = GameStatus.PlayerControll;
-                    break;
-                case GameStatus.Wait:
-                default:
-                    yield return null;
-                    break;
+    public void StartEnemyTurn() => stateMachine.Goto(GameState.EnemyTurn);
 
-            }
-        }
-    }
-
-    public void Up() => move.y = 1;
-    public void Down() => move.y = -1;
-    public void Right() => move.x = 1;
-    public void Left() => move.x = -1;
-    public void TurnMode() => isTurnMode = true;
-    public void Wait() => isExecuteCommand = true;
-
-    public void SwitchMenu()
-    {
-        if (uiManager.IsMenuOpened) CloseMenu();
-        else OpenMenu();
-    }
-
-    public void OpenMenu()
-    {
-        uiManager.OpenMenu(() => status = GameStatus.UIControll);
-        status = GameStatus.Wait;
-    }
-
-    public void CloseMenu()
-    {
-        uiManager.CloseMenu(() => status = GameStatus.PlayerControll);
-        status = GameStatus.Wait;
-    }
-
-    private IEnumerator PlayerControll()
-    {
-        if (player.IsLockInput) yield break;
-
-        if (InputUtility.Menu.IsTriggerd())
-        {
-            OpenMenu();
-            yield break;
-        }
-        if (InputUtility.Wait.IsPressed()) isExecuteCommand = true;
-        if (InputUtility.Up.IsPressed()) Up();
-        else if (InputUtility.Down.IsPressed()) Down();
-        if (InputUtility.Right.IsPressed()) Right();
-        else if (InputUtility.Left.IsPressed()) Left();
-        isTurnMode |= InputUtility.TurnMode.IsPressed();
-
-        if (move.x != 0 || move.y != 0)
-        {
-            var currentPosition = player.Position;
-            var destPosition = currentPosition + move;
-            var destTile = floorManager.GetTile(destPosition);
-            var enemy = floorManager.GetUnit(destPosition);
-            if (enemy != null)
-            {
-                status = GameStatus.Wait;
-                player.SetDestAngle(move);
-                move = Vector2Int.zero;
-                player.Attack(enemy, () => status = GameStatus.EnemyControll);
-                yield break;
-            }
-            if (destTile.IsWall || isTurnMode)
-            {
-                player.SetDestAngle(move);
-            }
-            else
-            {
-                player.Move(move);
-                TakeItem();
-                // �K�i���Ȃ���΂��̂܂܎���
-                isExecuteCommand = !CheckStair();
-            }
-        }
-        move = Vector2Int.zero;
-        isTurnMode = false;
-        if (isExecuteCommand)
-        {
-            isExecuteCommand = false;
-            status = GameStatus.EnemyControll;
-        }
-        yield return null;
-    }
-
-    private void DropItem(ItemBase target)
+    /// <summary>
+    /// インスペクター上から使用
+    /// アイテムをその場に置く
+    /// </summary>
+    /// <param name="target"></param>
+    public void DropItem(ItemBase target)
     {
         itemManager.Drop(target, 0, player.Position);
-        status = GameStatus.EnemyControll;
+        StartEnemyTurn();
     }
 
-    private void ThrowItem(ItemBase target)
+    /// <summary>
+    /// インスペクター上から使用
+    /// アイテムを投げる
+    /// </summary>
+    /// <param name="target"></param>
+    public void ThrowItem(ItemBase target)
     {
         var item = itemManager.Drop(target, 0, player.Position);
         var targetPosition = floorManager.GetHitPosition(player.Position, player.Angle, 10);
@@ -233,7 +116,7 @@ public class GameController : MonoBehaviour
                 else if (target is UsableItemData usableItem)
                     usableItem.Use(enemy);
                 itemManager.Despawn(item);
-                status = GameStatus.EnemyControll;
+                StartEnemyTurn();
                 return;
             }
             if (!floorManager.CanDrop(targetPosition.position))
@@ -250,7 +133,7 @@ public class GameController : MonoBehaviour
                     dropTween.onComplete += () =>
                     {
                         floorManager.SetItem(item, candidate.Position);
-                        status = GameStatus.EnemyControll;
+                        StartEnemyTurn();
                     };
                     return;
                 }
@@ -259,11 +142,15 @@ public class GameController : MonoBehaviour
                 return;
             }
             floorManager.SetItem(item, targetPosition.position);
-            status = GameStatus.EnemyControll;
+            StartEnemyTurn();
         };
     }
 
-    private void TakeItem()
+    /// <summary>
+    /// インスペクター上から使用
+    /// アイテムを拾う
+    /// </summary>
+    public void TakeItem()
     {
         var item = floorManager.GetItem(player.Position);
         if (item == null) return;
@@ -279,44 +166,6 @@ public class GameController : MonoBehaviour
         }
         floorManager.RemoveItem(item.Position);
         itemManager.Despawn(item);
-        status = GameStatus.EnemyControll;
-    }
-
-    private bool CheckStair()
-    {
-        var stairPosition = floorManager.FloorData.StairPosition;
-        if (stairPosition.X == player.Position.x && stairPosition.Y == player.Position.y)
-        {
-            var dialog = dialogManager.Open<CommonDialog>();
-            dialog.Initialize("確認", "次の階へ進みますか？", ("はい", () =>
-            {
-                dialogManager.Close(dialog);
-                Fade.Instance.FadeOut(OpenShop);
-            }),
-            ("いいえ", () =>
-            {
-                dialogManager.Close(dialog);
-                status = GameStatus.EnemyControll;
-            }));
-            return true;
-        }
-        return false;
-    }
-
-    private void OpenShop()
-    {
-
-    }
-
-    private IEnumerator UIControll()
-    {
-        //if (InputUtility.Menu.IsTriggerd())
-        //{
-        //    CloseMenu();
-        //    yield return null;
-        //}
-
-        //yield return uiManager.UpdateUI();
-        yield return null;
+        StartEnemyTurn();
     }
 }
