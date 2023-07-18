@@ -12,8 +12,6 @@ public class InventoryUI : ScrollMenu
     [SerializeField]
     private UnityEvent onUseItem;
     [SerializeField]
-    private UnityEvent onTakeItem;
-    [SerializeField]
     private UnityEvent<ItemBase> onThrowItem;
     [SerializeField]
     private UnityEvent<ItemBase> onDropItem;
@@ -72,8 +70,6 @@ public class InventoryUI : ScrollMenu
         menu.Add(("投げる", ThrowItem));
         if (floorManager.GetItem(player.Position) == null)
             menu.Add(("置く", DropItem));
-        else
-            menu.Add(("拾う", TakeItem));
         menu.Add(("戻る", () =>
         {
             uiManager.CloseCurrent();
@@ -130,11 +126,6 @@ public class InventoryUI : ScrollMenu
         player.Data.Inventory.Remove(item);
         notice.Add($"{item.Name}を投げた", Color.cyan);
         uiManager.CloseAll(() => onThrowItem?.Invoke(item));
-    }
-
-    private void TakeItem()
-    {
-        onTakeItem?.Invoke();
     }
 
     private void DropItem()
