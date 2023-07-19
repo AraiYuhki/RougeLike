@@ -49,7 +49,7 @@ public class DialogManager : MonoSingleton<DialogManager>
         return dialog;
     }
 
-    public void Close(DialogBase dialog)
+    public void Close(DialogBase dialog, Action onComplete = null)
     {
         var isFirst = dialogQueue.First() == dialog;
         if (isFirst)
@@ -70,6 +70,7 @@ public class DialogManager : MonoSingleton<DialogManager>
                 {
                     tween = null;
                     basePanel.gameObject.SetActive(false);
+                    onComplete?.Invoke();
                 });
             }
             return;

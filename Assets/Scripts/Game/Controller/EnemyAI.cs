@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,14 +25,15 @@ public abstract class EnemyAI
         return Mathf.Abs(diff.x) <= 1 && Mathf.Abs(diff.y) <= 1;
     }
 
-    public virtual IEnumerator Move(TweenCallback onComplete = null)
+    public virtual UniTask Move(TweenCallback onComplete = null)
     {
         onComplete?.Invoke();
-        return null;
+        return new UniTask();
     }
-    public virtual IEnumerator Attack()
+
+    public virtual UniTask Attack()
     {
-        yield return null;
+        return new UniTask();
     }
 }
 
@@ -41,7 +43,7 @@ public class DefaultAI : EnemyAI
     protected List<int> rootRooms = new List<int>();
     public DefaultAI(FloorManager floorInfo, Enemy enemy, Player player) : base(floorInfo, enemy, player) { }
 
-    public override IEnumerator Move(TweenCallback onComplete = null)
+    public override async UniTask Move(TweenCallback onComplete = null)
     {
         if (!Enemy.IsEncounted)
         {
@@ -50,43 +52,41 @@ public class DefaultAI : EnemyAI
             if (playerTile.IsRoom && currentTile.IsRoom)
                 Enemy.IsEncounted = playerTile.Id == currentTile.Id;
         }
-        List<Vector2Int> root = null;
-        var task = Task.Run(() => root = FindRoot());
-        while (!task.IsCompleted) yield return null;
-        // ƒ‹[ƒg‚ªŒ©‚Â‚©‚ç‚È‚¢‚à‚µ‚­‚ÍŒ»İ’n“_‚©‚ç“®‚¯‚È‚¢ê‡‚Í‰½‚à‚µ‚È‚¢
+        var root = await Task.Run(FindRoot);
+        // ãƒ«ãƒ¼ãƒˆãŒè¦‹ã¤ã‹ã‚‰ãªã„ã‚‚ã—ãã¯ç¾åœ¨åœ°ç‚¹ã‹ã‚‰å‹•ã‘ãªã„å ´åˆã¯ä½•ã‚‚ã—ãªã„
         if(root == null || root.Count < 2)
         {
-            base.Move(onComplete);
+            await base.Move(onComplete);
             cantMoveTurns++;
-            yield break;
+            return;
         }
-        // Ÿ‚ÌˆÚ“®æ‚ğ’T‚·(root‚Ì0”Ô–Ú‚ÍŒ»İ’n‚È‚Ì‚ÅƒXƒLƒbƒv)
+        // æ¬¡ã®ç§»å‹•å…ˆã‚’æ¢ã™(rootã®0ç•ªç›®ã¯ç¾åœ¨åœ°ãªã®ã§ã‚¹ã‚­ãƒƒãƒ—)
         var nextTile = root.Skip(1).First();
         if (floorInfo.GetUnit(nextTile) != null)
         {
-            // ˆÚ“®‚Å‚«‚È‚©‚Á‚½
-            base.Move(onComplete);
+            // ç§»å‹•ã§ããªã‹ã£ãŸ
+            await base.Move(onComplete);
             cantMoveTurns++;
-            yield break;
+            return;
         }
         Enemy.MoveTo(nextTile, onComplete);
     }
 
-    public override IEnumerator Attack()
+    public override async UniTask Attack()
     {
         var diff = player.Position - Enemy.Position;
         Enemy.SetDestAngle(diff);
-        while (Enemy.EndRotation) yield return new WaitForEndOfFrame();
+        await UniTask.WaitUntil(() => Enemy.EndRotation);
         var endAttackAnimation = false;
         var targetPosition = new Vector3(player.Position.x, 0.5f, player.Position.y);
         Enemy.Attack(player, () => endAttackAnimation = true);
-        while(!endAttackAnimation) yield return new WaitForEndOfFrame();
+        await UniTask.WaitUntil(() => !endAttackAnimation);
     }
 
     protected virtual List<Vector2Int> FindRoot()
     {
         var currentTile = floorInfo.GetTile(Enemy.Position);
-        // ƒvƒŒƒCƒ„[‚ÆÚG‚µ‚Ä‚¢‚È‚¢
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¨æ¥è§¦ã—ã¦ã„ãªã„
         if (!Enemy.IsEncounted)
         {
             if (Enemy.TargetTile == null || Enemy.TargetTile == currentTile || cantMoveTurns > 1)
@@ -99,7 +99,7 @@ public class DefaultAI : EnemyAI
                 cantMoveTurns = 0;
                 checkPoints = floorInfo.GetCheckpoints(Enemy.Position, Enemy.TargetTile.Position);
             }
-            // ¡‚Ìƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg‚É“’B‚µ‚½
+            // ä»Šã®ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆã«åˆ°é”ã—ãŸ
             if (Enemy.Position == checkPoints[0])
                 checkPoints.RemoveAt(0);
             return floorInfo.GetRoot(Enemy.Position, checkPoints.First());

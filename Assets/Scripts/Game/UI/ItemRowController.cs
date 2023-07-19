@@ -18,7 +18,7 @@ public class ItemRowController : SelectableItem
 
     public ItemBase ItemData { get; private set; }
 
-    public void Initialize(ItemBase itemData, int count, bool isEquip, Action onSelect = null, UnityAction onSubmit = null)
+    public void Initialize(ItemBase itemData, int count, bool isEquip, Action onSelect = null, Action onSubmit = null)
     {
         base.Initialize(onSelect, onSubmit);
         ItemData = itemData;
