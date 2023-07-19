@@ -73,7 +73,7 @@ public class PlayerTurnState : IState
             {
                 player.Move(move);
                 TakeItem();
-                // ˆÚ“®æ‚ªŠK’i‚©Šm”F‚·‚é
+                // ç§»å‹•å…ˆãŒéšæ®µã‹ç¢ºèªã™ã‚‹
                 isExecuteCommand = !CheckStair();
             }
         }
@@ -91,12 +91,12 @@ public class PlayerTurnState : IState
         if (item.IsGem)
         {
             player.Data.Gems += item.GemCount;
-            notice.Add($"ƒWƒFƒ€‚ğ{item.GemCount}ŒÂE‚Á‚½", Color.cyan);
+            notice.Add($"ã‚¸ã‚§ãƒ ã‚’{item.GemCount}å€‹æ‹¾ã£ãŸ", Color.cyan);
         }
         else
         {
             player.Data.TakeItem(item.Data);
-            notice.Add($"{item.Data.Name}‚ğE‚Á‚½", Color.cyan);
+            notice.Add($"{item.Data.Name}ã‚’æ‹¾ã£ãŸ", Color.cyan);
         }
         floorManager.RemoveItem(item.Position);
         itemManager.Despawn(item);
@@ -109,8 +109,8 @@ public class PlayerTurnState : IState
         if (stairPosition.X == player.Position.x && stairPosition.Y == player.Position.y)
         {
             var dialog = dialogManager.Open<CommonDialog>();
-            dialog.Initialize("Šm”F", "Ÿ‚ÌŠK‚Öi‚İ‚Ü‚·‚©H",
-                ("‚Í‚¢", () =>
+            dialog.Initialize("ç¢ºèª", "æ¬¡ã®éšã¸é€²ã¿ã¾ã™ã‹ï¼Ÿ",
+                ("ã¯ã„", () =>
                 {
                     dialogManager.Close(dialog);
                     stateMachine.Goto(GameState.Wait);
@@ -120,7 +120,7 @@ public class PlayerTurnState : IState
                     });
                 }
             ),
-                ("‚¢‚¢‚¦", () =>
+                ("ã„ã„ãˆ", () =>
                 {
                     dialogManager.Close(dialog);
                     stateMachine.Goto(GameState.EnemyTurn);

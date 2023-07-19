@@ -79,13 +79,13 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Œ»İŠJ‚¢‚Ä‚¢‚éUI‚ğ•Â‚¶‚éB
+    /// ç¾åœ¨é–‹ã„ã¦ã„ã‚‹UIã‚’é–‰ã˜ã‚‹ã€‚
     /// </summary>
     /// <param name="onComplete"></param>
-    /// <returns>‚Ü‚¾UI‚ªŠJ‚©‚ê‚Ä‚¢‚é‚©H</returns>
+    /// <returns>ã¾ã UIãŒé–‹ã‹ã‚Œã¦ã„ã‚‹ã‹ï¼Ÿ</returns>
     public bool CloseCurrent(Action onComplete = null)
     {
-        // TODO: í—Ş‚²‚Æ‚ÉFX‚â‚ç‚È‚¢‚Æ‚¢‚¯‚È‚¢
+        // TODO: ç¨®é¡ã”ã¨ã«è‰²ã€…ã‚„ã‚‰ãªã„ã¨ã„ã‘ãªã„
         if (current == null) return false;
         var ui = uiStack.Pop();
         if (ui is InventoryUI)
