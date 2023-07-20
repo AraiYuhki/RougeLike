@@ -126,17 +126,48 @@ public class FloorManager : MonoBehaviour
         units = new Unit[Size.x, Size.y];
         items = new Item[Size.x, Size.y];
         this.isTower = isTower;
+
+        var transform = wall.transform;
+        var wallMesh = wall.GetComponent<MeshFilter>().sharedMesh;
+        var floorMesh = floor.GetComponent<MeshFilter>().sharedMesh;
+
+        var combinedWall = new List<CombineInstance>();
+        var combinedFloor = new List<CombineInstance>();
+
         for (var x = 0; x < Size.x; x++)
         {
             for (var z = 0; z < Size.y; z++)
             {
-                CreateVoxel(Map[x, z], x, z);
+                var tileInfo = Map[x, z];
+                if (FloorData.IsStair(x, z))
+                {
+                    CreateVoxel(tileInfo, x, z);
+                    continue;
+                }
+
+                var combine = new CombineInstance();
+                if (tileInfo.IsWall)
+                {
+                    transform.localPosition = new Vector3(x, 0.5f, z);
+                    combine.transform = transform.localToWorldMatrix;
+                    combine.mesh = wallMesh;
+                    combinedWall.Add(combine);
+                }
+                else
+                {
+                    transform.localPosition = new Vector3(x, -0.5f, z);
+                    combine.transform = transform.localToWorldMatrix;
+                    combine.mesh = floorMesh;
+                    combinedFloor.Add(combine);
+                }
             }
         }
-        transform.parent.position = new Vector3(-width * 0.5f, 0f, -height * 0.5f);
+        CreateCombinedMesh(combinedWall, wall.GetComponent<MeshRenderer>().sharedMaterial, "walls");
+        CreateCombinedMesh(combinedFloor, floor.GetComponent<MeshRenderer>().sharedMaterial, "floors");
+        this.transform.parent.position = new Vector3(-width * 0.5f, 0f, -height * 0.5f);
         aStar = new AStar(Map, this);
         dijkstra = new Dijkstra(FloorData);
-        minimap.Initialize(FloorData);
+        minimap?.Initialize(FloorData);
     }
 
     public List<Vector2Int> GetRoot(Vector2Int startPosition, Vector2Int targetPosition)
@@ -267,5 +298,20 @@ public class FloorManager : MonoBehaviour
         }
         voxel.transform.localPosition = new Vector3(x, y, z);
         voxel.name = $"Voxel({x},{z})";
+    }
+
+    private void CreateCombinedMesh(List<CombineInstance> combineData, Material material, string name)
+    {
+        var gameObject = new GameObject();
+        gameObject.name = name;
+        gameObject.transform.parent = transform;
+        gameObject.transform.localPosition = Vector3.zero;
+        gameObject.transform.localRotation = Quaternion.identity;
+        gameObject.transform.localScale = Vector3.one;
+        var meshFilter = gameObject.AddComponent<MeshFilter>();
+        meshFilter.sharedMesh = new Mesh();
+        meshFilter.sharedMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        meshFilter.sharedMesh.CombineMeshes(combineData.ToArray());
+        gameObject.AddComponent<MeshRenderer>().sharedMaterial = material;
     }
 }

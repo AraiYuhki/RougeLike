@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class AStar : MonoBehaviour
+public class AStar
 {
     public enum NodeState
     {
