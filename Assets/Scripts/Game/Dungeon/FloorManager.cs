@@ -138,15 +138,13 @@ public class FloorManager : MonoBehaviour
         {
             for (var z = 0; z < Size.y; z++)
             {
-                var tileInfo = Map[x, z];
                 if (FloorData.IsStair(x, z))
                 {
-                    CreateVoxel(tileInfo, x, z);
+                    CreateStair(x, z);
                     continue;
                 }
-
                 var combine = new CombineInstance();
-                if (tileInfo.IsWall)
+                if (Map[x, z].IsWall)
                 {
                     transform.localPosition = new Vector3(x, 0.5f, z);
                     combine.transform = transform.localToWorldMatrix;
@@ -168,6 +166,54 @@ public class FloorManager : MonoBehaviour
         aStar = new AStar(Map, this);
         dijkstra = new Dijkstra(FloorData);
         minimap?.Initialize(FloorData);
+    }
+
+    private IEnumerator Create()
+    {
+        var transform = wall.transform;
+        var wallMesh = wall.GetComponent<MeshFilter>().sharedMesh;
+        var floorMesh = floor.GetComponent<MeshFilter>().sharedMesh;
+
+        var combinedWall = new List<CombineInstance>();
+        var combinedFloor = new List<CombineInstance>();
+
+        var count = 0;
+        for (var x = 0; x < Size.x; x++)
+        {
+            for (var z = 0; z < Size.y; z++)
+            {
+                if (FloorData.IsStair(x, z))
+                {
+                    CreateStair(x, z);
+                    continue;
+                }
+
+                var combine = new CombineInstance();
+                if (Map[x, z].IsWall)
+                {
+                    transform.localPosition = new Vector3(x, 0.5f, z);
+                    combine.transform = transform.localToWorldMatrix;
+                    combine.mesh = wallMesh;
+                    combinedWall.Add(combine);
+                }
+                else
+                {
+                    transform.localPosition = new Vector3(x, -0.5f, z);
+                    combine.transform = transform.localToWorldMatrix;
+                    combine.mesh = floorMesh;
+                    combinedFloor.Add(combine);
+                }
+                count++;
+                if (count == 50)
+                {
+                    count = 0;
+                    yield return null;
+                }
+            }
+        }
+        CreateCombinedMesh(combinedWall, wall.GetComponent<MeshRenderer>().sharedMaterial, "Walls");
+        CreateCombinedMesh(combinedFloor, floor.GetComponent<MeshRenderer>().sharedMaterial, "Floors");
+        transform.parent.position = new Vector3(-Size.x * 0.5f, 0f, -Size.y * 0.5f);
     }
 
     public List<Vector2Int> GetRoot(Vector2Int startPosition, Vector2Int targetPosition)
@@ -255,49 +301,17 @@ public class FloorManager : MonoBehaviour
         }
     }
 
-    private IEnumerator Create()
-    {
-        var count = 0;
-        for (var x = 0; x < Size.x; x++)
-        {
-            for (var z = 0; z < Size.y; z++)
-            {
-                CreateVoxel(Map[x, z], x, z);
-                count++;
-                if (count == 50)
-                {
-                    count = 0;
-                    yield return null;
-                }
-            }
-        }
-        transform.parent.position = new Vector3(-Size.x * 0.5f, 0f, -Size.y * 0.5f);
-    }
-
     public void Clear()
     {
         while (transform.childCount > 0) DestroyImmediate(transform.GetChild(0).gameObject);
     }
 
-    private void CreateVoxel(TileData tileInfo, int x, int z)
+    private void CreateStair(int x, int z)
     {
-        GameObject obj;
-        GameObject voxel;
-        var y = 0f;
-        if (FloorData.IsStair(x, z))
-        {
-            obj = isTower ? upStair : downStair;
-            y = isTower ? 0.5f : -0.5f;
-            voxel = Instantiate(obj, transform);
-        }
-        else
-        {
-            obj = tileInfo.IsWall ? wall : floor;
-            y = tileInfo.IsWall ? 0.5f : -0.5f;
-            voxel = Instantiate(obj, transform);
-        }
-        voxel.transform.localPosition = new Vector3(x, y, z);
-        voxel.name = $"Voxel({x},{z})";
+        var obj = isTower ? upStair : downStair;
+        var voxel = Instantiate(obj, transform);
+        voxel.transform.localPosition = new Vector3(x, isTower ? 0.5f : -0.5f, z);
+        voxel.name = $"Stair({x},{z})"; ;
     }
 
     private void CreateCombinedMesh(List<CombineInstance> combineData, Material material, string name)
@@ -308,10 +322,12 @@ public class FloorManager : MonoBehaviour
         gameObject.transform.localPosition = Vector3.zero;
         gameObject.transform.localRotation = Quaternion.identity;
         gameObject.transform.localScale = Vector3.one;
+
         var meshFilter = gameObject.AddComponent<MeshFilter>();
         meshFilter.sharedMesh = new Mesh();
         meshFilter.sharedMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         meshFilter.sharedMesh.CombineMeshes(combineData.ToArray());
+
         gameObject.AddComponent<MeshRenderer>().sharedMaterial = material;
     }
 }
