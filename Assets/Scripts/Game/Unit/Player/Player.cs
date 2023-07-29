@@ -8,6 +8,8 @@ public class Player : Unit
     private FloorManager floorManager;
     [SerializeField]
     private GameObject pointLight;
+    [SerializeField]
+    private DamagePopupManager damagePopupManager;
 
     public PlayerData Data { get; private set; } = new PlayerData(10);
     public override int Hp { get => Mathf.FloorToInt(Data.Hp); set => Data.Hp = value; }
@@ -15,6 +17,11 @@ public class Player : Unit
     public override void AddExp(int exp) => Data.AddExp(exp);
     public override void RecoveryStamina(float value) => Data.Stamina += value;
     public override void PowerUp(int value) => Data.Atk += value;
+    public override DamagePopupManager DamagePopupManager 
+    {
+        protected get => damagePopupManager;
+        set => damagePopupManager = value;
+    }
 
     public bool IsLockInput { get; set; }
     private int healInterval = 0;

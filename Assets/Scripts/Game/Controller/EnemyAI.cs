@@ -80,7 +80,7 @@ public class DefaultAI : EnemyAI
         var endAttackAnimation = false;
         var targetPosition = new Vector3(player.Position.x, 0.5f, player.Position.y);
         Enemy.Attack(player, () => endAttackAnimation = true);
-        await UniTask.WaitUntil(() => !endAttackAnimation);
+        await UniTask.WaitUntil(() => endAttackAnimation);
     }
 
     protected virtual List<Vector2Int> FindRoot()

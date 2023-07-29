@@ -3,6 +3,8 @@ using DG.Tweening;
 using System;
 using UnityEngine.ProBuilder;
 using UnityEditor;
+using System.Collections.Generic;
+using System.Linq;
 
 public class Unit : MonoBehaviour
 {
@@ -30,6 +32,8 @@ public class Unit : MonoBehaviour
     public virtual void RecoveryStamina(float value) { }
     public virtual void PowerUp(int value) { }
     public virtual void Charge(float value) => ChargeStack = Mathf.Min(ChargeStack + value, MaxChargeStack);
+    public virtual DamagePopupManager DamagePopupManager { protected get; set; }
+    
 
     public void Awake()
     {
@@ -86,12 +90,14 @@ public class Unit : MonoBehaviour
 
     public virtual void Heal(float value)
     {
+        DamagePopupManager.Create(this, Mathf.RoundToInt(value), Color.green);
         Hp += (int)value;
         Hp = Mathf.Min(Hp, MaxHp);
     }
 
     public virtual void Damage(int damage, Unit attacker)
     {
+        DamagePopupManager.Create(this, damage, Color.red);
         Hp -= damage;
         OnDamage?.Invoke(attacker, damage);
         if (Hp <= 0)

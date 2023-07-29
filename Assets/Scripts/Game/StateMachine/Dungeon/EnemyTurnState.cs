@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 public class EnemyTurnState : IState
 {
@@ -24,6 +25,9 @@ public class EnemyTurnState : IState
     public void Update()
     {
         if (task.Status == UniTaskStatus.Succeeded)
+        {
             stateMachine.Goto(GameState.PlayerTurn);
+            Debug.LogError("Enemy turn state end");
+        }
     }
 }

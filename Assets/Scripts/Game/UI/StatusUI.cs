@@ -8,6 +8,8 @@ using UnityEngine;
 public class StatusUI : MonoBehaviour
 {
     [SerializeField]
+    private Canvas canvas;
+    [SerializeField]
     private TMP_Text weaponLabel;
     [SerializeField]
     private TMP_Text shieldLabel;
@@ -37,7 +39,7 @@ public class StatusUI : MonoBehaviour
             animationTween.Complete();
             animationTween = null;
         }
-        gameObject.SetActive(true);
+        canvas.enabled = true;
         group.alpha = 0;
         animationTween = group.DOFade(1f, 0.2f).OnComplete(() =>
         {
@@ -58,7 +60,7 @@ public class StatusUI : MonoBehaviour
         {
             animationTween = null;
             onComplete?.Invoke();
-            gameObject.SetActive(false);
+            canvas.enabled = false;
         });
     }
 

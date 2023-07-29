@@ -90,6 +90,8 @@ public class UIManager : MonoBehaviour
         var ui = uiStack.Pop();
         if (ui is InventoryUI)
             minimap.SetMode(MinimapMode.Menu);
+        else if (ui is MainMenuUI)
+            minimap.SetMode(MinimapMode.Normal);
         if (ui is DialogBase dialog)
             DialogManager.Instance.Close(dialog, onComplete);
         else
