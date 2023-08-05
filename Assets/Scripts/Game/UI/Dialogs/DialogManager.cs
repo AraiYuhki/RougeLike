@@ -24,7 +24,7 @@ public class DialogManager : MonoSingleton<DialogManager>
         basePanel.gameObject.SetActive(false);
     }
 
-    public T Open<T>(Action onOpened = null) where T : DialogBase
+    public T Create<T>(Action onOpened = null) where T : DialogBase
     {
         var original = dialogs.FirstOrDefault(dialog => dialog.GetType() == typeof(T));
         if (original == null)
@@ -42,10 +42,13 @@ public class DialogManager : MonoSingleton<DialogManager>
             tween?.Kill();
             basePanel.gameObject.SetActive(true);
             tween = basePanel.DOFade(0.5f, 0.2f);
-            tween.OnComplete(() => tween = null);
+            tween.OnComplete(() =>
+            {
+                tween = null;
+                onOpened?.Invoke();
+            });
         }
         dialogQueue.Insert(0, dialog); // キューの先頭に追加
-        dialog.Open(onOpened);
         return dialog;
     }
 
@@ -78,12 +81,5 @@ public class DialogManager : MonoSingleton<DialogManager>
         // 現在開いているものではないのでクローズ処理をせずに削除
         dialogQueue.Remove(dialog);
         Destroy(dialog.gameObject);
-    }
-
-    public bool Controll()
-    {
-        if (!dialogQueue.Any()) return false;
-        dialogQueue.First().Controll();
-        return true;
     }
 }

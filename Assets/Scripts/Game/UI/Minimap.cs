@@ -105,7 +105,7 @@ public class Minimap : MonoBehaviour
         UpdateItems();
     }
 
-    private void SetVisibleMap(Point position)
+    public void SetVisibleMap(Point position)
     {
         var currentTile = floorData.Map[position.X, position.Y];
         if (currentTile.IsRoom)

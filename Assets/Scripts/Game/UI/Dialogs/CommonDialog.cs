@@ -54,12 +54,19 @@ public class CommonDialog : DialogBase
     {
         currentSelected--;
         if (currentSelected < 0) currentSelected += items.Count;
+        UpdateView();
     }
 
     public override void Right()
     {
         currentSelected++;
         if (currentSelected >= items.Count) currentSelected -= items.Count;
+        UpdateView();
+    }
+
+    public override void Submit()
+    {
+        items[currentSelected].Submit();
     }
 
     public override void Controll()

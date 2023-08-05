@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerTurnState : IState
@@ -108,24 +109,10 @@ public class PlayerTurnState : IState
         var stairPosition = floorManager.FloorData.StairPosition;
         if (stairPosition.X == player.Position.x && stairPosition.Y == player.Position.y)
         {
-            var dialog = dialogManager.Open<CommonDialog>();
-            dialog.Initialize("確認", "次の階へ進みますか？",
-                ("はい", () =>
-                {
-                    dialogManager.Close(dialog);
-                    stateMachine.Goto(GameState.Wait);
-                    Fade.Instance.FadeOut(() =>
-                    {
-                        stateMachine.Goto(GameState.NextFloorLoad);
-                    });
-                }
-            ),
-                ("いいえ", () =>
-                {
-                    dialogManager.Close(dialog);
-                    stateMachine.Goto(GameState.EnemyTurn);
-                }
-            ));
+            stateMachine.OpenCommonDialog("確認", "次の階へ進みますか？",
+                ("はい", delegate () { stateMachine.Goto(GameState.NextFloorLoad); }),
+                ("いいえ", delegate () { stateMachine.Goto(GameState.EnemyTurn); })
+                );
             return true;
         }
         return false;

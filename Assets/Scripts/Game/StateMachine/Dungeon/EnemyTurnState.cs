@@ -27,7 +27,6 @@ public class EnemyTurnState : IState
         if (task.Status == UniTaskStatus.Succeeded)
         {
             stateMachine.Goto(GameState.PlayerTurn);
-            Debug.LogError("Enemy turn state end");
         }
     }
 }

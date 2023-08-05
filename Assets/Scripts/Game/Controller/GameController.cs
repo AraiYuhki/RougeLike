@@ -10,6 +10,7 @@ public enum GameStatus
     PlayerControll,
     UIControll,
     EnemyControll,
+    DialogControll,
     TurnEnd,
 }
 
@@ -30,11 +31,15 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private NoticeGroup noticeGroup = null;
     [SerializeField]
+    private FloorMoveView floorMoveView = null;
+    [SerializeField]
     private Player player = null;
 
     private Coroutine turnControll = null;
 
     private DungeonStateMachine stateMachine;
+
+    public int CurrentFloor { get; private set; } = 1;
 
     private static readonly RuntimePlatform[] EnableUIControllerPlatforms = new RuntimePlatform[]
     {
@@ -51,6 +56,8 @@ public class GameController : MonoBehaviour
         stateMachine.AddState(GameState.PlayerTurn, new PlayerTurnState(stateMachine, floorManager, itemManager, dialogManager, noticeGroup, player));
         stateMachine.AddState(GameState.EnemyTurn, new EnemyTurnState(stateMachine, enemyManager));
         stateMachine.AddState(GameState.MainMenu, new MenuState(stateMachine, uiManager));
+        stateMachine.AddState(GameState.NextFloorLoad, new LoadFloorState(player, stateMachine, this, floorManager, floorMoveView));
+        stateMachine.AddState(GameState.Dialog, new DialogState());
     }
 
     private void Start()
@@ -58,7 +65,7 @@ public class GameController : MonoBehaviour
         controllerUI.gameObject.SetActive(EnableUIControllerPlatforms.Contains(Application.platform));
 
         floorManager.Clear();
-        floorManager.Create(40, 40, 10, false);
+        floorManager.Create(20, 20, 4, false);
         player.Initialize();
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         player.OnMoved += floorManager.OnMoveUnit;
@@ -168,4 +175,6 @@ public class GameController : MonoBehaviour
         itemManager.Despawn(item);
         StartEnemyTurn();
     }
+
+    public void ForceUpdateMinimap() => uiManager.ForceUpdateMinimap();
 }

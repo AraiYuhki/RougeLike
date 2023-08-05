@@ -17,9 +17,9 @@ public class FloorManager : MonoBehaviour
 
     private Dijkstra dijkstra = null;
     private AStar aStar = null;
-    private bool isTower;
     private Minimap minimap;
 
+    public bool IsTower { get; private set; }
     public FloorData FloorData { get; private set; }
     public Vector2Int Size { get; private set; } = new Vector2Int(20, 20);
     public TileData[,] Map => FloorData.Map;
@@ -114,7 +114,7 @@ public class FloorManager : MonoBehaviour
     {
         Size = new Vector2Int(width, height);
         FloorData = DungeonGenerator.GenerateFloor(width, height, maxRoom);
-        this.isTower = isTower;
+        this.IsTower = isTower;
         units = new Unit[Size.x, Size.y];
         StartCoroutine(Create());
     }
@@ -125,7 +125,7 @@ public class FloorManager : MonoBehaviour
         FloorData = DungeonGenerator.GenerateFloor(width, height, maxRoom);
         units = new Unit[Size.x, Size.y];
         items = new Item[Size.x, Size.y];
-        this.isTower = isTower;
+        this.IsTower = isTower;
 
         var transform = wall.transform;
         var wallMesh = wall.GetComponent<MeshFilter>().sharedMesh;
@@ -308,9 +308,9 @@ public class FloorManager : MonoBehaviour
 
     private void CreateStair(int x, int z)
     {
-        var obj = isTower ? upStair : downStair;
+        var obj = IsTower ? upStair : downStair;
         var voxel = Instantiate(obj, transform);
-        voxel.transform.localPosition = new Vector3(x, isTower ? 0.5f : -0.5f, z);
+        voxel.transform.localPosition = new Vector3(x, IsTower ? 0.5f : -0.5f, z);
         voxel.name = $"Stair({x},{z})"; ;
     }
 

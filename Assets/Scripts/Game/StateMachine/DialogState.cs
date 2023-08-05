@@ -8,7 +8,6 @@ public class DialogState : IState
     public void OnEnter(DialogBase dialog)
     {
         this.dialog = dialog;
-        dialog.Open();
     }
     public void OnEnter()
     {
@@ -22,5 +21,11 @@ public class DialogState : IState
 
     public void Update()
     {
+        if (InputUtility.Up.IsTriggerd()) dialog.Up();
+        else if (InputUtility.Down.IsTriggerd()) dialog.Down();
+        if (InputUtility.Right.IsTriggerd()) dialog.Right();
+        else if (InputUtility.Left.IsTriggerd()) dialog.Left();
+        if (InputUtility.Submit.IsTriggerd()) dialog.Submit();
+        else if (InputUtility.Cancel.IsTriggerd()) dialog.Cancel();
     }
 }

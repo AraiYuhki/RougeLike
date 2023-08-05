@@ -110,7 +110,7 @@ public class AStar
 
         if (goal == null)
         {
-            Debug.LogError($"Way to goal is not found {StartPoint} -> {EndPoint}");
+            Debug.LogWarning($"Way to goal is not found {StartPoint} -> {EndPoint}");
             return null;
         }
         var current = goal;

@@ -1,10 +1,7 @@
-﻿using Cysharp.Threading.Tasks;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.Events;
 using System;
+using UnityEngine;
 
 public enum GameState
 {
@@ -44,7 +41,7 @@ public class DungeonStateMachine
     public void OpenCommonDialog(string title, string message, params (string label, Action onClick)[] data)
     {
         prevState = currentState;
-        var dialog = DialogManager.Instance.Open<CommonDialog>();
+        var dialog = DialogManager.Instance.Create<CommonDialog>();
         dialog.Initialize(title, message, data);
         dialog.Open(() =>
         {

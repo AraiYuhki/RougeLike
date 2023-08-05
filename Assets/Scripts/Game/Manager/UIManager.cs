@@ -72,7 +72,7 @@ public class UIManager : MonoBehaviour
 
     public void OpenCommonDialog(string title, string message, Action onComplete = null, params (string label, Action onClick)[] data)
     {
-        var dialog = DialogManager.Instance.Open<CommonDialog>();
+        var dialog = DialogManager.Instance.Create<CommonDialog>();
         dialog.Initialize(title, message, data);
         uiStack.Push(dialog);
         dialog.Open(onComplete);
@@ -143,6 +143,8 @@ public class UIManager : MonoBehaviour
         else if (InputUtility.Cancel.IsTriggerd())
             CloseCurrent();
     }
+
+    public void ForceUpdateMinimap() => minimap.SetVisibleMap(player.Position);
 
     private void CheckStep()
     {
