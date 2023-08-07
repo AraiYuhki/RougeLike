@@ -6,8 +6,6 @@ using UnityEngine;
 public class Player : Unit
 {
     [SerializeField]
-    private FloorManager floorManager;
-    [SerializeField]
     private CardController cardController;
     [SerializeField]
     private GameObject pointLight;

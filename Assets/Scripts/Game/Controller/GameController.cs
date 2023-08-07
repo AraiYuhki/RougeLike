@@ -153,6 +153,11 @@ public class GameController : MonoBehaviour
         };
     }
 
+    public GameObject CreateBullet(Vector3 position, Quaternion rotation)
+    {
+        return null;
+    }
+
     /// <summary>
     /// インスペクター上から使用
     /// アイテムを拾う

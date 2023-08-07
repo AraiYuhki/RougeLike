@@ -27,6 +27,7 @@ public class InventoryUI : ScrollMenu
 
     public ItemBase SelectedItem => (items[selectedIndex] as ItemRowController).ItemData;
     public ItemRowController SelectedRow => items[selectedIndex] as ItemRowController;
+    public Action<ItemBase> OnSubmit { get; set; }
 
     public override void Open(Action onComplete = null)
     {

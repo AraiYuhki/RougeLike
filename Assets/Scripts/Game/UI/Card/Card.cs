@@ -20,6 +20,8 @@ public class Card : MonoBehaviour
     private bool visibleFrontSide = false;
 
     private Sequence tween = null;
+    private FloorManager floorManager;
+    private EnemyManager enemyManager;
 
     public bool VisibleFrontSide
     {
@@ -93,7 +95,7 @@ public class Card : MonoBehaviour
     private void NormalAttack(Action onComplete, bool isResourceAttack)
     {
         var destPosition = Owner.Position + Owner.Angle;
-        var target = ServiceLocator.Instance.FloorManager.GetUnit(destPosition) as Enemy;
+        var target = floorManager.GetUnit(destPosition) as Enemy;
         if (target != null)
             Owner.Attack((int)Data.Param, target, () => onComplete?.Invoke(), isResourceAttack);
         else
@@ -133,23 +135,21 @@ public class Card : MonoBehaviour
 
     private bool CheckEnemyInAroundTile()
     {
-        var floorManager = ServiceLocator.Instance.FloorManager;
         return floorManager.GetAroundTilesAt(Owner.Position).Select(tile => floorManager.GetUnit(tile.Position) != null).Any();
     }
 
     private bool CheckExistEnemySameRoom()
     {
-        var floorManager = ServiceLocator.Instance.FloorManager;
         var currentTile = floorManager.GetTile(Owner.Position);
         if (!currentTile.IsRoom) return false;
-        return ServiceLocator.Instance.EnemyManager.Enemies
+        return enemyManager.Enemies
                 .Select(enemy => floorManager.GetTile(enemy.Position))
                 .Where(tile => tile.IsRoom).Any(tile => tile.Id == currentTile.Id);
     }
 
     private bool CheckEnemyInRange()
     {
-        var target = ServiceLocator.Instance.FloorManager.GetHitPosition(Owner.Position, Owner.Angle, Data.Range);
+        var target = floorManager.GetHitPosition(Owner.Position, Owner.Angle, Data.Range);
         return target.enemy != null;
     }
 
@@ -159,7 +159,7 @@ public class Card : MonoBehaviour
         {
             var rotatedOffset = AttackAreaData.GetRotatedOffset(Owner.transform.localEulerAngles.y, offset);
             var position = Owner.Position + offset;
-            var target = ServiceLocator.Instance.FloorManager.GetUnit(position);
+            var target = floorManager.GetUnit(position);
             if (target != null) return true;
         }
         return false;
@@ -167,10 +167,9 @@ public class Card : MonoBehaviour
 
     private bool CheckEnemyInSameRoom()
     {
-        var floorManager = ServiceLocator.Instance.FloorManager;
         var currenTile = floorManager.GetTile(Owner.Position);
         if (!currenTile.IsRoom) return false;
-        return ServiceLocator.Instance.EnemyManager.Enemies.Any(enemy =>
+        return enemyManager.Enemies.Any(enemy =>
         {
             // “¯‚¶•”‰®‚É“G‚ª‘¶İ‚·‚ê‚ÎTrue
             var tile = floorManager.GetTile(enemy.Position);

@@ -9,6 +9,12 @@ using System.Linq;
 public class Unit : MonoBehaviour
 {
     [SerializeField]
+    protected GameController gameController;
+    [SerializeField]
+    protected FloorManager floorManager;
+    [SerializeField]
+    protected EnemyManager enemyManager;
+    [SerializeField]
     protected NoticeGroup notice;
     [SerializeField]
     protected GameObject unit;
@@ -31,7 +37,7 @@ public class Unit : MonoBehaviour
     public virtual void AddExp(int exp) { }
     public virtual void RecoveryStamina(float value) { }
     public virtual void PowerUp(int value, Action onComplete = null) { }
-    public virtual void Charge(float value) => ChargeStack = Mathf.Min(ChargeStack + value, MaxChargeStack);
+    public virtual void Charge(float value, Action onComplete = null) => ChargeStack = Mathf.Min(ChargeStack + value, MaxChargeStack);
     public virtual DamagePopupManager DamagePopupManager { protected get; set; }
     
 
@@ -73,7 +79,6 @@ public class Unit : MonoBehaviour
 
     public virtual void Attack(int weaponPower, AttackAreaData attackArea, Action onComplete = null, bool isResourceAttack = false)
     {
-        var floorManager = ServiceLocator.Instance.FloorManager;
         var tween = DOTween.Sequence();
         // �p�x�̓A�j���[�V�����O�Ɏ擾���Ă���
         var angle = transform.localEulerAngles.y;
@@ -97,8 +102,6 @@ public class Unit : MonoBehaviour
 
     public virtual void RoomAttack(int weaponPower, Action onComplete = null)
     {
-        var floorManager = ServiceLocator.Instance.FloorManager;
-        var enemyManager = ServiceLocator.Instance.EnemyManager;
         var currentTile = floorManager.GetTile(Position);
         var tween = DOTween.Sequence();
         tween.Append(transform.DOLocalRotate(transform.localEulerAngles + Vector3.up * 360f * 3f, 0.6f, RotateMode.FastBeyond360));
@@ -132,8 +135,8 @@ public class Unit : MonoBehaviour
 
     public virtual void Shoot(int weaponPower, int range, Action onComplete = null)
     {
-        var target = ServiceLocator.Instance.FloorManager.GetHitPosition(Position, Angle, range);
-        var bullet = ServiceLocator.Instance.GameController.CreateBullet(transform.localPosition, transform.rotation);
+        var target = floorManager.GetHitPosition(Position, Angle, range);
+        var bullet = gameController.CreateBullet(transform.localPosition, transform.rotation);
         var tween = bullet.transform
             .DOLocalMove(new Vector3(target.position.x, 0.5f, target.position.y), 0.1f * target.length)
             .SetEase(Ease.Linear)

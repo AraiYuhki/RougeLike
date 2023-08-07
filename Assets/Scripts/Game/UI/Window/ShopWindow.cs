@@ -14,7 +14,12 @@ public class ShopWindow : MonoBehaviour
         Shop = 0,
         Deck = 1,
     }
-
+    [SerializeField]
+    private DungeonStateMachine stateMachine;
+    [SerializeField]
+    private CardController cardController;
+    [SerializeField]
+    private Player player;
     [SerializeField]
     private Image window;
     [SerializeField]
@@ -31,7 +36,6 @@ public class ShopWindow : MonoBehaviour
 
     private Sequence tween;
 
-    private CardController cardController => ServiceLocator.Instance.GameController.CardController;
     private GridScrollMenu currentMenu
     {
         get
@@ -53,20 +57,16 @@ public class ShopWindow : MonoBehaviour
             {
                 shopMenu.Enable = false;
                 var data = card.Data;
-                var dialog = DialogManager.Instance.Open<CommonDialog>();
-                dialog.Initialize("確認", $"{data.Name}を{data.Price}Gで購入しますか？", 
+                stateMachine.OpenCommonDialog("確認", $"{data.Name}を{data.Price}Gで購入しますか？",
                     ("はい", () => {
-                        BuyCard(dialog, data);
+                        BuyCard(null, data);
+                        shopMenu.enabled = true;
+                    }),
+                    ("いいえ", () => {
+                        // ショップステートに戻す
                         shopMenu.Enable = true;
-                    }
-                ),
-                    ("いいえ", () =>
-                    {
-                        DialogManager.Instance.Close(dialog);
-                        shopMenu.Enable = true;
-                    }
-                )
-                );
+                    })
+                    );
             }
         };
 
@@ -76,19 +76,18 @@ public class ShopWindow : MonoBehaviour
             {
                 deckMenu.Enable = false;
                 var data = card.Data;
-                var dialog = DialogManager.Instance.Open<CommonDialog>();
-                dialog.Initialize("確認", $"{card.Data.Name}を200Gで破棄しますか？", ("はい", () =>
-                {
-                    deckMenu.RemoveItem(selectedItem);
-                    RemoveCard(dialog, card.Card, card);
-                    deckMenu.Enable = true;
-                }
-                ),
-                ("いいえ", () =>
-                {
-                    DialogManager.Instance.Close(dialog);
-                    deckMenu.Enable = true;
-                }
+                stateMachine.OpenCommonDialog("確認", $"{card.Data.Name}を200Gで破棄しますか？",
+                    ("はい", () =>
+                    {
+                        deckMenu.RemoveItem(selectedItem);
+                        RemoveCard(null, card.Card, card);
+                        deckMenu.Enable = true;
+                    }),
+                    ("いいえ", () =>
+                    {
+                        // ショップステートに戻す
+                        deckMenu.enabled = true;
+                    }
                 ));
             }
         };
@@ -169,7 +168,7 @@ public class ShopWindow : MonoBehaviour
         {
             var card = Instantiate(originalCard);
             card.SetData(data, null);
-            card.Enable = ServiceLocator.Instance.GameController.Player.Data.Gems >= data.Price;
+            card.Enable = player.Data.Gems >= data.Price;
             shopMenu.AddItem(card);
         }
         shopMenu.Initialize();
@@ -178,7 +177,7 @@ public class ShopWindow : MonoBehaviour
     public void InitializeDeck()
     {
         deckMenu.Clear();
-        var canRemove = ServiceLocator.Instance.GameController.Player.Data.Gems >= 200;
+        var canRemove = player.Data.Gems >= 200;
         foreach (var card in cardController.AllCards)
         {
             var obj = Instantiate(originalCard);
@@ -192,8 +191,8 @@ public class ShopWindow : MonoBehaviour
     private void BuyCard(DialogBase dialog, CardData data)
     {
         DialogManager.Instance.Close(dialog);
-        ServiceLocator.Instance.GameController.CardController.Add(data);
-        ServiceLocator.Instance.GameController.Player.Data.Gems -= data.Price;
+        cardController.Add(data);
+        player.Data.Gems -= data.Price;
         UpdateDeck();
         UpdateShop();
     }
@@ -201,7 +200,7 @@ public class ShopWindow : MonoBehaviour
     private void RemoveCard(DialogBase dialog, Card card, ShopCard shopCard)
     {
         DialogManager.Instance.Close(dialog);
-        ServiceLocator.Instance.GameController.Player.Data.Gems -= 200;
+        player.Data.Gems -= 200;
         cardController.Remove(card);
         deckMenu.RemoveItem(shopCard as SelectableItem);
         UpdateDeck();
@@ -211,12 +210,12 @@ public class ShopWindow : MonoBehaviour
     private void UpdateShop()
     {
         foreach (var card in shopMenu.Items.Select(item => item as ShopCard))
-            card.Enable = card.Price <= ServiceLocator.Instance.GameController.Player.Data.Gems;
+            card.Enable = card.Price <= player.Data.Gems;
     }
 
     private void UpdateDeck()
     {
-        var canRemove = ServiceLocator.Instance.GameController.Player.Data.Gems >= 200;
+        var canRemove = player.Data.Gems >= 200;
         foreach (var card in deckMenu.Items.Select(item => item as ShopCard))
             card.Enable = canRemove;
         deckMenu.ReselectCurrentItem();
