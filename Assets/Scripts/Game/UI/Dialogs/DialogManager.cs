@@ -21,7 +21,7 @@ public class DialogManager : MonoSingleton<DialogManager>
     public void Start()
     {
         basePanel.color = new Color(0f, 0f, 0f, 0f);
-        basePanel.gameObject.SetActive(false);
+        basePanel.enabled = false;
     }
 
     public T Create<T>(Action onOpened = null) where T : DialogBase
@@ -40,7 +40,7 @@ public class DialogManager : MonoSingleton<DialogManager>
         else
         {
             tween?.Kill();
-            basePanel.gameObject.SetActive(true);
+            basePanel.enabled = true;
             tween = basePanel.DOFade(0.5f, 0.2f);
             tween.OnComplete(() =>
             {
@@ -48,7 +48,7 @@ public class DialogManager : MonoSingleton<DialogManager>
                 onOpened?.Invoke();
             });
         }
-        dialogQueue.Insert(0, dialog); // ƒLƒ…[‚Ìæ“ª‚É’Ç‰Á
+        dialogQueue.Insert(0, dialog); // ï¿½Lï¿½ï¿½ï¿½[ï¿½Ìæ“ªï¿½É’Ç‰ï¿½
         return dialog;
     }
 
@@ -62,7 +62,7 @@ public class DialogManager : MonoSingleton<DialogManager>
             {
                 Destroy(dialog.gameObject);
             });
-            // ƒLƒ…[‚Éƒ_ƒCƒAƒƒO‚ªc‚Á‚Ä‚¢‚é‚È‚çV‚µ‚­ŠJ‚­
+            // ï¿½Lï¿½ï¿½ï¿½[ï¿½Éƒ_ï¿½Cï¿½Aï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½cï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½È‚ï¿½Vï¿½ï¿½ï¿½ï¿½ï¿½Jï¿½ï¿½
             if (dialogQueue.Any())
                 dialogQueue.First()?.Open();
             if (!dialogQueue.Any())
@@ -78,7 +78,7 @@ public class DialogManager : MonoSingleton<DialogManager>
             }
             return;
         }
-        // Œ»İŠJ‚¢‚Ä‚¢‚é‚à‚Ì‚Å‚Í‚È‚¢‚Ì‚ÅƒNƒ[ƒYˆ—‚ğ‚¹‚¸‚Éíœ
+        // ï¿½ï¿½ï¿½İŠJï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½Ì‚Å‚Í‚È‚ï¿½ï¿½Ì‚ÅƒNï¿½ï¿½ï¿½[ï¿½Yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Éíœ
         dialogQueue.Remove(dialog);
         Destroy(dialog.gameObject);
     }

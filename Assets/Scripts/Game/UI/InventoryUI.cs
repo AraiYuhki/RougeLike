@@ -60,7 +60,7 @@ public class InventoryUI : ScrollMenu
             var item = Instantiate(template as ItemRowController, baseObject);
             item.gameObject.SetActive(true);
             var isEquip = data.EquipmentWeapon == pair.Key || data.EquipmentShield == pair.Key;
-            item.Initialize(pair.Key, pair.Value, isEquip, () => SetSelectIndex(index));
+            item.Initialize(pair.Key, pair.Value, isEquip, () => SetSelectIndex(index), () => OnSubmit?.Invoke(pair.Key));
             items.Add(item);
         }
     }

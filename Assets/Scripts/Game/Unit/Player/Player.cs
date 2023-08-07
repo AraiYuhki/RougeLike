@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -7,16 +8,23 @@ public class Player : Unit
     [SerializeField]
     private FloorManager floorManager;
     [SerializeField]
+    private CardController cardController;
+    [SerializeField]
     private GameObject pointLight;
     [SerializeField]
     private DamagePopupManager damagePopupManager;
 
     public PlayerData Data { get; private set; } = new PlayerData(10);
     public override int Hp { get => Mathf.FloorToInt(Data.Hp); set => Data.Hp = value; }
-    public override int MaxHp { get => Data.MaxHP; }
-    public override void AddExp(int exp) => Data.AddExp(exp);
+    public override int MaxHp
+    {
+        get
+        {
+            return cardController.AllCardsCount * 10;
+        }
+    }
     public override void RecoveryStamina(float value) => Data.Stamina += value;
-    public override void PowerUp(int value) => Data.Atk += value;
+    public override void PowerUp(int value, Action onComplete = null) => Data.Atk += value;
     public override DamagePopupManager DamagePopupManager 
     {
         protected get => damagePopupManager;
@@ -40,9 +48,9 @@ public class Player : Unit
         }
     }
 
-    public override void Damage(int damage, Unit attacker)
+    public override void Damage(int damage, Unit attacker, bool isResourceAttack = false)
     {
-        base.Damage(damage, attacker);
+        base.Damage(damage, attacker, isResourceAttack);
         healInterval = 10;
     }
 
@@ -86,7 +94,7 @@ public class Player : Unit
             Heal(1f);
     }
 
-    public void Attack(int weaponAttack, Enemy target, TweenCallback onEndAttack = null)
+    public void Attack(int weaponAttack, Enemy target, TweenCallback onEndAttack = null, bool isResourceAttack = false)
     {
         var damage = DamageUtil.GetDamage(this, weaponAttack, target);
         var sequence = DOTween.Sequence();
@@ -95,7 +103,7 @@ public class Player : Unit
         sequence.OnComplete(() =>
         {
             OnAttack?.Invoke(this, target);
-            target.Damage(damage, this);
+            target.Damage(damage, this, isResourceAttack);
             onEndAttack?.Invoke();
         });
         sequence.SetAutoKill(true);

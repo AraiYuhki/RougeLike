@@ -10,6 +10,10 @@ using UnityEngine.UI;
 public class SelectableItem : MonoBehaviour
 {
     [SerializeField]
+    protected Color normalColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+    [SerializeField]
+    protected Color selectedColor = new Color(0f, 1f, 1f, 0.5f);
+    [SerializeField]
     protected Button button;
     [SerializeField]
     protected TMP_Text label;
@@ -17,7 +21,6 @@ public class SelectableItem : MonoBehaviour
     protected bool isSelected = false;
     protected Action onSelect = null;
     protected Action onSubmit = null;
-    protected Color initialColor = Color.white;
     protected Tween tween;
 
     public string Label
@@ -26,7 +29,11 @@ public class SelectableItem : MonoBehaviour
         set => label.text = value;
     }
 
-    private void OnEnable() => initialColor = button.image.color;
+    private void OnEnable()
+    {
+        button.image.color = isSelected ? selectedColor : normalColor;
+    }
+
     public virtual void Initialize(Action onSelect = null, Action onSubmit = null)
     {
         this.onSelect = onSelect;
@@ -41,8 +48,7 @@ public class SelectableItem : MonoBehaviour
             tween.Complete();
             tween = null;
         }
-        var destinationColor = isSelect ? button.colors.highlightedColor : button.colors.normalColor;
-        destinationColor *= initialColor;
+        var destinationColor = isSelect ? selectedColor : normalColor;
         tween = button.image.DOColor(destinationColor, button.colors.fadeDuration);
         tween.OnComplete(() => tween = null);
         isSelected = isSelect;
@@ -54,6 +60,10 @@ public class SelectableItem : MonoBehaviour
         onSelect?.Invoke();
     }
 
+    public void OnMouseEnter()
+    {
+        onSelect?.Invoke();
+    }
     public void Submit() => button.onClick?.Invoke();
     protected void OnDestroy() => tween?.Kill();
 }

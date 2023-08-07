@@ -30,7 +30,7 @@ public class Unit : MonoBehaviour
     public virtual float ChargeStack { get; set; }
     public virtual void AddExp(int exp) { }
     public virtual void RecoveryStamina(float value) { }
-    public virtual void PowerUp(int value) { }
+    public virtual void PowerUp(int value, Action onComplete = null) { }
     public virtual void Charge(float value) => ChargeStack = Mathf.Min(ChargeStack + value, MaxChargeStack);
     public virtual DamagePopupManager DamagePopupManager { protected get; set; }
     
@@ -52,7 +52,7 @@ public class Unit : MonoBehaviour
     public void Move(int x, int z) => Move(new Vector2Int(x, z));
     public virtual void Move(Vector2Int move) => Move(move, null);
 
-    public virtual void Attack(Unit target, TweenCallback onEndAttack = null)
+    public virtual void Attack(Unit target, TweenCallback onEndAttack = null, bool isResourceAttack = false)
     {
         var damage = DamageUtil.GetDamage(this, target);
         var currentPosition = transform.localPosition;
@@ -62,13 +62,91 @@ public class Unit : MonoBehaviour
         sequence.OnComplete(() =>
         {
             OnAttack?.Invoke(this, target);
-            target.Damage(damage, this);
+            target.Damage(damage, this, isResourceAttack);
             onEndAttack?.Invoke();
         });
         sequence.SetAutoKill(true);
         sequence.Play();
         notice.Add($"{this.name} は {target.name} に {damage}ダメージを与えた", Color.red);
         ChargeStack = 0;
+    }
+
+    public virtual void Attack(int weaponPower, AttackAreaData attackArea, Action onComplete = null, bool isResourceAttack = false)
+    {
+        var floorManager = ServiceLocator.Instance.FloorManager;
+        var tween = DOTween.Sequence();
+        // �p�x�̓A�j���[�V�����O�Ɏ擾���Ă���
+        var angle = transform.localEulerAngles.y;
+        tween.Append(transform.DOLocalRotate(transform.localEulerAngles + Vector3.up * 360f, 0.6f, RotateMode.FastBeyond360));
+        tween.AppendInterval(0.2f);
+        tween.OnComplete(() =>
+        {
+            foreach (var offset in attackArea.Data.Select(data => data.Offset - attackArea.Center))
+            {
+                var rotatedOffset = AttackAreaData.GetRotatedOffset(angle, offset);
+                var position = Position + offset;
+                var target = floorManager.GetUnit(position);
+                if (this is Player player && target is Enemy enemy)
+                {
+                    enemy.Damage(DamageUtil.GetDamage(player, weaponPower, enemy), this, isResourceAttack);
+                }
+            }
+            onComplete?.Invoke();
+        });
+    }
+
+    public virtual void RoomAttack(int weaponPower, Action onComplete = null)
+    {
+        var floorManager = ServiceLocator.Instance.FloorManager;
+        var enemyManager = ServiceLocator.Instance.EnemyManager;
+        var currentTile = floorManager.GetTile(Position);
+        var tween = DOTween.Sequence();
+        tween.Append(transform.DOLocalRotate(transform.localEulerAngles + Vector3.up * 360f * 3f, 0.6f, RotateMode.FastBeyond360));
+        tween.AppendInterval(0.2f);
+        tween.OnComplete(() =>
+        {
+            if (currentTile.IsRoom)
+            {
+                foreach (var enemy in enemyManager.Enemies.Where(enemy =>
+                {
+                    var tile = floorManager.GetTile(enemy.Position);
+                    if (!tile.IsRoom) return false;
+                    return tile.Id == currentTile.Id;
+                }))
+                {
+                    enemy.Damage(DamageUtil.GetDamage(this as Player, weaponPower, enemy), this);
+                }
+            } 
+            else
+            {
+                foreach(var enemy in floorManager.GetAroundTilesAt(Position)
+                    .Select(tile => floorManager.GetUnit(tile.Position) as Enemy)
+                    .Where(enemy => enemy != null))
+                {
+                    enemy.Damage(DamageUtil.GetDamage(this as Player, weaponPower, enemy), this);
+                }
+            }
+            onComplete?.Invoke();
+        });
+    }
+
+    public virtual void Shoot(int weaponPower, int range, Action onComplete = null)
+    {
+        var target = ServiceLocator.Instance.FloorManager.GetHitPosition(Position, Angle, range);
+        var bullet = ServiceLocator.Instance.GameController.CreateBullet(transform.localPosition, transform.rotation);
+        var tween = bullet.transform
+            .DOLocalMove(new Vector3(target.position.x, 0.5f, target.position.y), 0.1f * target.length)
+            .SetEase(Ease.Linear)
+            .Play();
+        tween.OnComplete(() =>
+        {
+            Destroy(bullet);
+            onComplete?.Invoke();
+            if (this is Player player && target.enemy != null)
+            {
+                target.enemy.Damage(DamageUtil.GetDamage(player, weaponPower, target.enemy), this);
+            }
+        });
     }
 
     public void MoveTo(Vector2Int destPosition, TweenCallback onComplete = null)
@@ -95,16 +173,16 @@ public class Unit : MonoBehaviour
         Hp = Mathf.Min(Hp, MaxHp);
     }
 
-    public virtual void Damage(int damage, Unit attacker)
+    public virtual void Damage(int damage, Unit attacker, bool isResourceAttack = false)
     {
         DamagePopupManager.Create(this, damage, Color.red);
         Hp -= damage;
         OnDamage?.Invoke(attacker, damage);
         if (Hp <= 0)
-            Dead(attacker);
+            Dead(attacker, isResourceAttack);
     }
 
-    public void Dead(Unit attacker)
+    public void Dead(Unit attacker, bool isResourceAttack = false)
     {
         if (this is Enemy enemy && attacker != null)
         {
