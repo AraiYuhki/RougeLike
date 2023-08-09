@@ -105,8 +105,8 @@ public class GridScrollMenu : MonoBehaviour
 
     public void Right() => Move(Vector2Int.right);
     public void Left() => Move(Vector2Int.left);
-    public void Up() => Move(Vector2Int.up);
-    public void Down() => Move(Vector2Int.down);
+    public void Up() => Move(Vector2Int.down);
+    public void Down() => Move(Vector2Int.up);
 
     public void Move(Vector2Int move)
     {

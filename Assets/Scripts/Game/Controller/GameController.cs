@@ -83,13 +83,27 @@ public class GameController : MonoBehaviour
         turnControll = StartCoroutine(stateMachine.Update());
 
         enemyManager.Initialize(player);
-        itemManager.Initialize();
+        itemManager.Initialize(150, 1, 5);
         Fade.Instance.FadeIn(() => stateMachine.Goto(GameState.PlayerTurn));
     }
 
     private void OnDestroy()
     {
         StopCoroutine(turnControll);
+    }
+
+    public void LoadNextFloor()
+    {
+        CurrentFloor++;
+        enemyManager.Clear();
+        itemManager.Clear();
+        floorManager.Clear();
+        floorManager.Create(40, 40, 10, floorManager.IsTower);
+        for (var count = 0; count < 4; count++)
+            enemyManager.Spawn();
+        itemManager.Initialize(150, 1, 5);
+        player.SetPosition(floorManager.FloorData.SpawnPoint);
+        ForceUpdateMinimap();
     }
 
     public void StartEnemyTurn() => stateMachine.Goto(GameState.EnemyTurn);

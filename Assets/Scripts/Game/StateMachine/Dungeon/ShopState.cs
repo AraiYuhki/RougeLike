@@ -12,6 +12,7 @@ public class ShopState : IState
         this.stateMachine = stateMachine;
         this.window = window;
         this.window.StateMachine = stateMachine;
+        this.window.OnClose = () => stateMachine.Goto(GameState.NextFloorLoad);
     } 
 
     public void OnEnter()
@@ -26,13 +27,13 @@ public class ShopState : IState
 
     public void Update()
     {
-        if (InputUtility.RightTrigger.IsTriggerd())     window.RightTrigger();
+        if (InputUtility.RightTrigger.IsTriggerd()) window.RightTrigger();
         else if (InputUtility.LeftTrigger.IsTriggerd()) window.LeftTrigger();
-        else if (InputUtility.Right.IsTriggerd())       window.Right();
-        else if (InputUtility.Left.IsTriggerd())        window.Left();
-        else if (InputUtility.Up.IsTriggerd())          window.Up();
-        else if (InputUtility.Down.IsTriggerd())        window.Down();
-        else if (InputUtility.Submit.IsTriggerd())      window.Submit();
-        else if(InputUtility.Cancel.IsTriggerd())       stateMachine.Goto(GameState.NextFloorLoad);
+        else if (InputUtility.Right.IsTriggerd()) window.Right();
+        else if (InputUtility.Left.IsTriggerd()) window.Left();
+        else if (InputUtility.Up.IsTriggerd()) window.Up();
+        else if (InputUtility.Down.IsTriggerd()) window.Down();
+        else if (InputUtility.Submit.IsTriggerd()) window.Submit();
+        else if (InputUtility.Cancel.IsTriggerd()) window.Close();
     }
 }

@@ -42,10 +42,7 @@ public class LoadFloorState : IState
 
     private void OnFadeComplete()
     {
-        floorManager.Clear();
-        floorManager.Create(40, 40, 10, floorManager.IsTower);
-        player.SetPosition(floorManager.FloorData.SpawnPoint);
-        gameController.ForceUpdateMinimap();
+        gameController.LoadNextFloor();
         generatedFloor = true;
     }
 

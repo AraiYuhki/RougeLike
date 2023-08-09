@@ -48,6 +48,7 @@ public class CardController : MonoBehaviour
         AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.StaminaHeal));
         AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.Charge));
         AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.LongRangeAttack));
+        AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.ResourceAttack));
         Shuffle();
         DrawAll();
     }

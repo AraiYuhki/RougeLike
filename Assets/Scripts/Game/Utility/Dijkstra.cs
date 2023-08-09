@@ -68,7 +68,7 @@ public class Dijkstra
         var goal = nodes[to];
         if (goal.Parent == null)
         {
-            Debug.LogError($"Way to goal is not found {from} -> {to}");
+            Debug.LogWarning($"Way to goal is not found {from} -> {to}");
             return null;
         }
 

@@ -15,6 +15,8 @@ public class Unit : MonoBehaviour
     [SerializeField]
     protected EnemyManager enemyManager;
     [SerializeField]
+    protected ItemManager itemManager;
+    [SerializeField]
     protected NoticeGroup notice;
     [SerializeField]
     protected GameObject unit;
@@ -58,11 +60,12 @@ public class Unit : MonoBehaviour
     {
     }
 
-    public void SetManagers(GameController gameController, FloorManager floorManager, EnemyManager enemyManager, NoticeGroup noticeGroup)
+    public void SetManagers(GameController gameController, FloorManager floorManager, EnemyManager enemyManager, ItemManager itemManager, NoticeGroup noticeGroup)
     {
         this.gameController = gameController;
         this.floorManager = floorManager;
         this.enemyManager = enemyManager;
+        this.itemManager = itemManager;
         this.notice = noticeGroup;
     }
 
@@ -184,16 +187,16 @@ public class Unit : MonoBehaviour
         SetDestAngle(move);
     }
 
-    public virtual void Heal(float value)
+    public virtual void Heal(float value, bool damagePopup = true)
     {
-        DamagePopupManager.Create(this, Mathf.RoundToInt(value), Color.green);
+        if (damagePopup) DamagePopupManager.Create(this, Mathf.RoundToInt(value), Color.green);
         Hp += (int)value;
         Hp = Mathf.Min(Hp, MaxHp);
     }
 
-    public virtual void Damage(int damage, Unit attacker, bool isResourceAttack = false)
+    public virtual void Damage(int damage, Unit attacker, bool isResourceAttack = false, bool damagePopup = true)
     {
-        DamagePopupManager.Create(this, damage, Color.red);
+        if (damagePopup) DamagePopupManager.Create(this, damage, Color.red);
         Hp -= damage;
         OnDamage?.Invoke(attacker, damage);
         if (Hp <= 0)
@@ -206,6 +209,12 @@ public class Unit : MonoBehaviour
         {
             attacker.AddExp(enemy.Data.Exp);
             notice.Add($"{enemy.Data.Name}は倒れた", Color.yellow);
+            if (isResourceAttack)
+            {
+                var dropPosition = floorManager.GetCanDropTile(Position);
+                if (dropPosition != null)
+                    itemManager.Drop(UnityEngine.Random.Range(1, 20), dropPosition.Position, true);
+            }
         }
         OnDead?.Invoke();
     }

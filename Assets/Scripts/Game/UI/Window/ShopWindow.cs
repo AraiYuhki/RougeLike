@@ -60,13 +60,17 @@ public class ShopWindow : MonoBehaviour
                 var data = card.Data;
                 StateMachine.OpenCommonDialog("確認", $"{data.Name}を{data.Price}Gで購入しますか？",
                     ("はい", () => {
-                        BuyCard(null, data);
+                        BuyCard(data);
                         shopMenu.enabled = true;
-                    }),
+                        StateMachine.Goto(GameState.Shop);
+                    }
+                ),
                     ("いいえ", () => {
                         // ショップステートに戻す
                         shopMenu.Enable = true;
-                    })
+                        StateMachine.Goto(GameState.Shop);
+                    }
+                )
                     );
             }
         };
@@ -81,13 +85,16 @@ public class ShopWindow : MonoBehaviour
                     ("はい", () =>
                     {
                         deckMenu.RemoveItem(selectedItem);
-                        RemoveCard(null, card.Card, card);
+                        RemoveCard(card, selectedItem);
                         deckMenu.Enable = true;
-                    }),
+                        StateMachine.Goto(GameState.Shop);
+                    }
+                ),
                     ("いいえ", () =>
                     {
                         // ショップステートに戻す
                         deckMenu.enabled = true;
+                        StateMachine.Goto(GameState.Shop);
                     }
                 ));
             }
@@ -99,6 +106,9 @@ public class ShopWindow : MonoBehaviour
         if (IsOpened) return;
         IsOpened = true;
         tween?.Kill();
+
+        tabGroups.SelectIndex = (int)TabType.Shop;
+        shopMenu.Enable = true;
         gameObject.SetActive(true);
         tween = DOTween.Sequence();
         tween.Append(canvasGroup.DOFade(1f, 0.2f));
@@ -167,21 +177,19 @@ public class ShopWindow : MonoBehaviour
         deckMenu.Initialize();
     }
 
-    private void BuyCard(DialogBase dialog, CardData data)
+    private void BuyCard(CardData data)
     {
-        DialogManager.Instance.Close(dialog);
         cardController.Add(data);
         player.Data.Gems -= data.Price;
         UpdateDeck();
         UpdateShop();
     }
 
-    private void RemoveCard(DialogBase dialog, Card card, ShopCard shopCard)
+    private void RemoveCard(ShopCard shopCard, SelectableItem item)
     {
-        DialogManager.Instance.Close(dialog);
         player.Data.Gems -= 200;
-        cardController.Remove(card);
-        deckMenu.RemoveItem(shopCard as SelectableItem);
+        cardController.Remove(shopCard.Card);
+        deckMenu.RemoveItem(item);
         UpdateDeck();
         UpdateShop();
     }

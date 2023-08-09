@@ -46,9 +46,9 @@ public class Player : Unit
         }
     }
 
-    public override void Damage(int damage, Unit attacker, bool isResourceAttack = false)
+    public override void Damage(int damage, Unit attacker, bool isResourceAttack = false, bool damagePopup = true)
     {
-        base.Damage(damage, attacker, isResourceAttack);
+        base.Damage(damage, attacker, isResourceAttack, damagePopup);
         HealInterval = 10;
     }
 
@@ -84,12 +84,12 @@ public class Player : Unit
     {
         Data.Stamina -= 0.1f;
         if (Data.Stamina <= 0)
-            Damage(1, null);
+            Damage(1, null, damagePopup: false);
         else if (HealInterval > 0)
             HealInterval--;
         else
             //Heal(Data.MaxHP * 0.095f);
-            Heal(1f);
+            Heal(1f, false);
     }
 
     public void Attack(int weaponAttack, Enemy target, TweenCallback onEndAttack = null, bool isResourceAttack = false)
