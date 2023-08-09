@@ -37,6 +37,12 @@ public class Card : MonoBehaviour
     public CardData Data { get; private set; }
     public Player Owner { get; private set; }
 
+    public void SetManager(FloorManager floorManager, EnemyManager enemyManager)
+    {
+        this.floorManager = floorManager;
+        this.enemyManager = enemyManager;
+    }
+
     public void SetData(CardData data, Player owner)
     {
         Data = data;

@@ -9,6 +9,7 @@ public class PlayerTurnState : IState
     private ItemManager itemManager;
     private DialogManager dialogManager;
     private NoticeGroup notice;
+    private CardController cardController;
 
     public PlayerTurnState(
         DungeonStateMachine stateMachine,
@@ -16,7 +17,8 @@ public class PlayerTurnState : IState
         ItemManager itemManager,
         DialogManager dialogManager,
         NoticeGroup notice,
-        Player player)
+        Player player,
+        CardController cardController)
     {
         this.stateMachine = stateMachine;
         this.floorManager = floorManager;
@@ -24,6 +26,7 @@ public class PlayerTurnState : IState
         this.dialogManager = dialogManager;
         this.notice = notice;
         this.player = player;
+        this.cardController = cardController;
     }
 
 
@@ -33,6 +36,7 @@ public class PlayerTurnState : IState
 
     public void OnExit()
     {
+        player.TurnEnd();
     }
 
     public void Update()
@@ -43,8 +47,13 @@ public class PlayerTurnState : IState
             stateMachine.Goto(GameState.MainMenu);
             return;
         }
+        if (UseCard())
+        {
+            return;
+        }
         var isExecuteCommand = false;
         var move = Vector2Int.zero;
+        
         if (InputUtility.Wait.IsPressed()) isExecuteCommand = true;
         if (InputUtility.Up.IsPressed()) move.y = 1;
         else if (InputUtility.Down.IsPressed()) move.y = -1;
@@ -58,15 +67,15 @@ public class PlayerTurnState : IState
             var destPosition = currentPosition + move;
             var destTile = floorManager.GetTile(destPosition);
             var enemy = floorManager.GetUnit(destPosition);
-            if (enemy != null)
-            {
-                stateMachine.Goto(GameState.Wait);
-                player.SetDestAngle(move);
-                move = Vector2Int.zero;
-                player.Attack(enemy, () => stateMachine.Goto(GameState.EnemyTurn));
-                return;
-            }
-            if (destTile.IsWall || isTurnMode)
+            //if (enemy != null)
+            //{
+            //    stateMachine.Goto(GameState.Wait);
+            //    player.SetDestAngle(move);
+            //    move = Vector2Int.zero;
+            //    player.Attack(enemy, () => stateMachine.Goto(GameState.EnemyTurn));
+            //    return;
+            //}
+            if (enemy != null || destTile.IsWall || isTurnMode)
             {
                 player.SetDestAngle(move);
             }
@@ -83,6 +92,43 @@ public class PlayerTurnState : IState
             isExecuteCommand = false;
             stateMachine.Goto(GameState.EnemyTurn);
         }
+    }
+
+    private bool UseCard()
+    {
+        Card card = null;
+        var handIndex = -1;
+        if (InputUtility.One.IsTriggerd())
+        {
+            card = cardController.GetHandCard(0);
+            handIndex = 0;
+        }
+        else if (InputUtility.Two.IsTriggerd())
+        {
+            card = cardController.GetHandCard(1);
+            handIndex = 1;
+        }
+        else if (InputUtility.Three.IsTriggerd())
+        {
+            card = cardController.GetHandCard(2);
+            handIndex = 2;
+        }
+        else if (InputUtility.Four.IsTriggerd())
+        {
+            card = cardController.GetHandCard(3);
+            handIndex = 3;
+        }
+        if (card != null && card.CanUse())
+        {
+            stateMachine.Goto(GameState.Wait);
+            card.Use(() =>
+            {
+                cardController.Use(handIndex);
+                stateMachine.Goto(GameState.EnemyTurn);
+            });
+            return true;
+        }
+        return false;
     }
 
     private void TakeItem()
@@ -110,7 +156,7 @@ public class PlayerTurnState : IState
         if (stairPosition.X == player.Position.x && stairPosition.Y == player.Position.y)
         {
             stateMachine.OpenCommonDialog("確認", "次の階へ進みますか？",
-                ("はい", delegate () { stateMachine.Goto(GameState.NextFloorLoad); }),
+                ("はい", delegate () { stateMachine.Goto(GameState.Shop); }),
                 ("いいえ", delegate () { stateMachine.Goto(GameState.EnemyTurn); })
                 );
             return true;

@@ -14,8 +14,7 @@ public class ShopWindow : MonoBehaviour
         Shop = 0,
         Deck = 1,
     }
-    [SerializeField]
-    private DungeonStateMachine stateMachine;
+
     [SerializeField]
     private CardController cardController;
     [SerializeField]
@@ -46,6 +45,8 @@ public class ShopWindow : MonoBehaviour
         }
     }
 
+    public DungeonStateMachine StateMachine { get; set; }
+
     public Action OnClose { get; set; }
     public bool IsOpened { get; private set; }
 
@@ -57,7 +58,7 @@ public class ShopWindow : MonoBehaviour
             {
                 shopMenu.Enable = false;
                 var data = card.Data;
-                stateMachine.OpenCommonDialog("確認", $"{data.Name}を{data.Price}Gで購入しますか？",
+                StateMachine.OpenCommonDialog("確認", $"{data.Name}を{data.Price}Gで購入しますか？",
                     ("はい", () => {
                         BuyCard(null, data);
                         shopMenu.enabled = true;
@@ -76,7 +77,7 @@ public class ShopWindow : MonoBehaviour
             {
                 deckMenu.Enable = false;
                 var data = card.Data;
-                stateMachine.OpenCommonDialog("確認", $"{card.Data.Name}を200Gで破棄しますか？",
+                StateMachine.OpenCommonDialog("確認", $"{card.Data.Name}を200Gで破棄しますか？",
                     ("はい", () =>
                     {
                         deckMenu.RemoveItem(selectedItem);
@@ -131,35 +132,13 @@ public class ShopWindow : MonoBehaviour
         });
     }
 
-    public IEnumerator Controll()
-    {
-        if (InputUtility.RightTrigger.IsTriggerd())
-            tabGroups.SelectIndex++;
-        else if (InputUtility.LeftTrigger.IsTriggerd())
-            tabGroups.SelectIndex--;
-
-        var move = Vector2Int.zero;
-        if (InputUtility.Right.IsTriggerd())
-            currentMenu.Right();
-        else if (InputUtility.Left.IsTriggerd())
-            currentMenu.Left();
-        if (InputUtility.Up.IsTriggerd())
-            currentMenu.Down();
-        else if (InputUtility.Down.IsTriggerd())
-            currentMenu.Up();
-
-        if (InputUtility.Submit.IsTriggerd())
-        {
-            currentMenu.Submit();
-        }
-        else if (InputUtility.Cancel.IsTriggerd())
-        {
-            Close();
-            yield break;
-        }
-
-        yield return null;
-    }
+    public void Right() => currentMenu.Right();
+    public void Left() => currentMenu.Left();
+    public void Up() => currentMenu.Up();
+    public void Down() => currentMenu.Down();
+    public void RightTrigger() => tabGroups.SelectIndex++;
+    public void LeftTrigger() => tabGroups.SelectIndex--;
+    public void Submit() => currentMenu.Submit();
 
     public void InitializeShop()
     {

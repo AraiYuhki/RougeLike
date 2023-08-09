@@ -30,7 +30,7 @@ public class Player : Unit
     }
 
     public bool IsLockInput { get; set; }
-    private int healInterval = 0;
+    public int HealInterval { get; set; } = 0;
 
     public void Initialize(int lv, int hp, int atk, int def)
     {
@@ -49,7 +49,7 @@ public class Player : Unit
     public override void Damage(int damage, Unit attacker, bool isResourceAttack = false)
     {
         base.Damage(damage, attacker, isResourceAttack);
-        healInterval = 10;
+        HealInterval = 10;
     }
 
     public override void Initialize()
@@ -85,8 +85,8 @@ public class Player : Unit
         Data.Stamina -= 0.1f;
         if (Data.Stamina <= 0)
             Damage(1, null);
-        else if (healInterval > 0)
-            healInterval--;
+        else if (HealInterval > 0)
+            HealInterval--;
         else
             //Heal(Data.MaxHP * 0.095f);
             Heal(1f);

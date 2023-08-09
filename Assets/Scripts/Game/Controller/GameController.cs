@@ -31,9 +31,16 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private NoticeGroup noticeGroup = null;
     [SerializeField]
+    private CardController cardController = null;
+    [SerializeField]
     private FloorMoveView floorMoveView = null;
     [SerializeField]
+    private ShopWindow shopWindow = null;
+    [SerializeField]
     private Player player = null;
+
+    [SerializeField]
+    private GameObject bulletPrefab = null;
 
     private Coroutine turnControll = null;
 
@@ -53,11 +60,12 @@ public class GameController : MonoBehaviour
     {
         stateMachine = new DungeonStateMachine();
         stateMachine.AddState(GameState.Wait, new WaitState());
-        stateMachine.AddState(GameState.PlayerTurn, new PlayerTurnState(stateMachine, floorManager, itemManager, dialogManager, noticeGroup, player));
+        stateMachine.AddState(GameState.PlayerTurn, new PlayerTurnState(stateMachine, floorManager, itemManager, dialogManager, noticeGroup, player, cardController));
         stateMachine.AddState(GameState.EnemyTurn, new EnemyTurnState(stateMachine, enemyManager));
         stateMachine.AddState(GameState.MainMenu, new MenuState(stateMachine, uiManager));
         stateMachine.AddState(GameState.NextFloorLoad, new LoadFloorState(player, stateMachine, this, floorManager, floorMoveView));
         stateMachine.AddState(GameState.Dialog, new DialogState());
+        stateMachine.AddState(GameState.Shop, new ShopState(stateMachine, shopWindow));
     }
 
     private void Start()
@@ -69,6 +77,8 @@ public class GameController : MonoBehaviour
         player.Initialize();
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         player.OnMoved += floorManager.OnMoveUnit;
+        cardController.Player = player;
+        cardController.Initialize();
 
         turnControll = StartCoroutine(stateMachine.Update());
 
@@ -155,7 +165,11 @@ public class GameController : MonoBehaviour
 
     public GameObject CreateBullet(Vector3 position, Quaternion rotation)
     {
-        return null;
+        var bullet = Instantiate(bulletPrefab, floorManager.transform);
+        bullet.transform.localScale = Vector3.one;
+        bullet.transform.localPosition = position;
+        bullet.transform.localRotation = rotation;
+        return bullet;
     }
 
     /// <summary>

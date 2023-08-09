@@ -92,12 +92,22 @@ public class DefaultAI : EnemyAI
             if (Enemy.TargetTile == null || Enemy.TargetTile == currentTile || cantMoveTurns > 1)
             {
                 var count = 0;
-                var targetRoomId = floorInfo.RoomIds.Random();
-                while ((targetRoomId = floorInfo.RoomIds.Random()) == currentTile.Id && count < 10)
+                while (count < 10)
+                {
+                    var targetRoomId = floorInfo.RoomIds.Random();
+                    Enemy.TargetTile = floorInfo.GetRoomTiles(targetRoomId).Random();
+                    cantMoveTurns = 0;
+                    checkPoints = floorInfo.GetCheckpoints(Enemy.Position, Enemy.TargetTile.Position);
+                    if (targetRoomId != currentTile.Id || checkPoints.Count > 0) break;
                     count++;
-                Enemy.TargetTile = floorInfo.GetRoomTiles(targetRoomId).Random();
-                cantMoveTurns = 0;
-                checkPoints = floorInfo.GetCheckpoints(Enemy.Position, Enemy.TargetTile.Position);
+                }
+            }
+            // 移動できない
+            if (checkPoints.Count <= 0)
+            {
+                cantMoveTurns++;
+                Debug.LogError("Can't move");
+                return new List<Vector2Int>();
             }
             // 今のチェックポイントに到達した
             if (Enemy.Position == checkPoints[0])

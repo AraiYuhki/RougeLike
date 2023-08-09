@@ -37,7 +37,15 @@ public class Unit : MonoBehaviour
     public virtual void AddExp(int exp) { }
     public virtual void RecoveryStamina(float value) { }
     public virtual void PowerUp(int value, Action onComplete = null) { }
-    public virtual void Charge(float value, Action onComplete = null) => ChargeStack = Mathf.Min(ChargeStack + value, MaxChargeStack);
+    public virtual void Charge(float value, Action onComplete = null)
+    {
+        transform.DOPunchScale(Vector3.one * 0.5f, 0.5f).OnComplete(() =>
+        {
+            ChargeStack = Mathf.Min(ChargeStack + value, MaxChargeStack);
+            onComplete?.Invoke();
+        });
+    }
+
     public virtual DamagePopupManager DamagePopupManager { protected get; set; }
     
 
@@ -45,10 +53,17 @@ public class Unit : MonoBehaviour
     {
         Initialize();
     }
-    public void SetNoticeGroup(NoticeGroup noticeGroup) => this.notice = noticeGroup;
 
     public virtual void Initialize()
     {
+    }
+
+    public void SetManagers(GameController gameController, FloorManager floorManager, EnemyManager enemyManager, NoticeGroup noticeGroup)
+    {
+        this.gameController = gameController;
+        this.floorManager = floorManager;
+        this.enemyManager = enemyManager;
+        this.notice = noticeGroup;
     }
 
     public virtual void Update()
@@ -80,9 +95,9 @@ public class Unit : MonoBehaviour
     public virtual void Attack(int weaponPower, AttackAreaData attackArea, Action onComplete = null, bool isResourceAttack = false)
     {
         var tween = DOTween.Sequence();
-        // �p�x�̓A�j���[�V�����O�Ɏ擾���Ă���
+        // 角度はアニメーション前に取得しておく
         var angle = transform.localEulerAngles.y;
-        tween.Append(transform.DOLocalRotate(transform.localEulerAngles + Vector3.up * 360f, 0.6f, RotateMode.FastBeyond360));
+        tween.Append(unit.transform.DOLocalRotate(Vector3.up * 360f, 0.6f, RotateMode.FastBeyond360));
         tween.AppendInterval(0.2f);
         tween.OnComplete(() =>
         {
@@ -104,7 +119,7 @@ public class Unit : MonoBehaviour
     {
         var currentTile = floorManager.GetTile(Position);
         var tween = DOTween.Sequence();
-        tween.Append(transform.DOLocalRotate(transform.localEulerAngles + Vector3.up * 360f * 3f, 0.6f, RotateMode.FastBeyond360));
+        tween.Append(unit.transform.DOLocalRotate(Vector3.up * 360f * 3f, 0.6f, RotateMode.FastBeyond360));
         tween.AppendInterval(0.2f);
         tween.OnComplete(() =>
         {
@@ -144,11 +159,11 @@ public class Unit : MonoBehaviour
         tween.OnComplete(() =>
         {
             Destroy(bullet);
-            onComplete?.Invoke();
             if (this is Player player && target.enemy != null)
             {
                 target.enemy.Damage(DamageUtil.GetDamage(player, weaponPower, target.enemy), this);
             }
+            onComplete?.Invoke();
         });
     }
 

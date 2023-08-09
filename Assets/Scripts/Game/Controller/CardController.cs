@@ -9,6 +9,10 @@ using UnityEngine;
 public class CardController : MonoBehaviour
 {
     [SerializeField]
+    private FloorManager floorManager;
+    [SerializeField]
+    private EnemyManager enemyManager;
+    [SerializeField]
     private Card originalCard;
 
     [SerializeField]
@@ -53,6 +57,7 @@ public class CardController : MonoBehaviour
         var card = Instantiate(originalCard, transform);
         card.transform.localPosition = new Vector3(0f, -500f, 0f);
         card.transform.localScale = Vector3.one;
+        card.SetManager(floorManager, enemyManager);
         card.SetData(data, Player);
         card.VisibleFrontSide = false;
         deck.Add(card);
@@ -70,6 +75,7 @@ public class CardController : MonoBehaviour
     public void AddToDeck(CardData data)
     {
         var card = Instantiate(originalCard, deckContainer);
+        card.SetManager(floorManager, enemyManager);
         card.transform.localPosition = Vector3.zero;
         card.transform.localScale = Vector3.one;
         card.SetData(data, Player);

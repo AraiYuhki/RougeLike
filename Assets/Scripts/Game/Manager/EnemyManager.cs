@@ -8,6 +8,8 @@ using UnityEngine;
 public class EnemyManager : MonoBehaviour
 {
     [SerializeField]
+    private GameController gameController;
+    [SerializeField]
     private FloorManager floorManager;
     [SerializeField]
     private NoticeGroup notice;
@@ -47,7 +49,7 @@ public class EnemyManager : MonoBehaviour
         var playerTile = floorManager.GetTile(player.Position);
         var tiles = floorManager.GetEmptyRoomTiles(playerTile.Id);
         instance.DamagePopupManager = damagePopupManager;
-        instance.SetNoticeGroup(notice);
+        instance.SetManagers(gameController, floorManager, this, notice);
         instance.SetPosition(tiles.Random().Position);
         floorManager.SetUnit(instance, instance.Position);
         instance.OnMoved += floorManager.OnMoveUnit;
