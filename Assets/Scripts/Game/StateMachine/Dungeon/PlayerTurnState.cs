@@ -61,6 +61,12 @@ public class PlayerTurnState : IState
         else if (InputUtility.Left.IsPressed()) move.x = -1;
         var isTurnMode = InputUtility.TurnMode.IsPressed();
 
+        if (InputUtility.DiagonalMode.IsPressed())
+        {
+            if (move.x == 0 || move.y == 0)
+                move = Vector2Int.zero;
+        }
+
         if (move.x != 0 || move.y != 0)
         {
             var currentPosition = player.Position;
