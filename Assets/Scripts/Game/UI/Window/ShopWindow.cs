@@ -131,7 +131,6 @@ public class ShopWindow : MonoBehaviour
         if (!IsOpened) return;
         IsOpened = false;
         tween?.Kill();
-        gameObject.SetActive(false);
         tween = DOTween.Sequence();
         tween.Append(canvasGroup.DOFade(0f, 0.2f));
         tween.Append(window.rectTransform.DOScale(0.5f, 0.2f));
@@ -139,6 +138,7 @@ public class ShopWindow : MonoBehaviour
         {
             tween = null;
             OnClose?.Invoke();
+            gameObject.SetActive(false);
         });
     }
 
