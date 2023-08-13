@@ -35,8 +35,8 @@ public class FloorMoveView : MonoBehaviour
         tween.Complete();
         canvasGroup.alpha = 0f;
         canvas.enabled = true;
-        currentFloorLabel.text = $"{currentFloor}F";
-        nextFloorLabel.text = $"{nextFloor}F";
+        currentFloorLabel.text = isTower ? $"{currentFloor}F" : $"B{currentFloor}F";
+        nextFloorLabel.text = isTower ? $"{nextFloor}F" : $"B{nextFloor}F";
         currentFloorLabel.transform.localPosition = Vector3.zero;
         currentFloorLabel.color = new Color(1f, 1f, 1f, 1f);
         nextFloorLabel.transform.localPosition = Vector3.up * (isTower ? 100f : -100f);

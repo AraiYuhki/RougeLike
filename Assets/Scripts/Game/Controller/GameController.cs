@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -40,13 +41,26 @@ public class GameController : MonoBehaviour
     private Player player = null;
 
     [SerializeField]
+    private TMP_Text floorLabel;
+
+    [SerializeField]
     private GameObject bulletPrefab = null;
 
     private Coroutine turnControll = null;
 
     private DungeonStateMachine stateMachine;
 
-    public int CurrentFloor { get; private set; } = 1;
+    private int currentFloor = 1;
+
+    public int CurrentFloor
+    {
+        get => currentFloor;
+        set
+        {
+            currentFloor = value;
+            floorLabel.text = floorManager.IsTower ? $"{currentFloor}F" : $"B{currentFloor}F";
+        }
+    }
 
     private static readonly RuntimePlatform[] EnableUIControllerPlatforms = new RuntimePlatform[]
     {
@@ -72,6 +86,7 @@ public class GameController : MonoBehaviour
     {
         controllerUI.gameObject.SetActive(EnableUIControllerPlatforms.Contains(Application.platform));
 
+        CurrentFloor = 1;
         floorManager.Clear();
         floorManager.Create(20, 20, 4, false);
         player.Initialize();
