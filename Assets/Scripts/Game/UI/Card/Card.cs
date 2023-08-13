@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System;
 using System.Linq;
@@ -63,47 +64,73 @@ public class Card : MonoBehaviour
         });
     }
 
-    public void Use(Action onComplete = null)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="onComplete"></param>
+    /// <param name="enoughCost">Falseの場合、通常攻撃は威力半減、その他は不発扱いにする</param>
+    /// <exception cref="NotImplementedException"></exception>
+    public async void Use(Action onComplete = null, bool enoughCost = true)
     {
+        if (enoughCost)
+        {
+            switch (Data.Type)
+            {
+                case CardType.NormalAttack:
+                    NormalAttack(onComplete, true, false);
+                    break;
+                case CardType.ResourceAttack:
+                    NormalAttack(onComplete, true, true);
+                    break;
+                case CardType.LongRangeAttack:
+                    LongRangeAttack(onComplete);
+                    break;
+                case CardType.RangeAttack:
+                    Owner.Attack((int)Data.Param, Data.AttackAreaData, onComplete);
+                    break;
+                case CardType.RoomAttack:
+                    Owner.RoomAttack((int)Data.Param, onComplete);
+                    break;
+                case CardType.Heal:
+                    Owner.Heal(Data.Param);
+                    onComplete?.Invoke();
+                    break;
+                case CardType.StaminaHeal:
+                    Owner.RecoveryStamina(Data.Param);
+                    onComplete?.Invoke();
+                    break;
+                case CardType.Charge:
+                    Owner.Charge(Data.Param, onComplete);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            return;
+        }
+
         switch (Data.Type)
         {
             case CardType.NormalAttack:
-                NormalAttack(onComplete, false);
+                NormalAttack(onComplete, false, false);
                 break;
             case CardType.ResourceAttack:
-                NormalAttack(onComplete, true);
-                break;
-            case CardType.LongRangeAttack:
-                LongRangeAttack(onComplete);
-                break;
-            case CardType.RangeAttack:
-                Owner.Attack((int)Data.Param, Data.AttackAreaData, onComplete);
-                break;
-            case CardType.RoomAttack:
-                Owner.RoomAttack((int)Data.Param, onComplete);
-                break;
-            case CardType.Heal:
-                Owner.Heal(Data.Param);
-                onComplete?.Invoke();
-                break;
-            case CardType.StaminaHeal:
-                Owner.RecoveryStamina(Data.Param);
-                onComplete?.Invoke();
-                break;
-            case CardType.Charge:
-                Owner.Charge(Data.Param, onComplete);
+                NormalAttack(onComplete, false, true);
                 break;
             default:
-                throw new NotImplementedException();
+                await MisFire(onComplete);
+                return;
         }
+
     }
 
-    private void NormalAttack(Action onComplete, bool isResourceAttack)
+    private void NormalAttack(Action onComplete, bool enoughCost, bool isResourceAttack)
     {
         var destPosition = Owner.Position + Owner.Angle;
         var target = floorManager.GetUnit(destPosition) as Enemy;
+        var power = (int)Data.Param;
+        if (!enoughCost) power /= 2;
         if (target != null)
-            Owner.Attack((int)Data.Param, target, () => onComplete?.Invoke(), isResourceAttack);
+            Owner.Attack(power, target, () => onComplete?.Invoke(), isResourceAttack);
         else
             onComplete?.Invoke();
     }
@@ -137,6 +164,13 @@ public class Card : MonoBehaviour
             default:
                 throw new NotImplementedException();
         }
+    }
+
+    private async UniTask MisFire(Action onComplete)
+    {
+        await UniTask.Yield();
+        onComplete?.Invoke();
+
     }
 
     private bool CheckEnemyInAroundTile()
@@ -177,7 +211,7 @@ public class Card : MonoBehaviour
         if (!currenTile.IsRoom) return false;
         return enemyManager.Enemies.Any(enemy =>
         {
-            // ���������ɓG�����݂����True
+            // 同じ部屋に敵が存在すればTrue
             var tile = floorManager.GetTile(enemy.Position);
             if (!tile.IsRoom) return false;
             return tile.Id == currenTile.Id;

@@ -18,7 +18,7 @@ public class Player : Unit
     {
         get
         {
-            return cardController.AllCardsCount * 10;
+            return cardController.AllCardsCount * 5;
         }
     }
     public override void RecoveryStamina(float value) => Data.Stamina += value;

@@ -43,12 +43,15 @@ public class CardController : MonoBehaviour
 
     public void Initialize()
     {
-        foreach(var _ in Enumerable.Range(0, 3))
+        foreach(var _ in Enumerable.Range(0, 6))
             AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First().Clone() as CardData);
+        foreach(var _ in Enumerable.Range(0, 2))
+        {
+            AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.Charge));
+            AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.LongRangeAttack));
+            AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.ResourceAttack));
+        }
         AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.StaminaHeal));
-        AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.Charge));
-        AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.LongRangeAttack));
-        AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.ResourceAttack));
         Shuffle();
         DrawAll();
         Player.Hp = Player.MaxHp;
