@@ -51,6 +51,7 @@ public class CardController : MonoBehaviour
         AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.ResourceAttack));
         Shuffle();
         DrawAll();
+        Player.Hp = Player.MaxHp;
     }
 
     public void Add(CardData data)
