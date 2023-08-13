@@ -168,6 +168,7 @@ public class FloorManager : MonoBehaviour
         aStar = new AStar(Map, this);
         dijkstra = new Dijkstra(FloorData);
         minimap?.Initialize(FloorData);
+        wall.transform.localPosition = Vector3.zero;
     }
 
     private IEnumerator Create()
