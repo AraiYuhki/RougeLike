@@ -9778,6 +9778,7 @@ MonoBehaviour:
   player: {fileID: 1276448553}
   enemyManager: {fileID: 1009754815}
   itemManager: {fileID: 1009754816}
+  floorManager: {fileID: 100000723}
   tileSize: 20
   tileLayer: {fileID: 1143390287}
   playerSprite: {fileID: 1810667699, guid: 4a05eb3c1331e104896407ae3f01b104, type: 3}

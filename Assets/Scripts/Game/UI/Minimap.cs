@@ -1,6 +1,4 @@
 using DG.Tweening;
-using JetBrains.Annotations;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -21,6 +19,8 @@ public class Minimap : MonoBehaviour
     private EnemyManager enemyManager;
     [SerializeField]
     private ItemManager itemManager;
+    [SerializeField]
+    private FloorManager floorManager;
 
     [SerializeField]
     private float tileSize = 30f;
@@ -49,6 +49,7 @@ public class Minimap : MonoBehaviour
 
     private List<Image> enemies = new List<Image>();
     private List<Image> items = new List<Image>();
+    private Image stair = null;
 
     private FloorData floorData;
     private bool[,] visibleMap;
@@ -88,6 +89,13 @@ public class Minimap : MonoBehaviour
         texture.Apply();
         tileLayer.sprite = Sprite.Create(texture, new Rect(0, 0, size.X, size.Y), Vector2.zero);
         prevPlayerPosition = player.Position;
+        if (stair == null)
+            stair = CreateImage(tileLayer.transform, Color.green, stairSprite);
+        var position = originalPosition;
+        position.x += floorData.StairPosition.X * tileSize;
+        position.y += floorData.StairPosition.Y * tileSize;
+        stair.transform.localPosition = position;
+        stair.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -97,6 +105,9 @@ public class Minimap : MonoBehaviour
         if (player.Position != (Vector2Int)prevPlayerPosition)
         {
             SetVisibleMap(player.Position);
+
+            stair.gameObject.SetActive(visibleMap[floorData.StairPosition.X, floorData.StairPosition.Y]);
+
             prevPlayerPosition = player.Position;
         }
         tileLayer.transform.localPosition = position;
@@ -108,22 +119,37 @@ public class Minimap : MonoBehaviour
     public void SetVisibleMap(Point position)
     {
         var currentTile = floorData.Map[position.X, position.Y];
+        var changed = false;
         if (currentTile.IsRoom)
         {
-            foreach(var tile in floorData.Map.ToArray().Where(tile => tile.IsRoom && tile.Id == currentTile.Id))
-                visibleMap[tile.Position.X, tile.Position.Y] = true;
+            foreach (var tile in floorData.Map.ToArray().Where(tile => tile.IsRoom && tile.Id == currentTile.Id))
+            {
+                if (!VisibleTile(tile.Position))
+                {
+                    visibleMap[tile.Position.X, tile.Position.Y] = true;
+                    changed = true;
+                }
+                // •”‰®‚ÌŽüˆÍ1ƒ}ƒX‚àŠJ‚­
+                foreach (var pos in floorManager.GetAroundTilesAt(tile.Position).Select(x => x.Position).Where(pos => !VisibleTile(pos)))
+                {
+                    visibleMap[pos.X, pos.Y] = true;
+                    changed = true;
+                }
+            }
         }
-        visibleMap[position.X, position.Y] = true;
-        visibleMap[position.X + 1, position.Y] = true;
-        visibleMap[position.X - 1, position.Y] = true;
-        visibleMap[position.X, position.Y + 1] = true;
-        visibleMap[position.X, position.Y - 1] = true;
-        visibleMap[position.X + 1, position.Y + 1] = true;
-        visibleMap[position.X + 1, position.Y - 1] = true;
-        visibleMap[position.X - 1, position.Y + 1] = true;
-        visibleMap[position.X - 1, position.Y - 1] = true;
+        foreach (var pos in floorManager.GetAroundTilesAt(position).Select(tile => tile.Position).Where(pos => !VisibleTile(pos)))
+        {
+            visibleMap[pos.X, pos.Y] = true;
+            changed = true;
+        }
+        if (!VisibleTile(position))
+        {
+            visibleMap[position.X, position.Y] = true;
+            changed = true;
+        }
+        if (!changed) return;
 
-        foreach(var tile in floorData.Map.ToArray())
+        foreach (var tile in floorData.Map.ToArray())
         {
             var visible = visibleMap[tile.Position.X, tile.Position.Y];
             if (!visible || tile.IsWall)
@@ -132,6 +158,8 @@ public class Minimap : MonoBehaviour
         }
         texture.Apply();
     }
+
+    private bool VisibleTile(Point point) => visibleMap[point.X, point.Y];
 
     private void UpdateEnemies()
     {
