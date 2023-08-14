@@ -5,6 +5,7 @@ using UnityEngine.ProBuilder;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
+using static UnityEngine.GraphicsBuffer;
 
 public class Unit : MonoBehaviour
 {
@@ -76,9 +77,8 @@ public class Unit : MonoBehaviour
     public void Move(int x, int z) => Move(new Vector2Int(x, z));
     public virtual void Move(Vector2Int move) => Move(move, null);
 
-    public virtual void Attack(Unit target, TweenCallback onEndAttack = null, bool isResourceAttack = false)
+    public virtual void Attack(Unit target, int damage, Action onComplete = null, bool isResourceAttack = false)
     {
-        var damage = DamageUtil.GetDamage(this, target);
         var currentPosition = transform.localPosition;
         var sequence = DOTween.Sequence();
         sequence.Append(unit.transform.DOLocalMove(Vector3.forward * 2f, 0.2f).SetEase(Ease.InCubic));
@@ -87,7 +87,7 @@ public class Unit : MonoBehaviour
         {
             OnAttack?.Invoke(this, target);
             target.Damage(damage, this, isResourceAttack);
-            onEndAttack?.Invoke();
+            onComplete?.Invoke();
         });
         sequence.SetAutoKill(true);
         sequence.Play();
@@ -95,8 +95,9 @@ public class Unit : MonoBehaviour
         ChargeStack = 0;
     }
 
-    public virtual void Attack(int weaponPower, AttackAreaData attackArea, Action onComplete = null, bool isResourceAttack = false)
+    public virtual void Attack(int damage, AttackAreaData attackArea, Action onComplete = null, bool isResourceAttack = false)
     {
+        damage = (int)(damage * (ChargeStack + 1));
         var tween = DOTween.Sequence();
         // 角度はアニメーション前に取得しておく
         var angle = transform.localEulerAngles.y;
@@ -111,15 +112,17 @@ public class Unit : MonoBehaviour
                 var target = floorManager.GetUnit(position);
                 if (this is Player player && target is Enemy enemy)
                 {
-                    enemy.Damage(DamageUtil.GetDamage(player, weaponPower, enemy), this, isResourceAttack);
+                    enemy.Damage(damage, this, isResourceAttack);
                 }
             }
             onComplete?.Invoke();
         });
+        ChargeStack = 0;
     }
 
-    public virtual void RoomAttack(int weaponPower, Action onComplete = null)
+    public virtual void RoomAttack(int damage, Action onComplete = null)
     {
+        damage = (int)(damage * (ChargeStack + 1));
         var currentTile = floorManager.GetTile(Position);
         var tween = DOTween.Sequence();
         tween.Append(unit.transform.DOLocalRotate(Vector3.up * 360f * 3f, 0.6f, RotateMode.FastBeyond360));
@@ -128,14 +131,11 @@ public class Unit : MonoBehaviour
         {
             if (currentTile.IsRoom)
             {
-                foreach (var enemy in enemyManager.Enemies.Where(enemy =>
+                foreach (var enemy in enemyManager.Enemies)
                 {
                     var tile = floorManager.GetTile(enemy.Position);
-                    if (!tile.IsRoom) return false;
-                    return tile.Id == currentTile.Id;
-                }))
-                {
-                    enemy.Damage(DamageUtil.GetDamage(this as Player, weaponPower, enemy), this);
+                    if (!tile.IsRoom || tile.Id != currentTile.Id) continue;
+                    enemy.Damage(damage, this as Player);
                 }
             } 
             else
@@ -144,15 +144,17 @@ public class Unit : MonoBehaviour
                     .Select(tile => floorManager.GetUnit(tile.Position) as Enemy)
                     .Where(enemy => enemy != null))
                 {
-                    enemy.Damage(DamageUtil.GetDamage(this as Player, weaponPower, enemy), this);
+                    enemy.Damage(damage, this as Player);
                 }
             }
             onComplete?.Invoke();
         });
+        ChargeStack = 0;
     }
 
-    public virtual void Shoot(int weaponPower, int range, Action onComplete = null)
+    public virtual void Shoot(int damage, int range, Action onComplete = null)
     {
+        damage = (int)(damage * (ChargeStack + 1));
         var target = floorManager.GetHitPosition(Position, Angle, range);
         var bullet = gameController.CreateBullet(transform.localPosition, transform.rotation);
         var tween = bullet.transform
@@ -164,15 +166,17 @@ public class Unit : MonoBehaviour
             Destroy(bullet);
             if (this is Player player && target.enemy != null)
             {
-                target.enemy.Damage(DamageUtil.GetDamage(player, weaponPower, target.enemy), this);
+                target.enemy.Damage(damage, player);
             }
             onComplete?.Invoke();
         });
+        ChargeStack = 0;
     }
 
     public void MoveTo(Vector2Int destPosition, TweenCallback onComplete = null)
     {
         var diff = destPosition - Position;
+        ChargeStack = 0;
         OnMoved?.Invoke(this, destPosition);
         SetPosition(destPosition, onComplete);
         SetDestAngle(diff);

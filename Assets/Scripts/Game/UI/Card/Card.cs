@@ -127,7 +127,7 @@ public class Card : MonoBehaviour
     {
         var destPosition = Owner.Position + Owner.Angle;
         var target = floorManager.GetUnit(destPosition) as Enemy;
-        var power = (int)Data.Param;
+        var power = (int)(Data.Param * (Owner.ChargeStack + 1f));
         if (!enoughCost) power /= 2;
         if (target != null)
             Owner.Attack(power, target, () => onComplete?.Invoke(), isResourceAttack);

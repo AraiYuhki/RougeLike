@@ -71,6 +71,7 @@ public class Player : Unit
             var flag = floorManager.GetTile(Position).IsRoom;
             pointLight.SetActive(flag);
         });
+        ChargeStack = 0;
     }
 
     public override void SetPosition(Vector2Int position)
@@ -88,20 +89,18 @@ public class Player : Unit
         else if (HealInterval > 0)
             HealInterval--;
         else
-            //Heal(Data.MaxHP * 0.095f);
             Heal(1f, false);
     }
 
-    public void Attack(int weaponAttack, Enemy target, TweenCallback onEndAttack = null, bool isResourceAttack = false)
+    public void Attack(int damage, Enemy target, TweenCallback onEndAttack = null, bool isResourceAttack = false)
     {
-        var damage = DamageUtil.GetDamage(this, weaponAttack, target);
         var sequence = DOTween.Sequence();
         sequence.Append(unit.transform.DOLocalMove(Vector3.forward * 2f, 0.2f).SetEase(Ease.InCubic));
         sequence.Append(unit.transform.DOLocalMove(Vector3.zero, 0.2f).SetEase(Ease.OutCubic));
         sequence.OnComplete(() =>
         {
             OnAttack?.Invoke(this, target);
-            target.Damage(damage, this, isResourceAttack);
+            target.Damage((int)(damage * (ChargeStack + 1)), this, isResourceAttack);
             onEndAttack?.Invoke();
         });
         sequence.SetAutoKill(true);

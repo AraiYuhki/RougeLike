@@ -11,7 +11,6 @@ public static class DamageUtil
         if (attack is Enemy e && defense is Player p)
             return GetDamage(e, p);
         throw new System.NotImplementedException();
-    
     }
 
     public static int GetDamage(Player player, int weaponPower, Enemy enemy)

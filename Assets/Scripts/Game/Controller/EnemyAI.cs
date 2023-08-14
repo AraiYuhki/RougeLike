@@ -79,7 +79,7 @@ public class DefaultAI : EnemyAI
         await UniTask.WaitUntil(() => Enemy.EndRotation);
         var endAttackAnimation = false;
         var targetPosition = new Vector3(player.Position.x, 0.5f, player.Position.y);
-        Enemy.Attack(player, () => endAttackAnimation = true);
+        Enemy.Attack(player, Enemy.Data.Atk, () => endAttackAnimation = true);
         await UniTask.WaitUntil(() => endAttackAnimation);
     }
 
