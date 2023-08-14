@@ -88,8 +88,30 @@ public class CardController : MonoBehaviour
         deck.Add(card);
     }
 
-    public void Shuffle()
+    public void Shuffle(bool isReset = false)
     {
+        if (isReset)
+        {
+            var sequence = DOTween.Sequence();
+            var delay = 0f;
+            foreach(var card in hands.Concat(cemetary).Where(card => card != null))
+            {
+                deck.Add(card);
+                card.transform.parent = deckContainer;
+                sequence.Insert(delay, card.transform.DOLocalMove(Vector3.zero, 0.2f));
+                sequence.Insert(delay, card.transform.DOScale(Vector3.one, 0.2f));
+                card.VisibleFrontSide = false;
+                delay += 0.05f;
+            }
+            cemetary.Clear();
+            deck.Shuffle();
+            for (var index = 0; index < hands.Length; index++) hands[index] = null;
+            sequence.OnComplete(() =>
+            {
+                DrawAll();
+            });
+            return;
+        }
         deck.Shuffle();
     }
 
@@ -109,7 +131,6 @@ public class CardController : MonoBehaviour
         cemetary.Clear();
         deck.Shuffle();
         sequence.OnComplete(DrawAll);
-        
     }
 
     public void DrawAll()
