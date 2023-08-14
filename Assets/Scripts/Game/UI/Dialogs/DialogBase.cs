@@ -25,6 +25,7 @@ public class DialogBase : MonoBehaviour, IControllable
     protected int currentSelected = 0;
 
     public Action OnDestroyed { get; set; }
+    protected bool lockInput = true;
     protected Sequence tween;
     public string Title
     {
@@ -48,6 +49,7 @@ public class DialogBase : MonoBehaviour, IControllable
         {
             tween = null;
             onComplete?.Invoke();
+            lockInput = false;
         });
     }
 
@@ -57,6 +59,7 @@ public class DialogBase : MonoBehaviour, IControllable
 
         window.rectTransform.localScale = Vector3.one;
         canvasGroup.alpha = 1f;
+        lockInput = true;
 
         tween = DOTween.Sequence();
         tween.Append(window.rectTransform.DOScale(0.5f, 0.2f));

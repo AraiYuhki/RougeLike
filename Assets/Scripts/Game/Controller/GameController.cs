@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -31,15 +32,35 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private NoticeGroup noticeGroup = null;
     [SerializeField]
+    private CardController cardController = null;
+    [SerializeField]
     private FloorMoveView floorMoveView = null;
     [SerializeField]
+    private ShopWindow shopWindow = null;
+    [SerializeField]
     private Player player = null;
+
+    [SerializeField]
+    private TMP_Text floorLabel;
+
+    [SerializeField]
+    private GameObject bulletPrefab = null;
 
     private Coroutine turnControll = null;
 
     private DungeonStateMachine stateMachine;
 
-    public int CurrentFloor { get; private set; } = 1;
+    private int currentFloor = 1;
+
+    public int CurrentFloor
+    {
+        get => currentFloor;
+        set
+        {
+            currentFloor = value;
+            floorLabel.text = floorManager.IsTower ? $"{currentFloor}F" : $"B{currentFloor}F";
+        }
+    }
 
     private static readonly RuntimePlatform[] EnableUIControllerPlatforms = new RuntimePlatform[]
     {
@@ -53,33 +74,51 @@ public class GameController : MonoBehaviour
     {
         stateMachine = new DungeonStateMachine();
         stateMachine.AddState(GameState.Wait, new WaitState());
-        stateMachine.AddState(GameState.PlayerTurn, new PlayerTurnState(stateMachine, floorManager, itemManager, dialogManager, noticeGroup, player));
+        stateMachine.AddState(GameState.PlayerTurn, new PlayerTurnState(stateMachine, floorManager, itemManager, dialogManager, noticeGroup, player, cardController));
         stateMachine.AddState(GameState.EnemyTurn, new EnemyTurnState(stateMachine, enemyManager));
         stateMachine.AddState(GameState.MainMenu, new MenuState(stateMachine, uiManager));
         stateMachine.AddState(GameState.NextFloorLoad, new LoadFloorState(player, stateMachine, this, floorManager, floorMoveView));
         stateMachine.AddState(GameState.Dialog, new DialogState());
+        stateMachine.AddState(GameState.Shop, new ShopState(stateMachine, shopWindow));
     }
 
     private void Start()
     {
         controllerUI.gameObject.SetActive(EnableUIControllerPlatforms.Contains(Application.platform));
 
+        CurrentFloor = 1;
         floorManager.Clear();
         floorManager.Create(20, 20, 4, false);
         player.Initialize();
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         player.OnMoved += floorManager.OnMoveUnit;
+        cardController.Player = player;
+        cardController.Initialize();
 
         turnControll = StartCoroutine(stateMachine.Update());
 
         enemyManager.Initialize(player);
-        itemManager.Initialize();
+        itemManager.Initialize(150, 1, 5);
         Fade.Instance.FadeIn(() => stateMachine.Goto(GameState.PlayerTurn));
     }
 
     private void OnDestroy()
     {
         StopCoroutine(turnControll);
+    }
+
+    public void LoadNextFloor()
+    {
+        CurrentFloor++;
+        enemyManager.Clear();
+        itemManager.Clear();
+        floorManager.Clear();
+        floorManager.Create(40, 40, 10, floorManager.IsTower);
+        for (var count = 0; count < 4; count++)
+            enemyManager.Spawn();
+        itemManager.Initialize(150, 1, 5);
+        player.SetPosition(floorManager.FloorData.SpawnPoint);
+        ForceUpdateMinimap();
     }
 
     public void StartEnemyTurn() => stateMachine.Goto(GameState.EnemyTurn);
@@ -151,6 +190,15 @@ public class GameController : MonoBehaviour
             floorManager.SetItem(item, targetPosition.position);
             StartEnemyTurn();
         };
+    }
+
+    public GameObject CreateBullet(Vector3 position, Quaternion rotation)
+    {
+        var bullet = Instantiate(bulletPrefab, floorManager.transform);
+        bullet.transform.localScale = Vector3.one;
+        bullet.transform.localPosition = position;
+        bullet.transform.localRotation = rotation;
+        return bullet;
     }
 
     /// <summary>

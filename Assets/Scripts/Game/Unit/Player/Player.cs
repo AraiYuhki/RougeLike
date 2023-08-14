@@ -1,11 +1,12 @@
 using DG.Tweening;
+using System;
 using System.Linq;
 using UnityEngine;
 
 public class Player : Unit
 {
     [SerializeField]
-    private FloorManager floorManager;
+    private CardController cardController;
     [SerializeField]
     private GameObject pointLight;
     [SerializeField]
@@ -13,10 +14,15 @@ public class Player : Unit
 
     public PlayerData Data { get; private set; } = new PlayerData(10);
     public override int Hp { get => Mathf.FloorToInt(Data.Hp); set => Data.Hp = value; }
-    public override int MaxHp { get => Data.MaxHP; }
-    public override void AddExp(int exp) => Data.AddExp(exp);
+    public override int MaxHp
+    {
+        get
+        {
+            return cardController.AllCardsCount * 5;
+        }
+    }
     public override void RecoveryStamina(float value) => Data.Stamina += value;
-    public override void PowerUp(int value) => Data.Atk += value;
+    public override void PowerUp(int value, Action onComplete = null) => Data.Atk += value;
     public override DamagePopupManager DamagePopupManager 
     {
         protected get => damagePopupManager;
@@ -24,7 +30,7 @@ public class Player : Unit
     }
 
     public bool IsLockInput { get; set; }
-    private int healInterval = 0;
+    public int HealInterval { get; set; } = 0;
 
     public void Initialize(int lv, int hp, int atk, int def)
     {
@@ -40,10 +46,10 @@ public class Player : Unit
         }
     }
 
-    public override void Damage(int damage, Unit attacker)
+    public override void Damage(int damage, Unit attacker, bool isResourceAttack = false, bool damagePopup = true)
     {
-        base.Damage(damage, attacker);
-        healInterval = 10;
+        base.Damage(damage, attacker, isResourceAttack, damagePopup);
+        HealInterval = 10;
     }
 
     public override void Initialize()
@@ -65,6 +71,7 @@ public class Player : Unit
             var flag = floorManager.GetTile(Position).IsRoom;
             pointLight.SetActive(flag);
         });
+        ChargeStack = 0;
     }
 
     public override void SetPosition(Vector2Int position)
@@ -78,24 +85,22 @@ public class Player : Unit
     {
         Data.Stamina -= 0.1f;
         if (Data.Stamina <= 0)
-            Damage(1, null);
-        else if (healInterval > 0)
-            healInterval--;
+            Damage(1, null, damagePopup: false);
+        else if (HealInterval > 0)
+            HealInterval--;
         else
-            //Heal(Data.MaxHP * 0.095f);
-            Heal(1f);
+            Heal(1f, false);
     }
 
-    public void Attack(int weaponAttack, Enemy target, TweenCallback onEndAttack = null)
+    public void Attack(int damage, Enemy target, TweenCallback onEndAttack = null, bool isResourceAttack = false)
     {
-        var damage = DamageUtil.GetDamage(this, weaponAttack, target);
         var sequence = DOTween.Sequence();
         sequence.Append(unit.transform.DOLocalMove(Vector3.forward * 2f, 0.2f).SetEase(Ease.InCubic));
         sequence.Append(unit.transform.DOLocalMove(Vector3.zero, 0.2f).SetEase(Ease.OutCubic));
         sequence.OnComplete(() =>
         {
             OnAttack?.Invoke(this, target);
-            target.Damage(damage, this);
+            target.Damage((int)(damage * (ChargeStack + 1)), this, isResourceAttack);
             onEndAttack?.Invoke();
         });
         sequence.SetAutoKill(true);

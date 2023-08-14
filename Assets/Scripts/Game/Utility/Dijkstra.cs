@@ -68,7 +68,7 @@ public class Dijkstra
         var goal = nodes[to];
         if (goal.Parent == null)
         {
-            Debug.LogError($"Way to goal is not found {from} -> {to}");
+            Debug.LogWarning($"Way to goal is not found {from} -> {to}");
             return null;
         }
 
@@ -190,8 +190,17 @@ public class Dijkstra
     private Node OpenConnected(Node node)
     {
         node.Status = NodeStatus.Close;
+        if (nodes.Count <= 0)
+        {
+            Debug.LogError("Nodes is empty");
+            return null;
+        }
         foreach (var next in node.ConnectedCosts.Keys)
         {
+            if (!nodes.ContainsKey(next))
+            {
+                Debug.LogError($"{next} is not in nodes");
+            }
             var nextNode = nodes[next];
             if (nextNode.Status == NodeStatus.Close) continue;
             nextNode.Status = NodeStatus.Open;

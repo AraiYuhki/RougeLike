@@ -13,6 +13,7 @@ public enum GameState
     MainMenu,
     NextFloorLoad,
     Dialog,
+    Shop,
 }
 
 public class DungeonStateMachine

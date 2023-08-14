@@ -1,10 +1,7 @@
+using DG.Tweening;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Security.Policy;
-using System.Security.Principal;
 using UnityEngine;
 
 public class ItemManager : MonoBehaviour
@@ -21,6 +18,19 @@ public class ItemManager : MonoBehaviour
     private Item[] shieldTemplates = new Item[0];
 
     public List<Item> ItemList { get; private set; } = new List<Item>();
+
+    public void Initialize(int sumPrice, int minCount = 1, int maxCount = 5)
+    {
+        var max = sumPrice / minCount;
+        var min = sumPrice / maxCount;
+        var spawnedGems = 0;
+        while(spawnedGems < sumPrice)
+        {
+            var value = UnityEngine.Random.Range(min, max);
+            spawnedGems += value;
+            Spawn(value);
+        }
+    }
 
     public void Initialize(int count = 5)
     {
@@ -45,33 +55,46 @@ public class ItemManager : MonoBehaviour
         }
     }
 
-    public Item Drop(ItemBase data, int index, Vector2Int position)
+    public void Clear()
+    {
+        foreach (var item in ItemList)
+            Destroy(item);
+        ItemList.Clear();
+    }
+
+    public Item Drop(ItemBase data, int index, Vector2Int position, bool isAnimation = false)
     {
         var template = GetTemplate(data, index);
         var item = Instantiate(template, floorManager.transform);
         item.Data = data;
         item.SetPosition(floorManager.GetTile(position.x, position.y));
+        if (isAnimation)
+            item.transform.DOLocalJump(item.transform.localPosition, 5, 1, 0.4f);
         floorManager.SetItem(item, position);
         return item;
     }
 
-    public Item Drop(int price, Vector2Int position)
+    public Item Drop(int price, Vector2Int position, bool isAnimation = false)
     {
         var item = Instantiate(gemTemplates.First(), floorManager.transform);
         item.GemCount = price;
         item.SetPosition(floorManager.GetTile(position.x, position.y));
+        if (isAnimation)
+            item.transform.DOLocalJump(item.transform.localPosition, 1, 1, 0.4f);
         ItemList.Add(item);
         floorManager.SetItem(item, position);
         return item;
     }
 
-    public void Spawn(ItemBase data, int index)
+    public void Spawn(ItemBase data, int index, bool isAnimation = false)
     {
         var template = GetTemplate(data, index);
         var item = Instantiate(template, floorManager.transform);
         item.Data = data;
         var tile = floorManager.GetRoomTiles().Where(tile => floorManager.GetItem(tile.Position) == null).Random();
         item.SetPosition(tile);
+        if (isAnimation)
+            item.transform.DOLocalJump(item.transform.localPosition, 5, 1, 0.4f);
         floorManager.SetItem(item, tile.Position);
         ItemList.Add(item);
     }

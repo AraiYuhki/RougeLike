@@ -8,7 +8,11 @@ using UnityEngine;
 public class EnemyManager : MonoBehaviour
 {
     [SerializeField]
+    private GameController gameController;
+    [SerializeField]
     private FloorManager floorManager;
+    [SerializeField]
+    private ItemManager itemManager;
     [SerializeField]
     private NoticeGroup notice;
     [SerializeField]
@@ -30,6 +34,16 @@ public class EnemyManager : MonoBehaviour
             Spawn();
     }
 
+    public void Clear()
+    {
+        foreach (var enemy in Enemies)
+        {
+            floorManager.RemoveUnit(enemy.Position);
+            Destroy(enemy.gameObject);
+        }
+        enemies.Clear();
+    }
+
     public void Spawn()
     {
         var instance = Instantiate(prefabs.First(), floorManager.transform);
@@ -37,7 +51,7 @@ public class EnemyManager : MonoBehaviour
         var playerTile = floorManager.GetTile(player.Position);
         var tiles = floorManager.GetEmptyRoomTiles(playerTile.Id);
         instance.DamagePopupManager = damagePopupManager;
-        instance.SetNoticeGroup(notice);
+        instance.SetManagers(gameController, floorManager, this, itemManager, notice);
         instance.SetPosition(tiles.Random().Position);
         floorManager.SetUnit(instance, instance.Position);
         instance.OnMoved += floorManager.OnMoveUnit;
@@ -61,13 +75,20 @@ public class EnemyManager : MonoBehaviour
         {
             spawnedCount++;
         }
-        var moveEnemies = enemies.Where(e => !e.CanAttack()).ToList();
-        var attackEnemies = enemies.Where(e => e.CanAttack()).ToList();
-        var completedCount = 0;
-        foreach (var enemy in moveEnemies)
-            await enemy.Move(() => completedCount++);
-        while (moveEnemies.Count > completedCount) await UniTask.Yield();
-        foreach (var enemy in attackEnemies)
-            await enemy.Attack();
+        try
+        {
+            var moveEnemies = enemies.Where(e => !e.CanAttack()).ToList();
+            var attackEnemies = enemies.Where(e => e.CanAttack()).ToList();
+            var completedCount = 0;
+            foreach (var enemy in moveEnemies)
+                await enemy.Move(() => completedCount++);
+            while (moveEnemies.Count > completedCount) await UniTask.Yield();
+            foreach (var enemy in attackEnemies)
+                await enemy.Attack();
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
     }
 }

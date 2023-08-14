@@ -21,7 +21,7 @@ public class DialogManager : MonoSingleton<DialogManager>
     public void Start()
     {
         basePanel.color = new Color(0f, 0f, 0f, 0f);
-        basePanel.gameObject.SetActive(false);
+        basePanel.enabled = false;
     }
 
     public T Create<T>(Action onOpened = null) where T : DialogBase
@@ -40,7 +40,7 @@ public class DialogManager : MonoSingleton<DialogManager>
         else
         {
             tween?.Kill();
-            basePanel.gameObject.SetActive(true);
+            basePanel.enabled = true;
             tween = basePanel.DOFade(0.5f, 0.2f);
             tween.OnComplete(() =>
             {
@@ -48,7 +48,7 @@ public class DialogManager : MonoSingleton<DialogManager>
                 onOpened?.Invoke();
             });
         }
-        dialogQueue.Insert(0, dialog); // �L���[�̐擪�ɒǉ�
+        dialogQueue.Insert(0, dialog); // キューの先頭に追加
         return dialog;
     }
 
@@ -62,7 +62,7 @@ public class DialogManager : MonoSingleton<DialogManager>
             {
                 Destroy(dialog.gameObject);
             });
-            // �L���[�Ƀ_�C�A���O���c���Ă���Ȃ�V�����J��
+            // キューにダイアログが残っているなら新しく開く
             if (dialogQueue.Any())
                 dialogQueue.First()?.Open();
             if (!dialogQueue.Any())
@@ -78,7 +78,7 @@ public class DialogManager : MonoSingleton<DialogManager>
             }
             return;
         }
-        // ���݊J���Ă�����̂ł͂Ȃ��̂ŃN���[�Y�����������ɍ폜
+        // 現在開いているものではないのでクローズ処理をせずに削除
         dialogQueue.Remove(dialog);
         Destroy(dialog.gameObject);
     }

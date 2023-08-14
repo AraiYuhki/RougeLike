@@ -1,9 +1,6 @@
-using JetBrains.Annotations;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.PlasticSCM.Editor.WebApi;
 using UnityEngine;
 
 [Serializable]
@@ -120,7 +117,7 @@ public class AttackAreaData : ICloneable
     }
 
 
-    public static (int x, int y) GetRotatedOffset(int angle, Vector2Int original)
+    public static (int x, int y) GetRotatedOffset(float angle, Vector2Int original)
     {
         var radius = Math.Max(Math.Abs(original.x), Math.Abs(original.y));
         if (maxRadius < radius)

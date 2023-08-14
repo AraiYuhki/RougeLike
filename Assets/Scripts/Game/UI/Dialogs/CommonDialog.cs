@@ -71,6 +71,7 @@ public class CommonDialog : DialogBase
 
     public override void Controll()
     {
+        if (lockInput) return;
         var prevIndex = currentSelected;
         if (InputUtility.Left.IsTriggerd())
             Left();
