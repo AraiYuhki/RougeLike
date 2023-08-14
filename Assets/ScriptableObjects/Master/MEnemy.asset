@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: MEnemy
   m_EditorClassIdentifier: 
   data:
-  - atk: 1
+  - atk: 10
     name: Test
     exp: 1
     maxHP: 10
     def: 0
+    dropItemList: []

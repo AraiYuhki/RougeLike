@@ -72,6 +72,7 @@ public class GameController : MonoBehaviour
 
     private void Awake()
     {
+        Application.targetFrameRate = 60;
         stateMachine = new DungeonStateMachine();
         stateMachine.AddState(GameState.Wait, new WaitState());
         stateMachine.AddState(GameState.PlayerTurn, new PlayerTurnState(stateMachine, floorManager, itemManager, dialogManager, noticeGroup, player, cardController));

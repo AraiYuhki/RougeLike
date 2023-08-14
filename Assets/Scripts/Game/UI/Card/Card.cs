@@ -54,7 +54,7 @@ public class Card : MonoBehaviour
     public void Goto(Transform target, Action onComplete = null)
     {
         tween?.Kill();
-        transform.parent = target;
+        transform.SetParent(target);
         tween = DOTween.Sequence();
         tween.Append(transform.DOLocalMove(Vector3.zero, 0.3f));
         tween.Join(transform.DOScale(Vector3.one, 0.3f));

@@ -206,7 +206,7 @@ public class Minimap : MonoBehaviour
         switch(mode)
         {
             case MinimapMode.Normal:
-                tween.Append(rectTransform.DOLocalMove(new Vector3(480f, 145f), 0.5f));
+                tween.Append(rectTransform.DOLocalMove(new Vector3(640f, 240f), 0.5f));
                 tween.Join(rectTransform.DOSizeDelta(new Vector2(250f, 250f), 0.5f));
                 break;
             case MinimapMode.Menu:

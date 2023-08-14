@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -84,44 +85,52 @@ public class AStar
 
     public List<Vector2Int> Execute(int limit = -1)
     {
-        Clear();
-        nodes[StartPoint.x, StartPoint.y].State = NodeState.Open;
-        openedNode.Add(nodes[StartPoint.x, StartPoint.y]);
-        Node goal = null;
-        var count = 0;
-        while (openedNode.Count > 0)
+        try
         {
-            count++;
-            foreach (var node in openedNode.OrderBy(node => node.Score).ToList())
+            Clear();
+            nodes[StartPoint.x, StartPoint.y].State = NodeState.Open;
+            openedNode.Add(nodes[StartPoint.x, StartPoint.y]);
+            Node goal = null;
+            var count = 0;
+            while (openedNode.Count > 0)
             {
-                goal = OpenAround(node);
+                count++;
+                foreach (var node in openedNode.OrderBy(node => node.Score).ToList())
+                {
+                    goal = OpenAround(node);
+                    if (goal != null)
+                        break;
+                }
                 if (goal != null)
                     break;
+                openedNode = nodes.ToArray().Where(node => node.State == NodeState.Open).ToList();
+                if (limit > 0 && count >= limit)
+                {
+                    goal = openedNode.OrderBy(node => node.Score).First();
+                    break;
+                }
             }
-            if (goal != null)
-                break;
-            openedNode = nodes.ToArray().Where(node => node.State == NodeState.Open).ToList();
-            if (limit > 0 && count >= limit)
-            {
-                goal = openedNode.OrderBy(node => node.Score).First();
-                break;
-            }
-        }
 
-        if (goal == null)
-        {
-            Debug.LogWarning($"Way to goal is not found {StartPoint} -> {EndPoint}");
-            return null;
+            if (goal == null)
+            {
+                Debug.LogWarning($"Way to goal is not found {StartPoint} -> {EndPoint}");
+                return null;
+            }
+            var current = goal;
+            var result = new List<Vector2Int>();
+            while (current != null)
+            {
+                result.Add(current.Position);
+                current = current.Parent;
+            }
+            result.Reverse();
+            return result;
         }
-        var current = goal;
-        var result = new List<Vector2Int>();
-        while (current != null)
+        catch (Exception e)
         {
-            result.Add(current.Position);
-            current = current.Parent;
+            Debug.LogException(e);
+            throw e;
         }
-        result.Reverse();
-        return result;
     }
 
     public void Clear()
