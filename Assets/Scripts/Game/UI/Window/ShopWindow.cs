@@ -153,7 +153,8 @@ public class ShopWindow : MonoBehaviour
     public void InitializeShop()
     {
         shopMenu.Clear();
-        foreach ((var data, var index) in DataBase.Instance.GetTable<MCard>().Data.Select((data, index) => (data, index)))
+        var cards = DataBase.Instance.GetTable<MCard>().Data.Randmize().Take(3).ToList();
+        foreach (var data in cards)
         {
             var card = Instantiate(originalCard);
             card.SetData(data, null);

@@ -33,6 +33,7 @@ public class Player : Unit
             Lv = lv,
             Atk = atk,
             Def = def,
+            Gems = 50,
         };
         for (var i = 0; i < 3; i++)
         {
