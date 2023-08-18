@@ -9314,6 +9314,7 @@ MonoBehaviour:
   player: {fileID: 1276448553}
   floorLabel: {fileID: 767640636}
   bulletPrefab: {fileID: 5341315411540083808, guid: 94bfc89643cd7b44e904072d68a8f082, type: 3}
+  dungeonData: {fileID: 11400000, guid: 6729463e1fa58c54c926e376a8ad245a, type: 2}
 --- !u!4 &1009754814
 Transform:
   m_ObjectHideFlags: 0

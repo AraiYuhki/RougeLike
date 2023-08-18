@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
@@ -16,10 +17,13 @@ public class FloorSetting
     private Material floorMaterial;
     [SerializeField]
     private Material wallMaterial;
+    [SerializeField]
+    private List<int> enemies = new List<int>();
     public int SameSettingCount => sameSettingCount;
     public Vector2Int Size => size;
     public int MaxRoomCount => maxRoomCount;
     public float DeletePathProbability => deletePathProbability;
     public Material FloorMaterial => floorMaterial;
     public Material WallMaterial => wallMaterial;
+    public List<int> Enemies => enemies;
 }

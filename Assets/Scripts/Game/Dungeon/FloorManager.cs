@@ -121,6 +121,13 @@ public class FloorManager : MonoBehaviour
         StartCoroutine(Create());
     }
 
+    public void Create(FloorSetting floorInfo, bool isTower)
+    {
+        wall.GetComponent<Renderer>().material = floorInfo.WallMaterial;
+        floor.GetComponent<Renderer>().material = floorInfo.FloorMaterial;
+        Create(floorInfo.Size.x, floorInfo.Size.y, floorInfo.MaxRoomCount, isTower);
+    }
+
     public void Create(int width, int height, int maxRoom, bool isTower)
     {
         Size = new Vector2Int(width, height);

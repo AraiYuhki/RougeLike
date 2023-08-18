@@ -14,8 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   data:
   - atk: 10
-    name: Test
+    name: "\u30AB\u30D7\u30BB\u30EBLv1"
     exp: 1
     maxHP: 10
     def: 0
-    dropItemList: []
+  - atk: 10
+    name: "\u30AB\u30D7\u30BB\u30EBLv2"
+    exp: 1
+    maxHP: 20
+    def: 0

@@ -4,17 +4,28 @@ using UnityEngine;
 public class DungeonCreator : EditorWindow
 {
     private static DungeonSetting setting = null;
-
-    [MenuItem("Tools/ƒ_ƒ“ƒWƒ‡ƒ“¶¬")]
+    private int floorCount = 1;
+    private FloorSetting floorSetting = null;
+    [MenuItem("Tools/ãƒ€ãƒ³ã‚¸ãƒ§ãƒ³ç”Ÿæˆ")]
     public static void Open() => GetWindow<DungeonCreator>();
 
     public void OnGUI()
     {
-        setting = EditorGUILayout.ObjectField("İ’è", setting, typeof(DungeonSetting), false) as DungeonSetting;
-        if (GUILayout.Button("¶¬"))
+        setting = EditorGUILayout.ObjectField("è¨­å®š", setting, typeof(DungeonSetting), false) as DungeonSetting;
+        if (GUILayout.Button("ç”Ÿæˆ"))
         {
             Generate();
         }
+        floorCount = EditorGUILayout.IntField("floorCount", floorCount);
+        if (GUILayout.Button("ãƒ•ãƒ­ã‚¢è¨­å®šå–å¾—"))
+        {
+            floorSetting = setting.GetFloor(floorCount);
+        }
+        if (floorSetting == null) return;
+        EditorGUI.BeginDisabledGroup(true);
+        EditorGUILayout.LabelField(floorSetting.MaxRoomCount.ToString());
+        EditorGUILayout.LabelField(floorSetting.Size.ToString());
+        EditorGUI.EndDisabledGroup();
     }
 
     private void Generate()

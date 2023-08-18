@@ -21,6 +21,11 @@ public class Enemy : Unit
     public TileData TargetTile { get; set; }
     public int TargetRoomId => TargetTile.Id;
 
+    public void Initialize(EnemyData data)
+    {
+        Data = data.Clone() as EnemyData;
+    }
+
     public void Initialize(int lv, int hp, int atk, int def, int exp)
     {
         Data = new EnemyData(hp)

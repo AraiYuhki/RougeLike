@@ -13,15 +13,18 @@ MonoBehaviour:
   m_Name: FirstDungeon
   m_EditorClassIdentifier: 
   floorList:
-  - sameSettingCount: 2
+  - sameSettingCount: 4
     size: {x: 20, y: 20}
     maxRoomCount: 4
     deletePathProbability: 0
     floorMaterial: {fileID: 2100000, guid: 49f3385eb1c319941be8623439f1eb49, type: 2}
     wallMaterial: {fileID: 2100000, guid: 7f46efa3bb98bb44ea780a4a417b4f75, type: 2}
-  - sameSettingCount: 2
+    enemies: 00000000
+  - sameSettingCount: 20
     size: {x: 30, y: 30}
     maxRoomCount: 5
     deletePathProbability: 0.1
     floorMaterial: {fileID: 2100000, guid: d24bde530a6cd174cb70a68743168031, type: 2}
     wallMaterial: {fileID: 2100000, guid: 43ca10b6d3421d546832de715a9d893f, type: 2}
+    enemies: 01000000
+  isTower: 0

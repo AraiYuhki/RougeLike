@@ -98,11 +98,8 @@ public class EnemyData : UnitData, ICloneable
     private int maxHP = 10;
     [SerializeField]
     private int def = 0;
-    [SerializeField]
-    private List<DropItemData> dropItemList = new List<DropItemData>();
     
     public string Name { get => name; private set => name = value; }
-    public List<DropItemData> DropItemList { get => dropItemList; private set => dropItemList = value; }
     public override int Def { get => def; set => def = value; }
     public override int MaxHP { get => maxHP; protected set => maxHP = value; }
     public int Exp { get => exp; set => exp = value; }
@@ -116,7 +113,6 @@ public class EnemyData : UnitData, ICloneable
             MaxHP = MaxHP,
             Atk = Atk,
             Def = Def,
-            DropItemList = new List<DropItemData>(DropItemList),
             Exp = Exp,
         };
     }

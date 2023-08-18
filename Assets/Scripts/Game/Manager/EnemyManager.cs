@@ -20,6 +20,7 @@ public class EnemyManager : MonoBehaviour
     [SerializeField]
     private Enemy[] prefabs = new Enemy[0];
 
+    private FloorSetting floorSetting;
     private Player player = null;
     private List<EnemyAI> enemies = new List<EnemyAI>();
     private int spawnedCount = 0;
@@ -27,12 +28,15 @@ public class EnemyManager : MonoBehaviour
 
     public List<Enemy> Enemies => enemies.Select(enemy => enemy.Enemy).ToList();
 
-    public void Initialize(Player player)
+    public void Initialize(Player player, FloorSetting floorSetting)
     {
+        this.floorSetting = floorSetting;
         this.player = player;
         for (var count = 0; count < 4; count++)
             Spawn();
     }
+
+    public void SetFloorData(FloorSetting floorSetting) => this.floorSetting = floorSetting;
 
     public void Clear()
     {
@@ -47,6 +51,8 @@ public class EnemyManager : MonoBehaviour
     public void Spawn()
     {
         var instance = Instantiate(prefabs.First(), floorManager.transform);
+        var enemy = floorSetting.Enemies.Random();
+        instance.Initialize(DataBase.Instance.GetTable<MEnemy>().Get(enemy));
         var ai = new DefaultAI(floorManager, instance, player);
         var playerTile = floorManager.GetTile(player.Position);
         var tiles = floorManager.GetEmptyRoomTiles(playerTile.Id);

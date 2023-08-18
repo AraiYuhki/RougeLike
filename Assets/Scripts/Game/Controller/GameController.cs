@@ -2,6 +2,7 @@ using DG.Tweening;
 using System.Collections;
 using System.Linq;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -46,6 +47,9 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private GameObject bulletPrefab = null;
 
+    [SerializeField]
+    private DungeonSetting dungeonData = null;
+
     private Coroutine turnControll = null;
 
     private DungeonStateMachine stateMachine;
@@ -88,8 +92,9 @@ public class GameController : MonoBehaviour
         controllerUI.gameObject.SetActive(EnableUIControllerPlatforms.Contains(Application.platform));
 
         CurrentFloor = 1;
+        var floorData = dungeonData.GetFloor(CurrentFloor);
         floorManager.Clear();
-        floorManager.Create(20, 20, 4, false);
+        floorManager.Create(floorData, dungeonData.IsTower);
         player.Initialize();
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         player.OnMoved += floorManager.OnMoveUnit;
@@ -98,7 +103,7 @@ public class GameController : MonoBehaviour
 
         turnControll = StartCoroutine(stateMachine.Update());
 
-        enemyManager.Initialize(player);
+        enemyManager.Initialize(player, floorData);
         itemManager.Initialize(150, 1, 5);
         Fade.Instance.FadeIn(() => stateMachine.Goto(GameState.PlayerTurn));
     }
@@ -114,7 +119,9 @@ public class GameController : MonoBehaviour
         enemyManager.Clear();
         itemManager.Clear();
         floorManager.Clear();
-        floorManager.Create(40, 40, 10, floorManager.IsTower);
+        var floorData = dungeonData.GetFloor(CurrentFloor);
+        floorManager.Create(floorData, dungeonData.IsTower);
+        enemyManager.SetFloorData(floorData);
         for (var count = 0; count < 4; count++)
             enemyManager.Spawn();
         itemManager.Initialize(150, 1, 5);
