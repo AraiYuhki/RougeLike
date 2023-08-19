@@ -40,7 +40,6 @@ public class AStar
     }
 
     private TileData[,] map;
-    private List<Node> openedNode = new List<Node>();
     public Vector2Int StartPoint { get; set; }
     public Vector2Int EndPoint { get; set; }
     private Vector2Int size;
@@ -89,7 +88,7 @@ public class AStar
         {
             Clear();
             nodes[StartPoint.x, StartPoint.y].State = NodeState.Open;
-            openedNode.Add(nodes[StartPoint.x, StartPoint.y]);
+            var openedNode = new List<Node>{ nodes[StartPoint.x, StartPoint.y] };
             Node goal = null;
             var count = 0;
             while (openedNode.Count > 0)
@@ -138,7 +137,6 @@ public class AStar
         for (var x = 0; x < size.x; x++)
             for (var y = 0; y < size.y; y++)
                 nodes[x, y].Clear();
-        openedNode.Clear();
     }
 
     private Node OpenAround(Node node)

@@ -23,6 +23,7 @@ public class Dijkstra
         public Dictionary<int, int> ConnectedCosts { get; set; } = new Dictionary<int, int>();
         public bool IsTmporary { get; set; } = false;
         public bool IsPathNode => Path != null;
+
         public void Clear()
         {
             Score = int.MaxValue;
@@ -46,6 +47,7 @@ public class Dijkstra
     private Dictionary<int, Node> nodes = new Dictionary<int, Node>();
     private List<Node> openNodes = new List<Node>();
     private FloorData floorData;
+    private bool hasTmpNode = false;
 
     public Dictionary<int, Node> Nodes => nodes;
     public Dijkstra(FloorData data)
@@ -98,12 +100,13 @@ public class Dijkstra
         nodes[path.FromRoomId].ConnectedCosts.Add(tmpId, halfCost);
         nodes[path.ToRoomId].ConnectedCosts.Add(tmpId, halfCost);
         nodes.Add(tmpId, tmpNode);
+        hasTmpNode = true;
         return tmpId;
     }
 
     public List<int> GetRoot(TileData start, TileData end)
     {
-        Initialize();
+        if (hasTmpNode) Initialize();
         var startId = start.Id;
         var endId = end.Id;
         if (!start.IsRoom)
@@ -176,7 +179,6 @@ public class Dijkstra
         points.Add(endPoint);
         var root = new List<Vector2Int>();
         var aStar = new AStar(floorData.Map, GameObject.FindObjectOfType<FloorManager>());
-        var timer = new Stopwatch();
         for (var index = 0; index < points.Count - 2; index++)
         {
             aStar.StartPoint = points[index];
@@ -192,14 +194,15 @@ public class Dijkstra
         node.Status = NodeStatus.Close;
         if (nodes.Count <= 0)
         {
-            Debug.LogError("Nodes is empty");
+            Debug.LogWarning("Nodes is empty");
             return null;
         }
         foreach (var next in node.ConnectedCosts.Keys)
         {
             if (!nodes.ContainsKey(next))
             {
-                Debug.LogError($"{next} is not in nodes");
+                Debug.LogWarning($"{next} is not in nodes");
+                continue;
             }
             var nextNode = nodes[next];
             if (nextNode.Status == NodeStatus.Close) continue;
@@ -247,6 +250,7 @@ public class Dijkstra
 
     private void Initialize()
     {
+        hasTmpNode = false;
         nodes = floorData.Rooms.ToDictionary(room => room.Id, room => new Node() { Id = room.Id, Room = room });
         foreach (var path in floorData.Paths)
         {

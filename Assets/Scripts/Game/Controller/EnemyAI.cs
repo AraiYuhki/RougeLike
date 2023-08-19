@@ -52,7 +52,7 @@ public class DefaultAI : EnemyAI
             if (playerTile.IsRoom && currentTile.IsRoom)
                 Enemy.IsEncounted = playerTile.Id == currentTile.Id;
         }
-        var root = await Task.Run(FindRoot);
+        var root = await Task.Run(() => FindRoot());
         // ルートが見つからないもしくは現在地点から動けない場合は何もしない
         if(root == null || root.Count < 2)
         {
@@ -106,12 +106,15 @@ public class DefaultAI : EnemyAI
             if (checkPoints.Count <= 0)
             {
                 cantMoveTurns++;
-                Debug.LogError("Can't move");
-                return new List<Vector2Int>();
+                Debug.LogWarning("Can't move");
+                return null;
             }
             // 今のチェックポイントに到達した
             if (Enemy.Position == checkPoints[0])
+            {
                 checkPoints.RemoveAt(0);
+                return null;
+            }
             return floorInfo.GetRoot(Enemy.Position, checkPoints.First());
         }
         return floorInfo.GetRoot(Enemy.Position, player.Position);

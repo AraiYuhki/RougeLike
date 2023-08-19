@@ -107,7 +107,7 @@ MonoBehaviour:
   canvasGroup: {fileID: 4428034285088048106}
   background: {fileID: 4428034285088048107}
   message: {fileID: 4428034285808235405}
-  moveRate: 0.1
+  moveRate: 10
 --- !u!1 &4428034285808235411
 GameObject:
   m_ObjectHideFlags: 0

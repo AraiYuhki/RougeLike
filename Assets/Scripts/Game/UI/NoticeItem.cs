@@ -14,7 +14,7 @@ public class NoticeItem : MonoBehaviour
     [SerializeField]
     private TMP_Text message;
     [SerializeField]
-    private float moveRate = 0.98f;
+    private float moveRate = 4f;
 
     private Vector3 destPosition = Vector3.zero;
     private Sequence tween = null;
@@ -70,7 +70,7 @@ public class NoticeItem : MonoBehaviour
             transform.localPosition = destPosition;
         else
         {
-            transform.localPosition += (destPosition - transform.localPosition) * moveRate;
+            transform.localPosition += (destPosition - transform.localPosition) * Time.deltaTime * moveRate;
         }
     }
 }

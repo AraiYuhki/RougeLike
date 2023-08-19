@@ -23,6 +23,6 @@ public class Item : MonoBehaviour
     void Update()
     {
         if (autoRotation)
-            transform.rotation *= Quaternion.Euler(0f, 0.5f, 0f);
+            transform.rotation *= Quaternion.Euler(0f, 90f * Time.deltaTime, 0f);
     }
 }
