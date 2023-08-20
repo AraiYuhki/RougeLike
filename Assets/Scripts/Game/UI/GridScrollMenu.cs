@@ -28,7 +28,7 @@ public class GridScrollMenu : MonoBehaviour
     private int SelectedIndex => columnCount * selectedIndex.y + selectedIndex.x;
 
     public List<SelectableItem> Items { get; private set; } = new List<SelectableItem>();
-    public bool Enable { get; set; } = true;
+    public bool Enable { get; set; }
     public Action<SelectableItem> OnSubmit { get; set; }
     public T GetSelectedItem<T>() where T : SelectableItem => Items[SelectedIndex] as T;
     public void Submit()
@@ -42,9 +42,14 @@ public class GridScrollMenu : MonoBehaviour
         ReselectCurrentItem();
     }
 
-    public void ReselectCurrentItem()
+    public void ReselectCurrentItem(bool fixIndex = false)
     {
         if (Items.Count <= 0) return;
+        if (fixIndex)
+        {
+            FixIndex();
+            FixScroll();
+        }
         Items[SelectedIndex].Select(true);
     }
 

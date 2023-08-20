@@ -61,7 +61,7 @@ public class ShopWindow : MonoBehaviour
                 StateMachine.OpenCommonDialog("確認", $"{data.Name}を{data.Price}Gで購入しますか？",
                     ("はい", () => {
                         BuyCard(data);
-                        shopMenu.enabled = true;
+                        shopMenu.Enable = true;
                         StateMachine.Goto(GameState.Shop);
                     }
                 ),
@@ -93,7 +93,7 @@ public class ShopWindow : MonoBehaviour
                     ("いいえ", () =>
                     {
                         // ショップステートに戻す
-                        deckMenu.enabled = true;
+                        deckMenu.Enable = true;
                         StateMachine.Goto(GameState.Shop);
                     }
                 ));
@@ -206,6 +206,6 @@ public class ShopWindow : MonoBehaviour
         var canRemove = player.Data.Gems >= 200;
         foreach (var card in deckMenu.Items.Select(item => item as ShopCard))
             card.Enable = canRemove;
-        deckMenu.ReselectCurrentItem();
+        deckMenu.ReselectCurrentItem(true);
     }
 }
