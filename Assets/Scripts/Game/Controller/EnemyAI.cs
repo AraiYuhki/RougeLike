@@ -52,7 +52,7 @@ public class DefaultAI : EnemyAI
             if (playerTile.IsRoom && currentTile.IsRoom)
                 Enemy.IsEncounted = playerTile.Id == currentTile.Id;
         }
-        var root = await Task.Run(() => FindRoot());
+        var root = FindRoot();
         // ルートが見つからないもしくは現在地点から動けない場合は何もしない
         if(root == null || root.Count < 2)
         {

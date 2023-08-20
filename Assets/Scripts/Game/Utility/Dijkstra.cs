@@ -97,8 +97,8 @@ public class Dijkstra
         nodes[path.FromRoomId].ConnectedCosts.Remove(path.ToRoomId);
         nodes[path.ToRoomId].ConnectedCosts.Remove(path.FromRoomId);
 
-        nodes[path.FromRoomId].ConnectedCosts.Add(tmpId, halfCost);
-        nodes[path.ToRoomId].ConnectedCosts.Add(tmpId, halfCost);
+        nodes[path.FromRoomId].ConnectedCosts[tmpId] = halfCost;
+        nodes[path.ToRoomId].ConnectedCosts[tmpId] = halfCost;
         nodes.Add(tmpId, tmpNode);
         hasTmpNode = true;
         return tmpId;
