@@ -9,6 +9,7 @@ public class Enemy : Unit
     public EnemyData Data { get; private set; } = new EnemyData(10);
     public override int Hp { get => Mathf.FloorToInt(Data.Hp); set => Data.Hp = value; }
     public override int MaxHp { get => Data.MaxHP; }
+    public override string Name => Data.Name;
     public override void PowerUp(int value, Action onComplete = null)
     {
         transform.DOPunchScale(Vector3.one * 2f, 0.5f).OnComplete(() =>

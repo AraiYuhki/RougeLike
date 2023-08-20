@@ -1,11 +1,8 @@
 using UnityEngine;
 using DG.Tweening;
 using System;
-using UnityEngine.ProBuilder;
 using UnityEditor;
-using System.Collections.Generic;
 using System.Linq;
-using static UnityEngine.GraphicsBuffer;
 
 public class Unit : MonoBehaviour
 {
@@ -36,6 +33,7 @@ public class Unit : MonoBehaviour
 
     public virtual int Hp { get; set; }
     public virtual int MaxHp { get; set; }
+    public virtual string Name => "No Name";
     public virtual float ChargeStack { get; set; }
     public virtual void AddExp(int exp) { }
     public virtual void RecoveryStamina(float value) { }
@@ -91,7 +89,7 @@ public class Unit : MonoBehaviour
         });
         sequence.SetAutoKill(true);
         sequence.Play();
-        notice.Add($"{this.name} は {target.name} に {damage}ダメージを与えた", Color.red);
+        notice.Add($"{Name} は {target.Name} に {damage}ダメージを与えた", Color.red);
         ChargeStack = 0;
     }
 
@@ -212,7 +210,7 @@ public class Unit : MonoBehaviour
         if (this is Enemy enemy && attacker != null)
         {
             attacker.AddExp(enemy.Data.Exp);
-            notice.Add($"{enemy.Data.Name}は倒れた", Color.yellow);
+            notice.Add($"{enemy.Name}は倒れた", Color.yellow);
             if (isResourceAttack)
             {
                 var dropPosition = floorManager.GetCanDropTile(Position);
