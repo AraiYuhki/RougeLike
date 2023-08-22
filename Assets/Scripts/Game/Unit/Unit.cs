@@ -89,7 +89,6 @@ public class Unit : MonoBehaviour
         });
         sequence.SetAutoKill(true);
         sequence.Play();
-        notice.Add($"{Name} は {target.Name} に {damage}ダメージを与えた", Color.red);
         ChargeStack = 0;
     }
 
@@ -199,6 +198,7 @@ public class Unit : MonoBehaviour
     public virtual void Damage(int damage, Unit attacker, bool isResourceAttack = false, bool damagePopup = true)
     {
         if (damagePopup) DamagePopupManager.Create(this, damage, Color.red);
+        notice.Add($"{attacker.Name}は{Name}に{damage}ダメージ与えた", Color.red);
         Hp -= damage;
         OnDamage?.Invoke(attacker, damage);
         if (Hp <= 0)

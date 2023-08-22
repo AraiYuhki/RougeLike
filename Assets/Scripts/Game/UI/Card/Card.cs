@@ -36,7 +36,10 @@ public class Card : MonoBehaviour
     }
 
     public CardData Data { get; private set; }
+    public PassiveEffectData PassiveEffect { get; private set; }
     public Player Owner { get; private set; }
+
+    public bool IsPassive => PassiveEffect != null;
 
     public void SetManager(FloorManager floorManager, EnemyManager enemyManager)
     {
@@ -47,6 +50,11 @@ public class Card : MonoBehaviour
     public void SetData(CardData data, Player owner)
     {
         Data = data;
+        if (data.IsPassive)
+        {
+            var master = DataBase.Instance.GetTable<MPassiveEffect>().Data.FirstOrDefault(row => row.Id == data.PassiveEffectId);
+            PassiveEffect = master.Clone() as PassiveEffectData;
+        }
         Owner = owner;
         label.text = data.Name;
     }
@@ -72,6 +80,12 @@ public class Card : MonoBehaviour
     /// <exception cref="NotImplementedException"></exception>
     public async void Use(Action onComplete = null, bool enoughCost = true)
     {
+        if (IsPassive)
+        {
+            await MisFire(onComplete);
+            return;
+        }
+
         if (enoughCost)
         {
             switch (Data.Type)
@@ -142,6 +156,8 @@ public class Card : MonoBehaviour
 
     public bool CanUse()
     {
+        if (IsPassive) return true;
+
         switch (Data.Type)
         {
             case CardType.NormalAttack:
@@ -160,6 +176,7 @@ public class Card : MonoBehaviour
                     return player.Data.Stamina < player.Data.MaxStamina;
                 return false;
             case CardType.Charge:
+            case CardType.Passive:
                 return true;
             default:
                 throw new NotImplementedException();

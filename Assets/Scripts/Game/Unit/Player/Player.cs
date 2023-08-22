@@ -44,7 +44,38 @@ public class Player : Unit
 
     public override void Damage(int damage, Unit attacker, bool isResourceAttack = false, bool damagePopup = true)
     {
-        base.Damage(damage, attacker, isResourceAttack, damagePopup);
+        var passiveEffects = cardController.PassiveEffects();
+        var lastDamage = damage;
+        var defenseRate = 1f;
+        foreach(var effect in passiveEffects)
+        {
+            if (effect.EffectType == PassiveEffectType.DefenceUp)
+            {
+                lastDamage -= effect.Param1;
+                notice.Add($"{effect.Param1}ダメージ軽減!", Color.green);
+            }
+            else if (effect.EffectType == PassiveEffectType.DeffenceUpRate)
+                defenseRate -= effect.Param1 * 0.01f;
+        }
+        lastDamage = Mathf.Max(0, lastDamage);
+        lastDamage = Mathf.CeilToInt(lastDamage * defenseRate);
+        if(defenseRate < 1f)
+            notice.Add($"ダメージ{(1.0f - defenseRate) * 100}%軽減! ({damage} > {lastDamage})", Color.green);
+        base.Damage(lastDamage, attacker, isResourceAttack, damagePopup);
+        foreach(var effect in passiveEffects)
+        {
+            if (effect.EffectType == PassiveEffectType.Counter)
+            {
+                notice.Add("カウンター発動！");
+                attacker.Damage(effect.Param1, this);
+            }
+            else if (effect.EffectType == PassiveEffectType.Refrect)
+            {
+                notice.Add("カウンター発動!");
+                var counterDamage = Mathf.CeilToInt(lastDamage * effect.Param1 * 0.01f);
+                attacker.Damage(counterDamage, this);
+            }
+        }
         HealInterval = 10;
     }
 
@@ -79,7 +110,11 @@ public class Player : Unit
 
     public override void TurnEnd()
     {
-        Data.Stamina -= 0.1f;
+        var rate = 1f - cardController.PassiveEffects()
+            .Where(effect => effect.EffectType == PassiveEffectType.Satiated)
+            .Sum(effect => effect.Param1 * 0.01f);
+
+        Data.Stamina -= 0.1f * Mathf.Max(rate, 0f);
         if (Data.Stamina <= 0)
             Damage(1, null, damagePopup: false);
         else if (HealInterval > 0)
@@ -90,18 +125,41 @@ public class Player : Unit
 
     public void Attack(int damage, Enemy target, TweenCallback onEndAttack = null, bool isResourceAttack = false)
     {
+        var lastDamage = damage;
+        var rate = 1f;
+        var passiveEffects = cardController.PassiveEffects();
+        foreach(var effect in passiveEffects)
+        {
+            if (effect.EffectType == PassiveEffectType.AttackUp)
+            {
+                notice.Add($"{effect.Param1}ダメージ増加！", Color.green);
+                lastDamage += effect.Param1;
+            }
+            else if (effect.EffectType == PassiveEffectType.AttackUpRate)
+                rate += effect.Param1 * 0.01f;
+        }
+        if (rate > 1f)
+            notice.Add($"ダメージ{(rate - 1f) * 100}%増加! ({damage} > {lastDamage})", Color.green);
+        lastDamage = Mathf.CeilToInt(lastDamage * rate);
+
+        var dropUpRate = passiveEffects.Where(effect => effect.EffectType == PassiveEffectType.DropUp).Sum(effect => effect.Param1 * 0.01f);
+        if (UnityEngine.Random.value < dropUpRate)
+        {
+            isResourceAttack = true;
+            notice.Add("アイテムドロップ！");
+        }
+
         var sequence = DOTween.Sequence();
         sequence.Append(unit.transform.DOLocalMove(Vector3.forward * 2f, 0.2f).SetEase(Ease.InCubic));
         sequence.Append(unit.transform.DOLocalMove(Vector3.zero, 0.2f).SetEase(Ease.OutCubic));
         sequence.OnComplete(() =>
         {
             OnAttack?.Invoke(this, target);
-            target.Damage((int)(damage * (ChargeStack + 1)), this, isResourceAttack);
+            target.Damage((int)(lastDamage * (ChargeStack + 1)), this, isResourceAttack);
             onEndAttack?.Invoke();
         });
         sequence.SetAutoKill(true);
         sequence.Play();
-        notice.Add($"{this.name} は {target.name} に {damage}ダメージを与えた", Color.red);
         ChargeStack = 0;
     }
 }

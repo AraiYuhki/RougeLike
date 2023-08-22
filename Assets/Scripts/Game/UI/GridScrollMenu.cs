@@ -96,9 +96,11 @@ public class GridScrollMenu : MonoBehaviour
             rowCount = Mathf.CeilToInt(Items.Count / columnCount);
             if (Items.Count % columnCount > 0)
                 rowCount++;
+            return;
         }
-        else
-            rowCount = 0;
+
+        rowCount = 0;
+
     }
 
     public void Clear()

@@ -1,6 +1,4 @@
 using DG.Tweening;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -182,6 +180,13 @@ public class CardController : MonoBehaviour
             }
         }
         Destroy(card.gameObject);
+    }
 
+    public List<PassiveEffectData> PassiveEffects()
+    {
+        return hands
+            .Where(hand => hand != null && hand.IsPassive)
+            .Select(hand => hand.PassiveEffect)
+            .ToList();
     }
 }

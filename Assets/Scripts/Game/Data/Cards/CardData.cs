@@ -6,14 +6,16 @@ using UnityEngine;
 
 public enum CardType
 {
-    NormalAttack,@      // ’ÊíUŒ‚
-    RangeAttack,        //@”ÍˆÍUŒ‚
-    LongRangeAttack,    // ‰“‹——£UŒ‚
-    RoomAttack,         // •”‰®‘S‘ÌUŒ‚
-    Heal,               // ‰ñ•œ
-    StaminaHeal,        // ƒXƒ^ƒ~ƒi‰ñ•œ
-    Charge,             // UŒ‚—Í2”{(d•¡‚·‚é‚²‚Æ‚É”{—¦‚ª100“’Ç‰Á‚³‚êAÅ‘å‚Å4”{)
-    ResourceAttack,     // ‚±‚ê‚Å‚Æ‚Ç‚ß‚ðŽh‚·‚Æ•K‚¸‚¨‹à‚ð—Ž‚Æ‚·‘ã‚í‚è‚ÉUŒ‚—Í‚ª’á‚ß
+    NormalAttack,ã€€      // é€šå¸¸æ”»æ’ƒ
+    RangeAttack,        //ã€€ç¯„å›²æ”»æ’ƒ
+    LongRangeAttack,    // é è·é›¢æ”»æ’ƒ
+    RoomAttack,         // éƒ¨å±‹å…¨ä½“æ”»æ’ƒ
+    Heal,               // å›žå¾©
+    StaminaHeal,        // ã‚¹ã‚¿ãƒŸãƒŠå›žå¾©
+    Charge,             // æ”»æ’ƒåŠ›2å€(é‡è¤‡ã™ã‚‹ã”ã¨ã«å€çŽ‡ãŒ100ï¼…è¿½åŠ ã•ã‚Œã€æœ€å¤§ã§4å€)
+    ResourceAttack,     // ã“ã‚Œã§ã¨ã©ã‚ã‚’åˆºã™ã¨å¿…ãšãŠé‡‘ã‚’è½ã¨ã™ä»£ã‚ã‚Šã«æ”»æ’ƒåŠ›ãŒä½Žã‚
+
+    Passive,
 }
 
 [Serializable]
@@ -31,6 +33,8 @@ public class CardData : ICloneable
     private int price;
     [SerializeField]
     private int attackAreaDataId = -1;
+    [SerializeField]
+    private int passiveEffectId = -1;
 
     public string Name
     {
@@ -68,6 +72,13 @@ public class CardData : ICloneable
         set => attackAreaDataId = value;
     }
 
+    public bool IsPassive => passiveEffectId >= 0;
+    public int PassiveEffectId
+    {
+        get => passiveEffectId;
+        set => passiveEffectId = value;
+    }
+
     public AttackAreaData AttackAreaData
     {
         get
@@ -76,12 +87,6 @@ public class CardData : ICloneable
             return DataBase.Instance.GetTable<MAttackArea>().GetData(attackAreaDataId);
         }
     }
-
-    //public AttackAreaData AttackAreaData
-    //{
-    //    get => attackAreaData;
-    //    set => attackAreaData = value;
-    //}
     
 
     public virtual object Clone()
@@ -94,6 +99,7 @@ public class CardData : ICloneable
             Range = Range,
             Price = Price,
             AttackAreaDataId = AttackAreaDataId,
+            PassiveEffectId = PassiveEffectId,
         };
     }
 
