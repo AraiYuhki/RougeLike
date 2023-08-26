@@ -30,6 +30,12 @@ public class DataBase : MonoBehaviour
             tableDictionary.Add(table.GetType(), table);
     }
 
+    public void Initialize()
+    {
+        if (tableDictionary != null && tableDictionary.Count > 0) return;
+        tableDictionary = tables.ToDictionary(table => table.GetType(), table => table);
+    }
+
     public T GetTable<T>() where T : ScriptableObject
     {
         if (tableDictionary.ContainsKey(typeof(T)))

@@ -22,8 +22,6 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private MainMenuUI mainMenu;
     [SerializeField]
-    private StatusUI statusUI;
-    [SerializeField]
     private InventoryUI inventory;
     [SerializeField]
     private UseMenuUI useMenu;
@@ -43,12 +41,10 @@ public class UIManager : MonoBehaviour
             );
         floorManager.SetMinimap(minimap);
         inventory.Initialize(floorManager, this, notice, player);
-        statusUI.Initialize(player);
     }
 
     public void OpenMainMenu(Action onComplete = null)
     {
-        statusUI.Open();
         uiStack.Push(mainMenu);
         mainMenu.Open(onComplete);
         minimap.SetMode(MinimapMode.Menu);
@@ -111,13 +107,11 @@ public class UIManager : MonoBehaviour
             else
                 ui.Close();
         }
-        statusUI.Close();
         minimap.SetMode(MinimapMode.Normal);
     }
 
     public void CloseMainMenu(Action onComplete = null)
     {
-        statusUI.Close();
         inventory.Close();
         useMenu.Close();
         mainMenu.Close(() =>

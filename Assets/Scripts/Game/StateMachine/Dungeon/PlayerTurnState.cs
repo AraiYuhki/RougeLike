@@ -148,11 +148,6 @@ public class PlayerTurnState : IState
             player.Data.Gems += item.GemCount;
             notice.Add($"ジェムを{item.GemCount}個拾った", Color.cyan);
         }
-        else
-        {
-            player.Data.TakeItem(item.Data);
-            notice.Add($"{item.Data.Name}を拾った", Color.cyan);
-        }
         floorManager.RemoveItem(item.Position);
         itemManager.Despawn(item);
         stateMachine.Goto(GameState.EnemyTurn);

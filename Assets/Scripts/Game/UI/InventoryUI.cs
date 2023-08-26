@@ -13,10 +13,6 @@ public class InventoryUI : ScrollMenu
     private Canvas canvas;
     [SerializeField]
     private UnityEvent onUseItem;
-    [SerializeField]
-    private UnityEvent<ItemBase> onThrowItem;
-    [SerializeField]
-    private UnityEvent<ItemBase> onDropItem;
 
     private FloorManager floorManager;
     private UIManager uiManager;
@@ -24,10 +20,6 @@ public class InventoryUI : ScrollMenu
     private Player player;
     private PlayerData data => player.Data;
     public CanvasGroup Group => group;
-
-    public ItemBase SelectedItem => (items[selectedIndex] as ItemRowController).ItemData;
-    public ItemRowController SelectedRow => items[selectedIndex] as ItemRowController;
-    public Action<ItemBase> OnSubmit { get; set; }
 
     public override void Open(Action onComplete = null)
     {
@@ -56,101 +48,5 @@ public class InventoryUI : ScrollMenu
     public void Initialize()
     {
         Clean();
-        foreach ((var pair, var index) in data.Inventory.Select((v, index) => (v, index)))
-        {
-            var item = Instantiate(template as ItemRowController, baseObject);
-            item.gameObject.SetActive(true);
-            var isEquip = data.EquipmentWeapon == pair.Key || data.EquipmentShield == pair.Key;
-            item.Initialize(pair.Key, pair.Value, isEquip, () => SetSelectIndex(index), () => OnSubmit?.Invoke(pair.Key));
-            items.Add(item);
-        }
-    }
-
-    public void UpdateStatus()
-    {
-        foreach (ItemRowController item in items)
-        {
-            var count = player.Data.Inventory[item.ItemData];
-            if (player.Data.EquipmentWeapon == item.ItemData || player.Data.EquipmentShield == item.ItemData)
-                item.UpdateStatus(true, count);
-            else
-                item.UpdateStatus(false, count);
-        }
-    }
-
-    public override void Submit()
-    {
-        var menu = new List<(string, Action)>();
-        if (SelectedItem is WeaponData || SelectedItem is ShieldData)
-            menu.Add(("装備", Equip));
-        else if (SelectedItem is UsableItemData item)
-            menu.Add(("使う", UseItem));
-        menu.Add(("投げる", ThrowItem));
-        if (floorManager.GetItem(player.Position) == null)
-            menu.Add(("置く", DropItem));
-        menu.Add(("戻る", () =>
-        {
-            uiManager.CloseCurrent();
-        }));
-        uiManager.OpenUseMenu(menu);
-    }
-
-    private void Equip()
-    {
-        var item = SelectedItem;
-        if (item is WeaponData weapon)
-            player.Data.EquipmentWeapon = weapon;
-        else if (item is ShieldData shield)
-            player.Data.EquipmentShield = shield;
-        else
-            throw new Exception("装備できないアイテムが引数に指定されました");
-        notice.Add($"{item.Name}を装備した", Color.green);
-        UpdateStatus();
-        uiManager.CloseCurrent();
-    }
-
-    private void UseItem()
-    {
-        var item = SelectedItem as UsableItemData;
-        switch(item.Type)
-        {
-            case ItemType.HPHeal:
-                player.Heal(item.Parameter);
-                break;
-            case ItemType.PowerUp:
-                player.PowerUp((int)item.Parameter);
-                break;
-            case ItemType.StaminaHeal:
-                player.RecoveryStamina(item.Parameter);
-                break;
-            default:
-                throw new NotImplementedException();
-        }
-        notice.Add($"{item.Name}を使用した", Color.green);
-        if (!item.IsStackable)
-            data.Inventory.Remove(item);
-        else
-        {
-            data.Inventory[item]--;
-            if (data.Inventory[item] <= 0)
-                data.Inventory.Remove(item);
-        }
-        uiManager.CloseAll(() => onUseItem?.Invoke());
-    }
-
-    private void ThrowItem()
-    {
-        var item = SelectedItem;
-        player.Data.Inventory.Remove(item);
-        notice.Add($"{item.Name}を投げた", Color.cyan);
-        uiManager.CloseAll(() => onThrowItem?.Invoke(item));
-    }
-
-    private void DropItem()
-    {
-        var item = SelectedItem;
-        player.Data.Inventory.Remove(item);
-        notice.Add($"{item.Name}を地面においた", Color.green);
-        onDropItem?.Invoke(item);
     }
 }

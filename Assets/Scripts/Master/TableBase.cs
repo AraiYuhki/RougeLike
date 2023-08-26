@@ -1,10 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using LitJson;
-using System.IO;
 using System;
-using System.Linq;
 
 
 public abstract class TableBase<T> : ScriptableObject where T : class, ICloneable

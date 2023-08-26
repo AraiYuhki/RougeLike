@@ -36,10 +36,6 @@ public class Player : Unit
             Def = def,
             Gems = 50,
         };
-        for (var i = 0; i < 3; i++)
-        {
-            Data.Inventory.Add(DataBase.Instance.GetTable<MItem>().Data.First().Clone() as ItemBase, 1);
-        }
     }
 
     public override void Damage(int damage, Unit attacker, bool isResourceAttack = false, bool damagePopup = true)

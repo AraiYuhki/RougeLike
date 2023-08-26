@@ -24,7 +24,7 @@ public class InGameDebugMenu : EditorWindow
     {
         if (!Application.isPlaying)
         {
-            EditorGUILayout.LabelField("Às’†ˆÈŠO‚Å‚Íg—p‚Å‚«‚Ü‚¹‚ñ");
+            EditorGUILayout.LabelField("å®Ÿè¡Œä¸­ä»¥å¤–ã§ã¯ä½¿ç”¨ã§ãã¾ã›ã‚“");
             return;
         }
 
@@ -38,12 +38,12 @@ public class InGameDebugMenu : EditorWindow
         if (target == null) return;
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("HP•ÏX")) target.Hp = changeHp;
+            if (GUILayout.Button("HPå¤‰æ›´")) target.Hp = changeHp;
             changeHp = EditorGUILayout.IntField(changeHp);
         }
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("ŒoŒ±’l‘Œ¸")) target.AddExp(addExp);
+            if (GUILayout.Button("çµŒé¨“å€¤å¢—æ¸›")) target.AddExp(addExp);
             addExp = EditorGUILayout.IntField(addExp);
         }
         PlayerMenu();
@@ -53,7 +53,7 @@ public class InGameDebugMenu : EditorWindow
     private void AlwaysMenu()
     {
         var player = FindObjectOfType<Player>();
-        if (GUILayout.Button("“G‘S–Å"))
+        if (GUILayout.Button("æ•µå…¨æ»…"))
         {
             foreach (var e in FindObjectsOfType<Enemy>())
                 e.Dead(player);
@@ -66,46 +66,15 @@ public class InGameDebugMenu : EditorWindow
         {
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button("–• “x•ÏX")) player.Data.Stamina = changeStamina;
+                if (GUILayout.Button("æº€è…¹åº¦å¤‰æ›´")) player.Data.Stamina = changeStamina;
                 changeStamina = EditorGUILayout.Slider(changeStamina, 0f, player.Data.MaxStamina);
             }
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button("ƒAƒCƒeƒ€’Ç‰Á"))
-                {
-                    var item = DataBase.Instance.GetTable<MItem>().Data[selectItemId];
-                    player.Data.TakeItem(item.Clone() as ItemBase);
-                    Debug.Log($"{item.Name}‚ğæ“¾‚µ‚½");
-                }
-                selectItemId = EditorGUILayout.Popup(selectItemId, DataBase.Instance.GetTable<MItem>().Data.Select(row => row.Name).ToArray());
-            }
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                if (GUILayout.Button("•Ší‘•”õ"))
-                {
-                    var weapon = DataBase.Instance.GetTable<MWeapon>().Data[selectWeaponId];
-                    player.Data.EquipmentWeapon = weapon.Clone() as WeaponData;
-                    Debug.Log($"{weapon.Name}‚ğ‘•”õ‚µ‚½");
-                }
-                selectWeaponId = EditorGUILayout.Popup(selectWeaponId, DataBase.Instance.GetTable<MWeapon>().Data.Select(row => row.Name).ToArray());
-            }
-            using (new EditorGUILayout.HorizontalScope())
-            {
-
-                if (GUILayout.Button("‚‘•”õ"))
-                {
-                    var shield = DataBase.Instance.GetTable<MShield>().Data[selectShieldId];
-                    player.Data.EquipmentShield = shield.Clone() as ShieldData;
-                    Debug.Log($"{shield.Name}‚ğ‘•”õ‚µ‚½");
-                }
-                selectShieldId = EditorGUILayout.Popup(selectShieldId, DataBase.Instance.GetTable<MShield>().Data.Select(row => row.Name).ToArray());
-            }
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                if (GUILayout.Button("Š‹à’Ç‰Á"))
+                if (GUILayout.Button("æ‰€æŒé‡‘è¿½åŠ "))
                 {
                     player.Data.Gems += addGems;
-                    Debug.Log($"Š‹à‚ğ{addGems}‘‚â‚µ‚½");
+                    Debug.Log($"æ‰€æŒé‡‘ã‚’{addGems}å¢—ã‚„ã—ãŸ");
                 }
                 addGems = EditorGUILayout.IntField(addGems);
             }
@@ -117,7 +86,7 @@ public class InGameDebugMenu : EditorWindow
         if (target is Enemy enemy)
         {
             var player = FindObjectOfType<Player>();
-            if (GUILayout.Button("Œ‚”j"))
+            if (GUILayout.Button("æ’ƒç ´"))
             {
                 enemy.Dead(player);
                 target = null;

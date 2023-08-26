@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Item : MonoBehaviour
@@ -7,7 +5,6 @@ public class Item : MonoBehaviour
     [SerializeField]
     private bool autoRotation = false;
     
-    public ItemBase Data { get; set; }
     public int GemCount { get; set; } = 0;
     public bool IsGem => GemCount > 0;
 
