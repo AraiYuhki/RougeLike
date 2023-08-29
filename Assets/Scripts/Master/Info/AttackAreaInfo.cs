@@ -9,6 +9,8 @@ namespace Xeon.Master
     {
         [SerializeField, CsvColumn("id")]
         private int id;
+        [SerializeField, CsvColumn("memo")]
+        private string memo;
         [SerializeField, CsvColumn("maxSize")]
         private int maxSize;
         [SerializeField, CsvColumn("center")]

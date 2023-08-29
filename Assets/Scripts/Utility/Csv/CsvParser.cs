@@ -5,16 +5,14 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
-using System.Collections;
 using System;
-using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 public class CsvParser
 {
-    public static List<Dictionary<string, string>> Parse(string path, string separator = ",")
+    public static List<Dictionary<string, string>> Parse(string path, string separator = "\t")
     {
         var result = new List<Dictionary<string, string>>();
         using (var streamReader = new StreamReader(path))
@@ -35,7 +33,7 @@ public class CsvParser
         return result;
     }
 
-    public static List<T> Parse<T>(string path, string separator = ",") where T : new()
+    public static List<T> Parse<T>(string path, string separator = "\t") where T : new()
     {
         var parsed = Parse(path, separator);
         var type = typeof(T);
@@ -60,7 +58,7 @@ public class CsvParser
         return result;
     }
 
-    public static string ToCSV<T>(List<T> data, string separator = ",")
+    public static string ToCSV<T>(List<T> data, string separator = "\t")
     {
         var builder = new StringBuilder();
         (var attributes, var members) = GetProperties<T>();
@@ -71,14 +69,32 @@ public class CsvParser
             var values = new List<string>();
             foreach((_ , var member) in members)
             {
+                object value = null;
                 if (member.MemberType == MemberTypes.Property)
-                    values.Add(type.GetProperty(member.Name).GetValue(row).ToString());
+                    value = type.GetProperty(member.Name).GetValue(row);
                 else if (member.MemberType == MemberTypes.Field)
-                    values.Add(type.GetField(member.Name, BindingFlags.NonPublic | BindingFlags.Instance).GetValue(row).ToString());
+                    value = type.GetField(member.Name, BindingFlags.NonPublic | BindingFlags.Instance).GetValue(row);
+                else
+                    continue;
+                values.Add(ToString(value));
             }
             builder.AppendLine(string.Join(separator, values));
         }
         return builder.ToString();
+    }
+
+    private static string ToString(object value)
+    {
+        if (value is Vector2 vector2)
+            return $"{vector2.x},{vector2.y}";
+        if (value is Vector3 vector3)
+            return $"{vector3.x},{vector3.y},{vector3.z}";
+        if (value is Vector2Int vector2Int)
+            return $"{vector2Int.x},{vector2Int.y}";
+        if (value is Vector3Int vector3Int)
+            return $"{vector3Int.x},{vector3Int.y},{vector3Int.z}";
+        return value.ToString();
+
     }
 
     private static (Dictionary<string, CsvColumn> attributes, Dictionary<string, MemberInfo> members) GetProperties<T>()

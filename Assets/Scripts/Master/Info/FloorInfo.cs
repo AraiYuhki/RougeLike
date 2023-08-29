@@ -19,9 +19,9 @@ namespace Xeon.Master
         private int maxRoomCount = 3;
         [SerializeField, Range(0f, 1f), CsvColumn("deletePathProbability")]
         private float deletePathProbability;
-        [SerializeField, CsvColumn("floorMaterial")]
+        [SerializeField, CsvColumn("floorMaterial"), AddressableMaterial]
         private string floorMaterialName;
-        [SerializeField, CsvColumn("wallMaterial")]
+        [SerializeField, CsvColumn("wallMaterial"), AddressableMaterial]
         private string wallMaterialName;
         [SerializeField, CsvColumn("enemySpawnGroupId")]
         private int enemySpawnGroupId;

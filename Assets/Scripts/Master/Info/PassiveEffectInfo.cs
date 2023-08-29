@@ -6,13 +6,15 @@ namespace Xeon.Master
     [Serializable]
     public class PassiveEffectInfo
     {
-        [SerializeField, CsvColumn("Id")]
+        [SerializeField, CsvColumn("id")]
         private int id;
-        [SerializeField, CsvColumn("EffectType")]
+        [SerializeField, CsvColumn("memo")]
+        private string memo;
+        [SerializeField, CsvColumn("effectType")]
         private PassiveEffectType effectType;
-        [SerializeField, CsvColumn("Param1")]
+        [SerializeField, CsvColumn("param1")]
         private int param1 = 0;
-        [SerializeField, CsvColumn("Param2")]
+        [SerializeField, CsvColumn("param2")]
         private int param2 = 0;
 
         public int Id => id;

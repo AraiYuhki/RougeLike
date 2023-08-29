@@ -19,8 +19,8 @@ MonoBehaviour:
     size: {x: 20, y: 20}
     maxRoomCount: 4
     deletePathProbability: 0
-    floorMaterialName: 
-    wallMaterialName: 
+    floorMaterialName: Material/Sand
+    wallMaterialName: Material/Tiles3
     enemySpawnGroupId: 1
   - id: 2
     dungeonId: 1
@@ -28,6 +28,6 @@ MonoBehaviour:
     size: {x: 30, y: 30}
     maxRoomCount: 5
     deletePathProbability: 0.1
-    floorMaterialName: 
-    wallMaterialName: 
+    floorMaterialName: Material/Dirt
+    wallMaterialName: Material/Rocks1
     enemySpawnGroupId: 2

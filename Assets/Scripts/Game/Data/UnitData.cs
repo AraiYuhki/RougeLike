@@ -9,7 +9,7 @@ public abstract class UnitData
 {
     public const int MaxInventorySize = 20;
     public const int MaxAtk = 8;
-    [SerializeField]
+    [SerializeField, CsvColumn("atk")]
     protected int atk = 10;
 
     public int TotalExp { get; set; } = 0;
