@@ -27,8 +27,6 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private DialogManager dialogManager;
     [SerializeField]
-    private GameObject controllerUI = null;
-    [SerializeField]
     private UIManager uiManager;
     [SerializeField]
     private NoticeGroup noticeGroup = null;
@@ -66,14 +64,6 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private static readonly RuntimePlatform[] EnableUIControllerPlatforms = new RuntimePlatform[]
-    {
-        RuntimePlatform.Android,
-        RuntimePlatform.IPhonePlayer,
-        RuntimePlatform.WebGLPlayer
-    };
-
-
     private void Awake()
     {
         Application.targetFrameRate = 60;
@@ -89,8 +79,6 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        controllerUI.gameObject.SetActive(EnableUIControllerPlatforms.Contains(Application.platform));
-
         CurrentFloor = 1;
         var floorData = dungeonData.GetFloor(CurrentFloor);
         floorManager.Clear();

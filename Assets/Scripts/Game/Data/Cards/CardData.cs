@@ -21,19 +21,19 @@ public enum CardType
 [Serializable]
 public class CardData : ICloneable
 {
-    [SerializeField]
+    [SerializeField, CsvColumn("Name")]
     private string name;
-    [SerializeField]
+    [SerializeField, CsvColumn("Type")]
     private CardType type;
-    [SerializeField]
+    [SerializeField, CsvColumn("Param")]
     private float param;
-    [SerializeField]
+    [SerializeField, CsvColumn("Range")]
     private int range;
-    [SerializeField]
+    [SerializeField, CsvColumn("Price")]
     private int price;
-    [SerializeField]
+    [SerializeField, CsvColumn("AttackAreaId")]
     private int attackAreaDataId = -1;
-    [SerializeField]
+    [SerializeField, CsvColumn("PassiveEffectId")]
     private int passiveEffectId = -1;
 
     public string Name

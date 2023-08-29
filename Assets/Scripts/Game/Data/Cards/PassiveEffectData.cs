@@ -16,13 +16,13 @@ public enum PassiveEffectType
 [Serializable]
 public class PassiveEffectData : ICloneable
 {
-    [SerializeField]
+    [SerializeField, CsvColumn("Id")]
     private int id;
-    [SerializeField]
+    [SerializeField, CsvColumn("EffectType")]
     private PassiveEffectType effectType;
-    [SerializeField]
+    [SerializeField, CsvColumn("Param1")]
     private int param1 = 0;
-    [SerializeField]
+    [SerializeField, CsvColumn("Param2")]
     private int param2 = 0;
 
     public int Id => id;

@@ -6,9 +6,11 @@ using UnityEngine;
 [Serializable]
 public class AttackData
 {
-    [SerializeField]
+    [SerializeField, CsvColumn("GroupId")]
+    private int groupId;
+    [SerializeField, CsvColumn("Offset")]
     private Vector2Int offset;
-    [SerializeField]
+    [SerializeField, CsvColumn("Rate")]
     private uint rate;
 
     public Vector2Int Offset
@@ -43,11 +45,13 @@ public class AttackAreaData : ICloneable
         Left,
         Up,
     }
-    [SerializeField, Range(3, 99)]
+    [SerializeField, Range(3, 99), CsvColumn("MaxSize")]
     private int maxSize;
-    [SerializeField]
+    [SerializeField, CsvColumn("Center")]
     private Vector2Int center;
-    [SerializeField]
+    [SerializeField, CsvColumn("AttackGroupId")]
+    private int attackGroupId;
+    [SerializeField, CsvColumn("Data")]
     private List<AttackData> data;
 
     private List<AttackData>[] stripedData;

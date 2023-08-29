@@ -1,10 +1,27 @@
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-public class DungeonData
+[Serializable]
+public class DungeonData : ICloneable
 {
-    [SerializeField]
-    private List<FloorData> floorList = new List<FloorData>();
+    [SerializeField, CsvColumn("ID")]
+    private int id;
+    [SerializeField, CsvColumn("Name")]
+    private string name;
+    [SerializeField, CsvColumn("IsTower")]
+    private bool isTower;
 
-    public List<FloorData> FloorList { get => floorList; set => floorList = value; }
+    public int Id => id;
+    public string Name => name;
+    public bool IsTower => isTower;
+
+    public object Clone()
+    {
+        return new DungeonData()
+        {
+            id = id,
+            name = name,
+            isTower = isTower
+        };
+    }
 }
