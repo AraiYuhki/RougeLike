@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Master
+  m_EditorClassIdentifier: 
+  m_GroupName: Master
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 943c4d5ba5c48354abbc74a3196da415
+  m_SerializeEntries:
+  - m_GUID: 9f7ef86a568b95e4eb197979efa5d4cb
+    m_Address: MAttack
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Master
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b4ad2ab32b30017419d7a8092481de91
+    m_Address: MAttackArea
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Master
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1926a75682ac2fd4c8d4f9f0baa1f2fb
+    m_Address: MCard
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Master
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b2397086ac655e948bcc2b2168220772
+    m_Address: MDungeon
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Master
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0a836516b0e712642bc9593a5633e22d
+    m_Address: MEnemy
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Master
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e18bb036992dfa045a353df806df8d8e
+    m_Address: MFloor
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Master
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5ee119e29eb36b048947f8395cdbe239
+    m_Address: MFloorEnemySpawn
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Master
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a76d17084c6c5374fa0075fb271d59bf
+    m_Address: MPassiveEffect
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Master
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 3e3b732460de0e1488a5f2897926dc00, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 5461452db8fff0540992cce3c02a12dc, type: 2}
+    - {fileID: 11400000, guid: 1b872410ffb885241aff1e6b3d466d7d, type: 2}
