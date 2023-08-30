@@ -1,10 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEditor.AddressableAssets;
 #if UNITY_EDITOR
+using UnityEditor.AddressableAssets;
 using UnityEditor;
 #endif
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true, Inherited = false)]

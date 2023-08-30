@@ -1473,26 +1473,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b33edf8a091b6e449b42181591d04b38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  normalColor:
-    r: 0.5
-    g: 0.5
-    b: 0.5
-    a: 0.5
-  selectedColor:
-    r: 0
-    g: 1
-    b: 1
-    a: 0.5
-  button: {fileID: 200101253}
-  label: {fileID: 0}
-  isSelected: 0
-  nameLabel: {fileID: 2106108050}
-  stackLabel: {fileID: 1189331519}
-  equipIcon: {fileID: 127130894}
-  <ItemData>k__BackingField:
-    name: 
-    buyPrice: 100
-    sellPrice: 50
 --- !u!114 &200101252
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4793,7 +4773,6 @@ MonoBehaviour:
   enemyManager: {fileID: 1009754815}
   itemManager: {fileID: 1009754816}
   dialogManager: {fileID: 89703661}
-  controllerUI: {fileID: 0}
   uiManager: {fileID: 1009754817}
   noticeGroup: {fileID: 370729898}
   cardController: {fileID: 536134747}
