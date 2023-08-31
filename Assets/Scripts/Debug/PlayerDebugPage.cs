@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 #if !EXCLUDE_UNITY_DEBUG_SHEET
 using UnityDebugSheet.Runtime.Core.Scripts;
 using UnityDebugSheet.Runtime.Core.Scripts.DefaultImpl.Cells;
+using Xeon.Master;
 
 public class PlayerDebugPage : DefaultDebugPageBase
 {
@@ -33,14 +34,14 @@ public class PlayerDebugPage : DefaultDebugPageBase
         hpSlider.ValueTextFormat = "F1";
         hpSlider.CellTexts.Text = "HP";
         hpSliderIndex = AddSlider(hpSlider);
-        AddButton("HP•ÏX", clicked: () => player.Data.Hp = hpSlider.Value);
-        AddSlider(staminaValue, 0f, 100f, "–ž• “x", valueChanged: value => staminaValue = value, valueTextFormat: "F1");
-        AddButton("•ÏX", clicked: () => player.Data.Stamina = staminaValue);
-        AddInputField("ƒWƒFƒ€", value: gemCount.ToString(), contentType: UnityEngine.UI.InputField.ContentType.IntegerNumber, valueChanged: value => { if (int.TryParse(value, out var newValue)) gemCount = newValue; });
-        AddButton("’Ç‰Á", clicked: () => player.Data.Gems += gemCount);
-        AddPicker(DataBase.Instance.GetTable<MCard>().Data.Select(data => data.Name), selectedCardIndex, "ƒJ[ƒh", activeOptionChanged: index => selectedCardIndex = index);
-        AddButton("’Ç‰Á", clicked: AddCard);
-        AddButton("‘S‚ÄƒfƒbƒL‚É–ß‚µ‚ÄƒVƒƒƒbƒtƒ‹", clicked: () =>
+        AddButton("HPå¤‰æ›´", clicked: () => player.Data.Hp = hpSlider.Value);
+        AddSlider(staminaValue, 0f, 100f, "æº€è…¹åº¦", valueChanged: value => staminaValue = value, valueTextFormat: "F1");
+        AddButton("å¤‰æ›´", clicked: () => player.Data.Stamina = staminaValue);
+        AddInputField("ã‚¸ã‚§ãƒ ", value: gemCount.ToString(), contentType: UnityEngine.UI.InputField.ContentType.IntegerNumber, valueChanged: value => { if (int.TryParse(value, out var newValue)) gemCount = newValue; });
+        AddButton("è¿½åŠ ", clicked: () => player.Data.Gems += gemCount);
+        AddPicker(DB.Instance.MCard.All.Select(data => data.Name), selectedCardIndex, "ã‚«ãƒ¼ãƒ‰", activeOptionChanged: index => selectedCardIndex = index);
+        AddButton("è¿½åŠ ", clicked: AddCard);
+        AddButton("å…¨ã¦ãƒ‡ãƒƒã‚­ã«æˆ»ã—ã¦ã‚·ãƒ£ãƒƒãƒ•ãƒ«", clicked: () =>
         {
             var cardController = FindObjectOfType<CardController>();
             cardController.Shuffle(true);
@@ -58,7 +59,7 @@ public class PlayerDebugPage : DefaultDebugPageBase
     private void AddCard()
     {
         var cardController = FindObjectOfType<CardController>();
-        cardController.AddToDeck(DataBase.Instance.GetTable<MCard>().Data[selectedCardIndex]);
+        cardController.AddToDeck(DB.Instance.MCard.All[selectedCardIndex]);
     }
 }
 #endif

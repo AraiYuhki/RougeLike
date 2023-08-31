@@ -136,16 +136,6 @@ public class CsvParser
                     var content = ToCSV(dataBase.GetTable<MEnemy>().Data);
                     Debug.LogError(content);
                 }
-                if (GUILayout.Button("MCard"))
-                {
-                    var content = ToCSV(dataBase.GetTable<MCard>().Data);
-                    Debug.LogError(content);
-                }
-                if (GUILayout.Button("MPassiveEffect"))
-                {
-                    var content = ToCSV(dataBase.GetTable<MPassiveEffect>().Data);
-                    Debug.LogError(content);
-                }
 
                 if (GUILayout.Button("MAttackArea"))
                 {

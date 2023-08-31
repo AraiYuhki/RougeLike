@@ -3,6 +3,7 @@ using DG.Tweening;
 using System;
 using UnityEditor;
 using System.Linq;
+using Xeon.Master;
 
 public class Unit : MonoBehaviour
 {
@@ -92,7 +93,7 @@ public class Unit : MonoBehaviour
         ChargeStack = 0;
     }
 
-    public virtual void Attack(int damage, AttackAreaData attackArea, Action onComplete = null, bool isResourceAttack = false)
+    public virtual void Attack(int damage, AttackAreaInfo attackArea, Action onComplete = null, bool isResourceAttack = false)
     {
         damage = (int)(damage * (ChargeStack + 1));
         var tween = DOTween.Sequence();
@@ -102,7 +103,7 @@ public class Unit : MonoBehaviour
         tween.AppendInterval(0.2f);
         tween.OnComplete(() =>
         {
-            foreach (var offset in attackArea.Data.Select(data => data.Offset - attackArea.Center))
+            foreach (var offset in attackArea.Data.Select(data => data.Offset))
             {
                 var rotatedOffset = AttackAreaData.GetRotatedOffset(angle, offset);
                 var position = Position + offset;

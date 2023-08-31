@@ -1,8 +1,23 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Xeon.Master
 {
+    public enum CardType
+    {
+        NormalAttack,       // 通常攻撃
+        RangeAttack,        //　範囲攻撃
+        LongRangeAttack,    // 遠距離攻撃
+        RoomAttack,         // 部屋全体攻撃
+        Heal,               // 回復
+        StaminaHeal,        // スタミナ回復
+        Charge,             // 攻撃力2倍(重複するごとに倍率が100％追加され、最大で4倍)
+        ResourceAttack,     // これでとどめを刺すと必ずお金を落とす代わりに攻撃力が低め
+
+        Passive,
+    }
+
     [Serializable]
     public class CardInfo
     {
@@ -22,6 +37,8 @@ namespace Xeon.Master
         private int attackAreaDataId = -1;
         [SerializeField, CsvColumn("passiveEffectId")]
         private int passiveEffectId = -1;
+
+        private AttackAreaInfo attackAreaData;
 
         public int Id => id;
 
@@ -61,6 +78,16 @@ namespace Xeon.Master
             set => attackAreaDataId = value;
         }
 
+        public AttackAreaInfo AttackAreaData
+        {
+            get
+            {
+                if (attackAreaData == null)
+                    attackAreaData = DB.Instance.MAttackArea.GetById(attackAreaDataId);
+                return attackAreaData;
+            }
+        }
+
         public bool IsPassive => passiveEffectId >= 0;
         public int PassiveEffectId
         {
@@ -68,9 +95,9 @@ namespace Xeon.Master
             set => passiveEffectId = value;
         }
 
-        public virtual CardData Clone()
+        public virtual CardInfo Clone()
         {
-            return new CardData
+            return new CardInfo
             {
                 Name = Name,
                 Type = Type,
