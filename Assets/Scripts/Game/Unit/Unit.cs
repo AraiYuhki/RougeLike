@@ -105,7 +105,7 @@ public class Unit : MonoBehaviour
         {
             foreach (var offset in attackArea.Data.Select(data => data.Offset))
             {
-                var rotatedOffset = AttackAreaData.GetRotatedOffset(angle, offset);
+                var rotatedOffset = AttackAreaInfo.GetRotatedOffset(angle, offset);
                 var position = Position + offset;
                 var target = floorManager.GetUnit(position);
                 if (this is Player player && target is Enemy enemy)

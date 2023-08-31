@@ -212,7 +212,7 @@ public class Card : MonoBehaviour
     {
         foreach(var offset in Data.AttackAreaData.Data.Select(data => data.Offset))
         {
-            var rotatedOffset = AttackAreaData.GetRotatedOffset(Owner.transform.localEulerAngles.y, offset);
+            var rotatedOffset = AttackAreaInfo.GetRotatedOffset(Owner.transform.localEulerAngles.y, offset);
             var position = Owner.Position + offset;
             var target = floorManager.GetUnit(position);
             if (target != null) return true;

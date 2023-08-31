@@ -20,6 +20,8 @@ namespace Xeon.Master
         public Vector2Int Offset => offset;
         public uint Rate => rate;
 
+        public AttackInfo() { }
+
         public AttackInfo Clone()
         {
             return new AttackInfo()
@@ -29,5 +31,14 @@ namespace Xeon.Master
                 rate = rate
             };
         }
+
+#if DEBUG
+        public AttackInfo(int groupId, Vector2Int offset, uint rate)
+        {
+            this.groupId = groupId;
+            this.offset = offset;
+            this.rate = rate;
+        }
+#endif
     }
 }

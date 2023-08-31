@@ -116,6 +116,11 @@ namespace Xeon.Master
                 return (original.x, original.y);
             }
         }
-
+#if DEBUG
+        public void SetData(List<AttackInfo> data)
+        {
+            this.data = data;
+        }
+#endif
     }
 }

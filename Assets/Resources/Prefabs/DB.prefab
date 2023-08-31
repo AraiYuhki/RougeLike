@@ -45,5 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tables:
-  - {fileID: 11400000, guid: 21b24731cfc5b3043a717dbe77135ba4, type: 2}
   - {fileID: 11400000, guid: 3993cf7e647d788469ee7cd5f1c63ad1, type: 2}
