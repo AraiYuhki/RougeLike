@@ -1,7 +1,6 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using Xeon.Master;
 
 public static class MasterCsvConverter
 {

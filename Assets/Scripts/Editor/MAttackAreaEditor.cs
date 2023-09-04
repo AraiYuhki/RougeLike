@@ -1,17 +1,15 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-using Xeon.Master;
 
 public class MAttackAreaEditor : EditorWindow
 {
     [MenuItem("Tools/MAttackAreaEditor")]
     public static void Open() => GetWindow<MAttackAreaEditor>();
 
-    private Xeon.Master.MAttackArea master = null;
+    private MAttackArea master = null;
     private ReorderableList list = null;
 
     private AttackAreaInfo editingData = null;
@@ -28,7 +26,7 @@ public class MAttackAreaEditor : EditorWindow
 
     public void OnGUI()
     {
-        master = EditorGUILayout.ObjectField(master, typeof(Xeon.Master.MAttackArea), false) as Xeon.Master.MAttackArea;
+        master = EditorGUILayout.ObjectField(master, typeof(MAttackArea), false) as MAttackArea;
         if (master == null) return;
 
         var halfSize = position.width / 2 - 5;

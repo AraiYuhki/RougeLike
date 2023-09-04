@@ -5,10 +5,6 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
-using System;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 public class CsvParser
 {
@@ -111,35 +107,4 @@ public class CsvParser
         }
         return (attributes, members);
     }
-
-#if UNITY_EDITOR
-    private class CSVParserTester : EditorWindow
-    {
-        private DataBase dataBase;
-        [MenuItem("Tools/CSVParseTester")]
-        public static void Open()
-        {
-            GetWindow<CSVParserTester>();
-        }
-
-        public void OnGUI()
-        {
-            dataBase = EditorGUILayout.ObjectField(dataBase, typeof(DataBase), false) as DataBase;
-            if (dataBase != null)
-            {
-                dataBase.Initialize();
-            }
-            using (new EditorGUI.DisabledGroupScope(dataBase == null))
-            {
-                if (GUILayout.Button("MEnemy"))
-                {
-                    var content = ToCSV(dataBase.GetTable<MEnemy>().Data);
-                    Debug.LogError(content);
-                }
-            }
-        }
-    }
-    
-    
-#endif
 }

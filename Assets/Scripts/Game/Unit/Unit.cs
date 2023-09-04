@@ -3,7 +3,6 @@ using DG.Tweening;
 using System;
 using UnityEditor;
 using System.Linq;
-using Xeon.Master;
 
 public class Unit : MonoBehaviour
 {
@@ -210,7 +209,6 @@ public class Unit : MonoBehaviour
     {
         if (this is Enemy enemy && attacker != null)
         {
-            attacker.AddExp(enemy.Data.Exp);
             notice.Add($"{enemy.Name}は倒れた", Color.yellow);
             if (isResourceAttack)
             {

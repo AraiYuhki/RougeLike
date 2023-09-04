@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using Xeon.Master;
 
 public class CardController : MonoBehaviour
 {

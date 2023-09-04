@@ -1,6 +1,5 @@
 using UnityEditor;
 using UnityEngine;
-using Xeon.Master;
 
 public class RotationTester : EditorWindow
 {

@@ -61,38 +61,3 @@ public partial class PlayerData : UnitData
         }
     }
 }
-
-[Serializable]
-public class EnemyData : UnitData, ICloneable
-{
-    [SerializeField]
-    private string name = string.Empty;
-    [SerializeField]
-    private int exp = 5;
-    [SerializeField]
-    private int maxHP = 10;
-    [SerializeField]
-    private int def = 0;
-
-    [CsvColumn("Name")]
-    public string Name { get => name; private set => name = value; }
-    [CsvColumn("Defense")]
-    public override int Def { get => def; set => def = value; }
-    [CsvColumn("HP")]
-    public override int MaxHP { get => maxHP; protected set => maxHP = value; }
-    [CsvColumn("Exp")]
-    public int Exp { get => exp; set => exp = value; }
-    public EnemyData(int hp) : base(hp) { }
-
-    public object Clone()
-    {
-        return new EnemyData(MaxHP)
-        {
-            Name = Name,
-            MaxHP = MaxHP,
-            Atk = Atk,
-            Def = Def,
-            Exp = Exp,
-        };
-    }
-}

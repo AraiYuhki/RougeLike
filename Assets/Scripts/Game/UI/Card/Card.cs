@@ -6,7 +6,6 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using Xeon.Master;
 
 public class Card : MonoBehaviour
 {

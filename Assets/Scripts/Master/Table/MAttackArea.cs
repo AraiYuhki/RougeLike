@@ -1,28 +1,24 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Xeon.Master
+[CreateAssetMenu(menuName = "Master/MAttackArea")]
+public class MAttackArea : ScriptableObject
 {
-    [CreateAssetMenu(menuName = "Master/MAttackArea")]
-    public class MAttackArea : ScriptableObject
+    [SerializeField]
+    private List<AttackAreaInfo> data;
+
+    private Dictionary<int, AttackAreaInfo> dictionary = new();
+
+    public List<AttackAreaInfo> All => data;
+    public void OnEnable()
     {
-        [SerializeField]
-        private List<AttackAreaInfo> data;
+        dictionary = data.ToDictionary(row => row.Id, row => row);
+    }
 
-        private Dictionary<int, AttackAreaInfo> dictionary = new();
-
-        public List<AttackAreaInfo> All => data;
-        public void OnEnable()
-        {
-            dictionary = data.ToDictionary(row => row.Id, row => row);
-        }
-
-        public AttackAreaInfo GetById(int id)
-        {
-            if (dictionary.TryGetValue(id, out var result)) return result;
-            return null;
-        }
+    public AttackAreaInfo GetById(int id)
+    {
+        if (dictionary.TryGetValue(id, out var result)) return result;
+        return null;
     }
 }
