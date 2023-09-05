@@ -12,6 +12,8 @@ public class FloorMoveView : MonoBehaviour
     [SerializeField]
     private CanvasGroup canvasGroup;
     [SerializeField]
+    private TMP_Text dungeonNameLabel;
+    [SerializeField]
     private TMP_Text currentFloorLabel;
     [SerializeField]
     private TMP_Text nextFloorLabel;
@@ -25,11 +27,12 @@ public class FloorMoveView : MonoBehaviour
         canvas.enabled = false;
     }
 
-    public void StartFadeOut(int currentFloor, int nextFloor, bool isTower, Action onFadeComplete, Action onComplete)
+    public void StartFadeOut(string dungeonName, int currentFloor, int nextFloor, bool isTower, Action onFadeComplete, Action onComplete)
     {
         tween.Complete();
         canvasGroup.alpha = 0f;
         canvas.enabled = true;
+        dungeonNameLabel.text = dungeonName;
         currentFloorLabel.text = isTower ? $"{currentFloor}F" : $"B{currentFloor}F";
         nextFloorLabel.text = isTower ? $"{nextFloor}F" : $"B{nextFloor}F";
         currentFloorLabel.transform.localPosition = Vector3.zero;

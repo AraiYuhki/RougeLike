@@ -37,9 +37,9 @@ public class FloorInfo
     public int EnemySpawnGroupId => enemySpawnGroupId;
 
     public Material FloorMaterial
-        => Addressables.LoadAssetAsync<Material>(FloorMaterial).WaitForCompletion();
+        => Addressables.LoadAssetAsync<Material>(floorMaterialName).WaitForCompletion();
     public Material WallMaterial
-        => Addressables.LoadAssetAsync<Material>(WallMaterial).WaitForCompletion();
+        => Addressables.LoadAssetAsync<Material>(wallMaterialName).WaitForCompletion();
     public List<int> Enemies
         => DB.Instance.MFloorEnemySpawn.GetByGroupId(EnemySpawnGroupId).Select(info => info.EnemyId).ToList();
 
