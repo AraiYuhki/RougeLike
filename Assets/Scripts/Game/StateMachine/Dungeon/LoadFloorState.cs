@@ -32,6 +32,7 @@ public class LoadFloorState : IState
         generatedFloor = false;
 
         floorMoveView.StartFadeOut(
+            gameController.DungeonName,
             gameController.CurrentFloor,
             gameController.CurrentFloor + 1,
             floorManager.IsTower,

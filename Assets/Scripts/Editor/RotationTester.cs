@@ -1,8 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Drawing.Printing;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -63,7 +58,7 @@ public class RotationTester : EditorWindow
                 {
                     for (var x = 0; x < size; x++)
                     {
-                        (var rotatedX, var rotatedY) = AttackAreaData.GetRotatedOffset(angle, new Vector2Int(x - center, y - center));
+                        (var rotatedX, var rotatedY) = AttackAreaInfo.GetRotatedOffset(angle, new Vector2Int(x - center, y - center));
                         EditorGUILayout.Toggle(original[rotatedX + center, rotatedY + center], GUILayout.Width(20));
                     }
                 }

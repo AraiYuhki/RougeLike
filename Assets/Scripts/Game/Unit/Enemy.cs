@@ -1,12 +1,10 @@
 using DG.Tweening;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy : Unit
 {
-    public EnemyData Data { get; private set; } = new EnemyData(10);
+    public EnemyInfo Data { get; private set; } = new EnemyInfo(10);
     public override int Hp { get => Mathf.FloorToInt(Data.Hp); set => Data.Hp = value; }
     public override int MaxHp { get => Data.MaxHP; }
     public override string Name => Data.Name;
@@ -22,19 +20,18 @@ public class Enemy : Unit
     public TileData TargetTile { get; set; }
     public int TargetRoomId => TargetTile.Id;
 
-    public void Initialize(EnemyData data)
+    public void Initialize(EnemyInfo data)
     {
-        Data = data.Clone() as EnemyData;
+        Data = data.Clone();
     }
 
-    public void Initialize(int lv, int hp, int atk, int def, int exp)
+    public void Initialize(int lv, int hp, int atk, int def)
     {
-        Data = new EnemyData(hp)
+        Data = new EnemyInfo(hp)
         {
             Lv = lv,
             Atk = atk,
-            Def = def,
-            Exp = exp
+            Def = def
         };
     }
 

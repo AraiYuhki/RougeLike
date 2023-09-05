@@ -9,7 +9,7 @@ public abstract class UnitData
 {
     public const int MaxInventorySize = 20;
     public const int MaxAtk = 8;
-    [SerializeField]
+    [SerializeField, CsvColumn("atk")]
     protected int atk = 10;
 
     public int TotalExp { get; set; } = 0;
@@ -59,36 +59,5 @@ public partial class PlayerData : UnitData
             Hp = MaxHP;
             Lv--;
         }
-    }
-}
-
-[Serializable]
-public class EnemyData : UnitData, ICloneable
-{
-    [SerializeField]
-    private string name = string.Empty;
-    [SerializeField]
-    private int exp = 5;
-    [SerializeField]
-    private int maxHP = 10;
-    [SerializeField]
-    private int def = 0;
-    
-    public string Name { get => name; private set => name = value; }
-    public override int Def { get => def; set => def = value; }
-    public override int MaxHP { get => maxHP; protected set => maxHP = value; }
-    public int Exp { get => exp; set => exp = value; }
-    public EnemyData(int hp) : base(hp) { }
-
-    public object Clone()
-    {
-        return new EnemyData(MaxHP)
-        {
-            Name = Name,
-            MaxHP = MaxHP,
-            Atk = Atk,
-            Def = Def,
-            Exp = Exp,
-        };
     }
 }

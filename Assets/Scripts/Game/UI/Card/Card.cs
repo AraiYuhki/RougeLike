@@ -35,11 +35,11 @@ public class Card : MonoBehaviour
         }
     }
 
-    public CardData Data { get; private set; }
-    public PassiveEffectData PassiveEffect { get; private set; }
+    public CardInfo Data { get; private set; }
+    public PassiveEffectInfo PassiveInfo { get; private set; }
     public Player Owner { get; private set; }
 
-    public bool IsPassive => PassiveEffect != null;
+    public bool IsPassive => PassiveInfo != null;
 
     public void SetManager(FloorManager floorManager, EnemyManager enemyManager)
     {
@@ -47,16 +47,13 @@ public class Card : MonoBehaviour
         this.enemyManager = enemyManager;
     }
 
-    public void SetData(CardData data, Player owner)
+    public void SetInfo(CardInfo info, Player owner)
     {
-        Data = data;
-        if (data.IsPassive)
-        {
-            var master = DataBase.Instance.GetTable<MPassiveEffect>().Data.FirstOrDefault(row => row.Id == data.PassiveEffectId);
-            PassiveEffect = master.Clone() as PassiveEffectData;
-        }
+        Data = info;
+        if (info.IsPassive)
+            PassiveInfo = DB.Instance.MPassiveEffect.GetById(info.PassiveEffectId).Clone();
         Owner = owner;
-        label.text = data.Name;
+        label.text = info.Name;
     }
 
     public void Goto(Transform target, Action onComplete = null)
@@ -212,9 +209,9 @@ public class Card : MonoBehaviour
 
     private bool CheckEnemyInAttackArea()
     {
-        foreach(var offset in Data.AttackAreaData.Data.Select(data => data.Offset - Data.AttackAreaData.Center))
+        foreach(var offset in Data.AttackAreaData.Data.Select(data => data.Offset))
         {
-            var rotatedOffset = AttackAreaData.GetRotatedOffset(Owner.transform.localEulerAngles.y, offset);
+            var rotatedOffset = AttackAreaInfo.GetRotatedOffset(Owner.transform.localEulerAngles.y, offset);
             var position = Owner.Position + offset;
             var target = floorManager.GetUnit(position);
             if (target != null) return true;

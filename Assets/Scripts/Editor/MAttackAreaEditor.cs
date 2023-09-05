@@ -1,10 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-
 
 public class MAttackAreaEditor : EditorWindow
 {
@@ -14,7 +12,7 @@ public class MAttackAreaEditor : EditorWindow
     private MAttackArea master = null;
     private ReorderableList list = null;
 
-    private AttackAreaData editingData = null;
+    private AttackAreaInfo editingData = null;
     
     private int size = 3;
     private Vector2Int center;
@@ -51,7 +49,7 @@ public class MAttackAreaEditor : EditorWindow
 
     private void DrawData(Rect rect, int index, bool isActive, bool isForcused)
     {
-        var data = master.Data[index];
+        var data = master.All[index];
         
         rect.height = EditorGUIUtility.singleLineHeight;
         EditorGUI.LabelField(rect, $"ID:{index}");
@@ -85,11 +83,11 @@ public class MAttackAreaEditor : EditorWindow
 
     private float CalculateHeight(int index)
     {
-        var data = master.Data[index];
+        var data = master.All[index];
         return EditorGUIUtility.singleLineHeight * (data.MaxSize * 2 + 2);
     }
 
-    private void InitializeEditData(AttackAreaData original)
+    private void InitializeEditData(AttackAreaInfo original)
     {
         editingData = original;
         size = original.MaxSize;
@@ -104,7 +102,7 @@ public class MAttackAreaEditor : EditorWindow
     {
         if (list == null)
         {
-            list = new ReorderableList(master.Data, typeof(AttackAreaData));
+            list = new ReorderableList(master.All, typeof(AttackAreaInfo));
             list.drawElementCallback = DrawData;
             list.elementHeightCallback = CalculateHeight;
             list.drawHeaderCallback = rect => GUI.Label(rect, "ÉfÅ[É^");
@@ -177,21 +175,17 @@ public class MAttackAreaEditor : EditorWindow
 
     private void ApplyData()
     {
-        editingData.MaxSize = size;
-        editingData.Center = center;
-        editingData.Data = new List<AttackData>();
+        var groupId = editingData.AttackGroupId;
+        var data = new List<AttackInfo>();
         for (var x = 0; x < size; x++)
         {
             for (var y = 0; y < size; y++)
             {
                 if (!flags[x, y]) continue;
-                editingData.Data.Add(new AttackData()
-                {
-                    Offset = new Vector2Int(x, y),
-                    Rate = 1
-                });
+                data.Add(new AttackInfo(groupId, new Vector2Int(x, y), 1));
             }
         }
+        editingData.SetData(data);
         editingData = null;
         EditorUtility.SetDirty(master);
         AssetDatabase.SaveAssetIfDirty(master);

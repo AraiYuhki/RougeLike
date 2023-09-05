@@ -1,10 +1,5 @@
-using DG.Tweening;
-using System.Collections;
-using System.Linq;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public enum GameStatus
 {
@@ -27,8 +22,6 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private DialogManager dialogManager;
     [SerializeField]
-    private GameObject controllerUI = null;
-    [SerializeField]
     private UIManager uiManager;
     [SerializeField]
     private NoticeGroup noticeGroup = null;
@@ -48,7 +41,7 @@ public class GameController : MonoBehaviour
     private GameObject bulletPrefab = null;
 
     [SerializeField]
-    private DungeonSetting dungeonData = null;
+    private DungeonInfo dungeonData = null;
 
     private Coroutine turnControll = null;
 
@@ -66,13 +59,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private static readonly RuntimePlatform[] EnableUIControllerPlatforms = new RuntimePlatform[]
-    {
-        RuntimePlatform.Android,
-        RuntimePlatform.IPhonePlayer,
-        RuntimePlatform.WebGLPlayer
-    };
-
+    public string DungeonName => dungeonData.Name;
 
     private void Awake()
     {
@@ -89,8 +76,7 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        controllerUI.gameObject.SetActive(EnableUIControllerPlatforms.Contains(Application.platform));
-
+        dungeonData = DB.Instance.MDungeon.GetById(1);
         CurrentFloor = 1;
         var floorData = dungeonData.GetFloor(CurrentFloor);
         floorManager.Clear();
@@ -119,9 +105,9 @@ public class GameController : MonoBehaviour
         enemyManager.Clear();
         itemManager.Clear();
         floorManager.Clear();
-        var floorData = dungeonData.GetFloor(CurrentFloor);
-        floorManager.Create(floorData, dungeonData.IsTower);
-        enemyManager.SetFloorData(floorData);
+        var floorInfo = dungeonData.GetFloor(CurrentFloor);
+        floorManager.Create(floorInfo, dungeonData.IsTower);
+        enemyManager.SetFloorData(floorInfo);
         for (var count = 0; count < 4; count++)
             enemyManager.Spawn();
         itemManager.Initialize(150, 1, 5);

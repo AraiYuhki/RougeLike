@@ -41,27 +41,27 @@ public class CardController : MonoBehaviour
 
     public void Initialize()
     {
-        foreach(var _ in Enumerable.Range(0, 6))
-            AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First().Clone() as CardData);
-        foreach(var _ in Enumerable.Range(0, 2))
+        foreach (var _ in Enumerable.Range(0, 6))
+            AddToDeck(DB.Instance.MCard.GetById(1));
+        foreach (var _ in Enumerable.Range(0, 2))
         {
-            AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.Charge));
-            AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.LongRangeAttack));
-            AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.ResourceAttack));
+            AddToDeck(DB.Instance.MCard.GetByType(CardType.Charge).First());
+            AddToDeck(DB.Instance.MCard.GetByType(CardType.LongRangeAttack).First());
+            AddToDeck(DB.Instance.MCard.GetByType(CardType.ResourceAttack).First());
         }
-        AddToDeck(DataBase.Instance.GetTable<MCard>().Data.First(card => card.Type == CardType.StaminaHeal));
+        AddToDeck(DB.Instance.MCard.GetByType(CardType.StaminaHeal).First());
         Shuffle();
         DrawAll();
         Player.Hp = Player.MaxHp;
     }
 
-    public void Add(CardData data)
+    public void Add(CardInfo data)
     {
         var card = Instantiate(originalCard, transform);
         card.transform.localPosition = new Vector3(0f, -500f, 0f);
         card.transform.localScale = Vector3.one;
         card.SetManager(floorManager, enemyManager);
-        card.SetData(data, Player);
+        card.SetInfo(data, Player);
         card.VisibleFrontSide = false;
         deck.Add(card);
         var sequence = DOTween.Sequence();
@@ -75,13 +75,13 @@ public class CardController : MonoBehaviour
         });
     }
 
-    public void AddToDeck(CardData data)
+    public void AddToDeck(CardInfo data)
     {
         var card = Instantiate(originalCard, deckContainer);
         card.SetManager(floorManager, enemyManager);
         card.transform.localPosition = Vector3.zero;
         card.transform.localScale = Vector3.one;
-        card.SetData(data, Player);
+        card.SetInfo(data, Player);
         card.VisibleFrontSide = false;
         deck.Add(card);
     }
@@ -182,11 +182,11 @@ public class CardController : MonoBehaviour
         Destroy(card.gameObject);
     }
 
-    public List<PassiveEffectData> PassiveEffects()
+    public List<PassiveEffectInfo> PassiveEffects()
     {
         return hands
             .Where(hand => hand != null && hand.IsPassive)
-            .Select(hand => hand.PassiveEffect)
+            .Select(hand => hand.PassiveInfo)
             .ToList();
     }
 }

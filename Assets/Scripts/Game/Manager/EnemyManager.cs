@@ -1,6 +1,5 @@
 using Cysharp.Threading.Tasks;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -20,7 +19,7 @@ public class EnemyManager : MonoBehaviour
     [SerializeField]
     private Enemy[] prefabs = new Enemy[0];
 
-    private FloorSetting floorSetting;
+    private FloorInfo floorSetting;
     private Player player = null;
     private List<EnemyAI> enemies = new List<EnemyAI>();
     private int spawnedCount = 0;
@@ -28,7 +27,7 @@ public class EnemyManager : MonoBehaviour
 
     public List<Enemy> Enemies => enemies.Select(enemy => enemy.Enemy).ToList();
 
-    public void Initialize(Player player, FloorSetting floorSetting)
+    public void Initialize(Player player, FloorInfo floorSetting)
     {
         this.floorSetting = floorSetting;
         this.player = player;
@@ -36,7 +35,7 @@ public class EnemyManager : MonoBehaviour
             Spawn();
     }
 
-    public void SetFloorData(FloorSetting floorSetting) => this.floorSetting = floorSetting;
+    public void SetFloorData(FloorInfo floorSetting) => this.floorSetting = floorSetting;
 
     public void Clear()
     {
@@ -51,8 +50,8 @@ public class EnemyManager : MonoBehaviour
     public void Spawn()
     {
         var instance = Instantiate(prefabs.First(), floorManager.transform);
-        var enemy = floorSetting.Enemies.Random();
-        instance.Initialize(DataBase.Instance.GetTable<MEnemy>().Get(enemy));
+        var enemyId = floorSetting.Enemies.Random();
+        instance.Initialize(DB.Instance.MEnemy.GetById(enemyId));
         var ai = new DefaultAI(floorManager, instance, player);
         var playerTile = floorManager.GetTile(player.Position);
         var tiles = floorManager.GetEmptyRoomTiles(playerTile.Id);

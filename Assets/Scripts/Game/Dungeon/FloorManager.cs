@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -121,7 +120,7 @@ public class FloorManager : MonoBehaviour
         StartCoroutine(Create());
     }
 
-    public void Create(FloorSetting floorInfo, bool isTower)
+    public void Create(FloorInfo floorInfo, bool isTower)
     {
         wall.GetComponent<Renderer>().material = floorInfo.WallMaterial;
         floor.GetComponent<Renderer>().material = floorInfo.FloorMaterial;

@@ -1,10 +1,7 @@
 using DG.Tweening;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class ShopWindow : MonoBehaviour
@@ -153,7 +150,7 @@ public class ShopWindow : MonoBehaviour
     public void InitializeShop()
     {
         shopMenu.Clear();
-        var cards = DataBase.Instance.GetTable<MCard>().Data.Randmize().Take(3).ToList();
+        var cards = DB.Instance.MCard.All.Randmize().Take(3).ToList();
         foreach (var data in cards)
         {
             var card = Instantiate(originalCard);
@@ -178,7 +175,7 @@ public class ShopWindow : MonoBehaviour
         deckMenu.Initialize();
     }
 
-    private void BuyCard(CardData data)
+    private void BuyCard(CardInfo data)
     {
         cardController.Add(data);
         player.Data.Gems -= data.Price;

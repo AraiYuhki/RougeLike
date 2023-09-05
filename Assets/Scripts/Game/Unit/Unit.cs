@@ -92,7 +92,7 @@ public class Unit : MonoBehaviour
         ChargeStack = 0;
     }
 
-    public virtual void Attack(int damage, AttackAreaData attackArea, Action onComplete = null, bool isResourceAttack = false)
+    public virtual void Attack(int damage, AttackAreaInfo attackArea, Action onComplete = null, bool isResourceAttack = false)
     {
         damage = (int)(damage * (ChargeStack + 1));
         var tween = DOTween.Sequence();
@@ -102,9 +102,9 @@ public class Unit : MonoBehaviour
         tween.AppendInterval(0.2f);
         tween.OnComplete(() =>
         {
-            foreach (var offset in attackArea.Data.Select(data => data.Offset - attackArea.Center))
+            foreach (var offset in attackArea.Data.Select(data => data.Offset))
             {
-                var rotatedOffset = AttackAreaData.GetRotatedOffset(angle, offset);
+                var rotatedOffset = AttackAreaInfo.GetRotatedOffset(angle, offset);
                 var position = Position + offset;
                 var target = floorManager.GetUnit(position);
                 if (this is Player player && target is Enemy enemy)
@@ -209,7 +209,6 @@ public class Unit : MonoBehaviour
     {
         if (this is Enemy enemy && attacker != null)
         {
-            attacker.AddExp(enemy.Data.Exp);
             notice.Add($"{enemy.Name}は倒れた", Color.yellow);
             if (isResourceAttack)
             {

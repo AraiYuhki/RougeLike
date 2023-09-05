@@ -1,0 +1,151 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 583b3ae5caa6f2447a7308df3d606ad5, type: 3}
+  m_Name: MCard
+  m_EditorClassIdentifier: Assembly-CSharp:Xeon.Master:MCard
+  data:
+  - id: 1
+    name: "\u5F31\u653B\u6483"
+    type: 0
+    param: 15
+    range: 0
+    price: 50
+    attackAreaDataId: -1
+    passiveEffectId: -1
+  - id: 2
+    name: "\u5F37\u653B\u6483"
+    type: 0
+    param: 30
+    range: 0
+    price: 200
+    attackAreaDataId: -1
+    passiveEffectId: -1
+  - id: 3
+    name: "\u9060\u8DDD\u96E2\u653B\u6483"
+    type: 2
+    param: 15
+    range: 10
+    price: 300
+    attackAreaDataId: -1
+    passiveEffectId: -1
+  - id: 4
+    name: "\u7BC4\u56F2\u653B\u6483"
+    type: 1
+    param: 15
+    range: 0
+    price: 300
+    attackAreaDataId: 1
+    passiveEffectId: -1
+  - id: 5
+    name: "\u5168\u4F53\u653B\u6483"
+    type: 3
+    param: 30
+    range: 0
+    price: 500
+    attackAreaDataId: -1
+    passiveEffectId: -1
+  - id: 6
+    name: "\u85AC\u8349"
+    type: 4
+    param: 30
+    range: 0
+    price: 100
+    attackAreaDataId: -1
+    passiveEffectId: -1
+  - id: 7
+    name: "\u304A\u306B\u304E\u308A"
+    type: 5
+    param: 30
+    range: 0
+    price: 100
+    attackAreaDataId: -1
+    passiveEffectId: -1
+  - id: 8
+    name: "\u30C1\u30E3\u30FC\u30B8"
+    type: 6
+    param: 1
+    range: 0
+    price: 200
+    attackAreaDataId: -1
+    passiveEffectId: -1
+  - id: 9
+    name: "\u30EA\u30BD\u30FC\u30B9\u30A2\u30BF\u30C3\u30AF"
+    type: 7
+    param: 15
+    range: 0
+    price: 100
+    attackAreaDataId: -1
+    passiveEffectId: -1
+  - id: 10
+    name: "\u76AE\u306E\u76FE"
+    type: 8
+    param: 0
+    range: 0
+    price: 300
+    attackAreaDataId: -1
+    passiveEffectId: 1
+  - id: 11
+    name: "\u5272\u5408\u9632\u5FA1"
+    type: 8
+    param: 0
+    range: 0
+    price: 500
+    attackAreaDataId: -1
+    passiveEffectId: 2
+  - id: 12
+    name: "\u9244\u306E\u5263"
+    type: 8
+    param: 0
+    range: 0
+    price: 300
+    attackAreaDataId: -1
+    passiveEffectId: 3
+  - id: 13
+    name: "\u5272\u5408\u30C0\u30E1\u30FC\u30B8UP"
+    type: 8
+    param: 0
+    range: 0
+    price: 500
+    attackAreaDataId: -1
+    passiveEffectId: 4
+  - id: 14
+    name: "\u91D1\u30C9\u30ED\u30C3\u30D7UP"
+    type: 8
+    param: 0
+    range: 0
+    price: 500
+    attackAreaDataId: -1
+    passiveEffectId: 5
+  - id: 15
+    name: "\u30C8\u30B2\u306E\u76FE"
+    type: 8
+    param: 0
+    range: 0
+    price: 500
+    attackAreaDataId: -1
+    passiveEffectId: 6
+  - id: 16
+    name: "\u30AB\u30A6\u30F3\u30BF\u30FC"
+    type: 8
+    param: 0
+    range: 0
+    price: 700
+    attackAreaDataId: -1
+    passiveEffectId: 7
+  - id: 17
+    name: "\u6E80\u8DB3\u611F"
+    type: 8
+    param: 0
+    range: 0
+    price: 300
+    attackAreaDataId: -1
+    passiveEffectId: 8
