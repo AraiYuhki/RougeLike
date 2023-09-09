@@ -24,9 +24,9 @@ MonoBehaviour:
     param1: 50
     param2: 0
   - id: 3
-    memo: "\u653B\u6483\u529B1UP"
+    memo: "\u653B\u6483\u529B5UP"
     effectType: 2
-    param1: 1
+    param1: 5
     param2: 0
   - id: 4
     memo: "\u653B\u6483\u529B50%UP"
