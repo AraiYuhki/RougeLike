@@ -34,7 +34,7 @@ public class Player : Unit
             Lv = lv,
             Atk = atk,
             Def = def,
-            Gems = 50,
+            Gems = 0,
         };
     }
 

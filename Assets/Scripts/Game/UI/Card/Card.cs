@@ -141,7 +141,7 @@ public class Card : MonoBehaviour
         {
             case CardType.NormalAttack:
             case CardType.ResourceAttack:
-                return CheckEnemyInAroundTile() || CheckExistEnemySameRoom();
+                return CheckEnemyInAroundTile();
             case CardType.LongRangeAttack:
                 return CheckEnemyInRange() || CheckEnemyInAroundTile();
             case CardType.RangeAttack:
@@ -171,7 +171,7 @@ public class Card : MonoBehaviour
 
     private bool CheckEnemyInAroundTile()
     {
-        return floorManager.GetAroundTilesAt(Owner.Position).Select(tile => floorManager.GetUnit(tile.Position) != null).Any();
+        return floorManager.GetAroundTilesAt(Owner.Position).Where(tile => floorManager.GetUnit(tile.Position) != null).Any();
     }
 
     private bool CheckExistEnemySameRoom()
