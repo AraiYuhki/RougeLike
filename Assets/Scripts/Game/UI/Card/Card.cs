@@ -75,7 +75,7 @@ public class Card : MonoBehaviour
     /// <param name="onComplete"></param>
     /// <param name="enoughCost">Falseの場合、通常攻撃は威力半減、その他は不発扱いにする</param>
     /// <exception cref="NotImplementedException"></exception>
-    public async void Use(Action onComplete = null, bool enoughCost = true)
+    public async void Use(Action onComplete = null)
     {
         if (IsPassive)
         {
@@ -83,55 +83,37 @@ public class Card : MonoBehaviour
             return;
         }
 
-        if (enoughCost)
-        {
-            switch (Data.Type)
-            {
-                case CardType.NormalAttack:
-                    NormalAttack(onComplete, true, false);
-                    break;
-                case CardType.ResourceAttack:
-                    NormalAttack(onComplete, true, true);
-                    break;
-                case CardType.LongRangeAttack:
-                    LongRangeAttack(onComplete);
-                    break;
-                case CardType.RangeAttack:
-                    Owner.Attack((int)Data.Param, Data.AttackAreaData, onComplete);
-                    break;
-                case CardType.RoomAttack:
-                    Owner.RoomAttack((int)Data.Param, onComplete);
-                    break;
-                case CardType.Heal:
-                    Owner.Heal(Data.Param);
-                    onComplete?.Invoke();
-                    break;
-                case CardType.StaminaHeal:
-                    Owner.RecoveryStamina(Data.Param);
-                    onComplete?.Invoke();
-                    break;
-                case CardType.Charge:
-                    Owner.Charge(Data.Param, onComplete);
-                    break;
-                default:
-                    throw new NotImplementedException();
-            }
-            return;
-        }
-
         switch (Data.Type)
         {
             case CardType.NormalAttack:
-                NormalAttack(onComplete, false, false);
+                NormalAttack(onComplete, true, false);
                 break;
             case CardType.ResourceAttack:
-                NormalAttack(onComplete, false, true);
+                NormalAttack(onComplete, true, true);
+                break;
+            case CardType.LongRangeAttack:
+                LongRangeAttack(onComplete);
+                break;
+            case CardType.RangeAttack:
+                Owner.Attack((int)Data.Param, Data.AttackAreaData, onComplete);
+                break;
+            case CardType.RoomAttack:
+                Owner.RoomAttack((int)Data.Param, onComplete);
+                break;
+            case CardType.Heal:
+                Owner.Heal(Data.Param);
+                onComplete?.Invoke();
+                break;
+            case CardType.StaminaHeal:
+                Owner.RecoveryStamina(Data.Param);
+                onComplete?.Invoke();
+                break;
+            case CardType.Charge:
+                Owner.Charge(Data.Param, onComplete);
                 break;
             default:
-                await MisFire(onComplete);
-                return;
+                throw new NotImplementedException();
         }
-
     }
 
     private void NormalAttack(Action onComplete, bool enoughCost, bool isResourceAttack)

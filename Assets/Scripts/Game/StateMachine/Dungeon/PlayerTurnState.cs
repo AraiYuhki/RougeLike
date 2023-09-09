@@ -126,14 +126,11 @@ public class PlayerTurnState : IState
         if (card != null && card.CanUse())
         {
             stateMachine.Goto(GameState.Wait);
-            var enoughCost = player.Data.Gems >= 5;
             card.Use(() =>
             {
                 cardController.Use(handIndex);
                 stateMachine.Goto(GameState.EnemyTurn);
-                if (enoughCost)
-                    player.Data.Gems -= 5;
-            }, enoughCost);
+            });
             return true;
         }
         return false;
