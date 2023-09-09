@@ -195,27 +195,21 @@ public class Unit : MonoBehaviour
         Hp = Mathf.Min(Hp, MaxHp);
     }
 
-    public virtual void Damage(int damage, Unit attacker, bool isResourceAttack = false, bool damagePopup = true)
+    public virtual void Damage(int damage, Unit attacker, bool damagePopup = true)
     {
         if (damagePopup) DamagePopupManager.Create(this, damage, Color.red);
         notice.Add($"{attacker.Name}は{Name}に{damage}ダメージ与えた", Color.red);
         Hp -= damage;
         OnDamage?.Invoke(attacker, damage);
         if (Hp <= 0)
-            Dead(attacker, isResourceAttack);
+            Dead(attacker);
     }
 
-    public void Dead(Unit attacker, bool isResourceAttack = false)
+    public void Dead(Unit attacker)
     {
         if (this is Enemy enemy && attacker != null)
         {
             notice.Add($"{enemy.Name}は倒れた", Color.yellow);
-            if (isResourceAttack)
-            {
-                var dropPosition = floorManager.GetCanDropTile(Position);
-                if (dropPosition != null)
-                    itemManager.Drop(UnityEngine.Random.Range(1, 20), dropPosition.Position, true);
-            }
         }
         OnDead?.Invoke();
     }

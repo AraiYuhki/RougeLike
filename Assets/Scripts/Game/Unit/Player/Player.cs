@@ -38,7 +38,7 @@ public class Player : Unit
         };
     }
 
-    public override void Damage(int damage, Unit attacker, bool isResourceAttack = false, bool damagePopup = true)
+    public override void Damage(int damage, Unit attacker, bool damagePopup = true)
     {
         var passiveEffects = cardController.PassiveEffects();
         var lastDamage = damage;
@@ -57,7 +57,7 @@ public class Player : Unit
         lastDamage = Mathf.CeilToInt(lastDamage * defenseRate);
         if(defenseRate < 1f)
             notice.Add($"ダメージ{(1.0f - defenseRate) * 100}%軽減! ({damage} > {lastDamage})", Color.green);
-        base.Damage(lastDamage, attacker, isResourceAttack, damagePopup);
+        base.Damage(lastDamage, attacker, damagePopup);
         foreach(var effect in passiveEffects)
         {
             if (effect.EffectType == PassiveEffectType.Counter)
@@ -151,7 +151,14 @@ public class Player : Unit
         sequence.OnComplete(() =>
         {
             OnAttack?.Invoke(this, target);
-            target.Damage((int)(lastDamage * (ChargeStack + 1)), this, isResourceAttack);
+            var resultDamage = (int)(lastDamage * (ChargeStack + 1));
+            if (isResourceAttack)
+            {
+                var dropTile = floorManager.GetCanDropTile(target.Position);
+                if (dropTile != null)
+                    itemManager.Drop(resultDamage, dropTile.Position, true);
+            }
+            target.Damage(resultDamage, this);
             onEndAttack?.Invoke();
         });
         sequence.SetAutoKill(true);
