@@ -138,7 +138,7 @@ MonoBehaviour:
     type: 8
     param: 0
     range: 0
-    price: 500
+    price: 700
     attackAreaDataId: -1
     passiveEffectId: 7
   - id: 17
