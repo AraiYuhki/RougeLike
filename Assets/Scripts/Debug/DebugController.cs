@@ -41,7 +41,9 @@ public class DebugController : MonoBehaviour
     {
         DontDestroyOnLoad(gameObject);
         var root = debugSheet.GetOrCreateInitialPage();
+        debugSheet.SetSingleton();
         root.AddPageLinkButton<PlayerDebugPage>(nameof(PlayerDebugPage));
+        root.AddPageLinkButton<DatabaseDebugPage>(nameof(DatabaseDebugPage));
         root.AddPageLinkButton<IngameDebugConsoleDebugPage>("In game debug console", onLoad: OnLoadDebugConsolePage);
         root.AddPageLinkButton<GraphyDebugPage>("Graphy", onLoad: OnLoadGraphy);
 

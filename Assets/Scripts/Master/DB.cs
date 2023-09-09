@@ -1,8 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class DB
 {
@@ -64,4 +64,20 @@ public class DB
         if (target == null) return;
         Addressables.Release(target);
     }
+
+#if UNITY_EDITOR
+    [MenuItem("Debug/Import")]
+    public static void Import()
+    {
+        var newEnemyData = CsvParser.Parse<EnemyInfo>(System.IO.Path.Combine(Application.streamingAssetsPath, "MEnemy.tsv"));
+        var newPassiveEffectData = CsvParser.Parse<PassiveEffectInfo>(System.IO.Path.Combine(Application.streamingAssetsPath, "MPassiveEffect.tsv"));
+        var newCardData = CsvParser.Parse<CardInfo>(System.IO.Path.Combine(Application.streamingAssetsPath, "MCard.tsv"));
+        var newAttackData = CsvParser.Parse<AttackInfo>(System.IO.Path.Combine(Application.streamingAssetsPath, "MAttack.tsv"));
+        var newAttackAreaData = CsvParser.Parse<AttackAreaInfo>(System.IO.Path.Combine(Application.streamingAssetsPath, "MAttackArea.tsv"));
+        var newFloorEnemySpawnData = CsvParser.Parse<FloorEnemySpawnInfo>(System.IO.Path.Combine(Application.streamingAssetsPath, "MFloorEnemySpawn.tsv"));
+        var newFloorData = CsvParser.Parse<FloorInfo>(System.IO.Path.Combine(Application.streamingAssetsPath, "MFloor.tsv"));
+        var newDungeonData = CsvParser.Parse<DungeonInfo>(System.IO.Path.Combine(Application.streamingAssetsPath, "MDungeon.tsv"));
+
+    }
+#endif
 }

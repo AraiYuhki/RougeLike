@@ -18,6 +18,7 @@ public abstract class UnitData
     public int Lv { get; set; } = 1;
     public virtual int Atk { get => atk; set => atk = Mathf.Min(value, MaxAtk); }
     public virtual int Def { get; set; } = 0;
+    public UnitData() { }
     public UnitData(int hp) => Hp = MaxHP = hp;
     public virtual void AddExp(int exp) => TotalExp += exp;
 }

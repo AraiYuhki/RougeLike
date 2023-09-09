@@ -108,6 +108,11 @@ namespace UnityDebugSheet.Runtime.Core.Scripts
             }
         }
 
+        public void SetSingleton()
+        {
+            Instance = this;
+        }
+
         private void Update()
         {
             if (_keyboardShortcut.Evaluate())

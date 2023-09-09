@@ -16,6 +16,10 @@ public class EnemyInfo : UnitData
     public int Id => id;
     public string Name => name;
     public override int MaxHP => maxHp;
+    public EnemyInfo()
+    {
+
+    }
     public EnemyInfo(int hp) : base(hp)
     {
     }
@@ -30,4 +34,10 @@ public class EnemyInfo : UnitData
             def = def
         };
     }
+
+#if DEBUG
+    public void SetId(int id) => this.id = id;
+    public void SetName(string name) => this.name = name;
+    public void SetHp(int hp) => this.maxHp = hp;
+#endif
 }

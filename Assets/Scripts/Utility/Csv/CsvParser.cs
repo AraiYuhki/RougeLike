@@ -5,6 +5,8 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using System;
+using System.CodeDom;
 
 public class CsvParser
 {
@@ -43,15 +45,95 @@ public class CsvParser
                 if (!attributes.ContainsKey(pair.Key) || !members.ContainsKey(pair.Key)) continue;
                 var member = members[pair.Key];
                 if (member.MemberType == MemberTypes.Property)
-                    type.GetProperty(member.Name).SetValue(instance, pair.Value);
+                    SetValue(instance, member as PropertyInfo, pair.Value);
                 else if (member.MemberType == MemberTypes.Field)
-                    type.GetField(member.Name, BindingFlags.NonPublic | BindingFlags.Instance).SetValue(instance, pair.Value);
+                    SetValue(instance, member as FieldInfo, pair.Value);
                 else
                     Debug.LogError($"{pair.Key} is not property or field");
             }
             result.Add(instance);
         }
         return result;
+    }
+
+    private static void SetValue<T>(T instance, PropertyInfo property, string value) where T : new()
+    {
+        if (property.PropertyType == typeof(int))
+            property.SetValue(instance, int.Parse(value));
+        else if (property.PropertyType == typeof(long))
+            property.SetValue(instance, long.Parse(value));
+        else if (property.PropertyType == typeof(uint))
+            property.SetValue(instance, uint.Parse(value));
+        else if (property.PropertyType == typeof(float))
+            property.SetValue(instance, float.Parse(value));
+        else if (property.PropertyType == typeof(bool))
+            property.SetValue(instance, bool.Parse(value));
+        else if (property.PropertyType == typeof(string))
+            property.SetValue(instance, value);
+        else if (property.PropertyType == typeof(Vector2))
+        {
+            var array = value.Split(",");
+            property.SetValue(instance, new Vector2(float.Parse(array[0]), float.Parse(array[1])));
+        }
+        else if (property.PropertyType == typeof(Vector2Int))
+        {
+            var array = value.Split(",");
+            property.SetValue(instance, new Vector2Int(int.Parse(array[0]), int.Parse(array[1])));
+        }
+        else if (property.PropertyType == typeof(Vector3))
+        {
+            var array = value.Split(",");
+            property.SetValue(instance, new Vector3(float.Parse(array[0]), float.Parse(array[1]), float.Parse(array[2])));
+        }
+        else if (property.PropertyType == typeof(Vector3Int))
+        {
+            var array = value.Split(",");
+            property.SetValue(instance, new Vector3Int(int.Parse(array[0]), int.Parse(array[1]), int.Parse(array[2])));
+        }
+        else if (property.PropertyType.BaseType == typeof(Enum))
+            property.SetValue(instance, Enum.Parse(property.PropertyType, value));
+        else
+            throw new NotImplementedException($"{property.PropertyType.Name} is not supported");
+    }
+
+    private static void SetValue<T>(T instance, FieldInfo field, string value) where T : new()
+    {
+        if (field.FieldType == typeof(int))
+            field.SetValue(instance, int.Parse(value));
+        else if (field.FieldType == typeof(long))
+            field.SetValue(instance, long.Parse(value));
+        else if (field.FieldType == typeof(uint))
+            field.SetValue(instance, uint.Parse(value));
+        else if (field.FieldType == typeof(float))
+            field.SetValue(instance, float.Parse(value));
+        else if (field.FieldType == typeof(bool))
+            field.SetValue(instance, bool.Parse(value));
+        else if (field.FieldType == typeof(string))
+            field.SetValue(instance, value);
+        else if (field.FieldType == typeof(Vector2))
+        {
+            var array = value.Split(",");
+            field.SetValue(instance, new Vector2(float.Parse(array[0]), float.Parse(array[1])));
+        }
+        else if (field.FieldType == typeof(Vector2Int))
+        {
+            var array = value.Split(",");
+            field.SetValue(instance, new Vector2Int(int.Parse(array[0]), int.Parse(array[1])));
+        }
+        else if (field.FieldType == typeof(Vector3))
+        {
+            var array = value.Split(",");
+            field.SetValue(instance, new Vector3(float.Parse(array[0]), float.Parse(array[1]), float.Parse(array[2])));
+        }
+        else if (field.FieldType == typeof(Vector3Int))
+        {
+            var array = value.Split(",");
+            field.SetValue(instance, new Vector3Int(int.Parse(array[0]), int.Parse(array[1]), int.Parse(array[2])));
+        }
+        else if (field.FieldType.BaseType == typeof(Enum))
+            field.SetValue(instance, Enum.Parse(field.FieldType, value));
+        else
+            throw new NotImplementedException($"{field.FieldType.Name} is not supported");
     }
 
     public static string ToCSV<T>(List<T> data, string separator = "\t")
