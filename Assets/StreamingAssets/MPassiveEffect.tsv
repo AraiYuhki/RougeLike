@@ -1,7 +1,7 @@
 id	memo	effectType	param1	param2
 1	ダメージ1軽減	DefenceUp	1	0
 2	ダメージ半減	DeffenceUpRate	50	0
-3	攻撃力1UP	AttackUp	1	0
+3	攻撃力5UP	AttackUp	5	0
 4	攻撃力50%UP	AttackUpRate	50	0
 5	お金ドロップ率50%UP	DropUp	50	0
 6	固定1ダメージカウンター	Counter	1	0

@@ -8,6 +8,7 @@ public static class MasterCsvConverter
     public static void ConvertToCsv()
     {
         var db = DB.Instance;
+        db.Reload();
         File.WriteAllText(GetPath("MEnemy"), CsvParser.ToCSV(db.MEnemy.All));
         File.WriteAllText(GetPath("MDungeon"), CsvParser.ToCSV(db.MDungeon.All));
         File.WriteAllText(GetPath("MFloor"), CsvParser.ToCSV(db.MFloor.All));

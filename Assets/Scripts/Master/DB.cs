@@ -37,6 +37,11 @@ public class DB
 
     private DB()
     {
+        Reload();
+    }
+
+    public void Reload()
+    {
         enemyData = Addressables.LoadAssetAsync<MEnemy>("MEnemy").WaitForCompletion();
         passiveEffectData = Addressables.LoadAssetAsync<MPassiveEffect>("MPassiveEffect").WaitForCompletion();
         cardData = Addressables.LoadAssetAsync<MCard>("MCard").WaitForCompletion();
