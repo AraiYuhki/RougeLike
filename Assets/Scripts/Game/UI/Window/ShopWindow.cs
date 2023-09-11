@@ -165,7 +165,7 @@ public class ShopWindow : MonoBehaviour
     {
         deckMenu.Clear();
         var canRemove = player.Data.Gems >= 200;
-        foreach (var card in cardController.AllCards)
+        foreach (var card in cardController.AllCards.OrderBy(card => card.Data.Id))
         {
             var obj = Instantiate(originalCard);
             obj.SetData(card.Data, card);

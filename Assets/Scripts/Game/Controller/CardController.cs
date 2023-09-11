@@ -57,13 +57,9 @@ public class CardController : MonoBehaviour
 
     public void Add(CardInfo data)
     {
-        var card = Instantiate(originalCard, transform);
-        card.transform.localPosition = new Vector3(0f, -500f, 0f);
-        card.transform.localScale = Vector3.one;
-        card.SetManager(floorManager, enemyManager);
-        card.SetInfo(data, Player);
-        card.VisibleFrontSide = false;
+        var card = CreateCard(data, new Vector3(0f, -500f, 0f), transform);
         deck.Add(card);
+
         var sequence = DOTween.Sequence();
         sequence.Append(card.transform.DOLocalMove(Vector3.zero, 0.2f));
         sequence.AppendInterval(0.4f);
@@ -77,13 +73,19 @@ public class CardController : MonoBehaviour
 
     public void AddToDeck(CardInfo data)
     {
-        var card = Instantiate(originalCard, deckContainer);
-        card.SetManager(floorManager, enemyManager);
-        card.transform.localPosition = Vector3.zero;
+        var card = CreateCard(data, Vector3.zero, deckContainer);
+        deck.Add(card);
+    }
+
+    private Card CreateCard(CardInfo data, Vector3 position, Transform parent)
+    {
+        var card = Instantiate(originalCard, parent);
+        card.transform.localPosition = position;
         card.transform.localScale = Vector3.one;
+        card.SetManager(floorManager, enemyManager);
         card.SetInfo(data, Player);
         card.VisibleFrontSide = false;
-        deck.Add(card);
+        return card;
     }
 
     public void Shuffle(bool isReset = false)
