@@ -216,6 +216,12 @@ public class Unit : MonoBehaviour
 
     public virtual void TurnEnd() 
     {
+        ExecuteAilments();
+    }
+
+    protected virtual void ExecuteAilments()
+    {
+
     }
 
     public virtual void SetPosition(Vector2Int position)

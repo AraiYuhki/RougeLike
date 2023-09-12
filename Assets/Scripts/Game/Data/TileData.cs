@@ -5,15 +5,15 @@ using UnityEngine;
 public class TileData
 {
     /// <summary>
-    /// À•W
+    /// åº§æ¨™
     /// </summary>
     public Point Position { get; set; }
     /// <summary>
-    /// •”‰®‚©H
+    /// éƒ¨å±‹ã‹ï¼Ÿ
     /// </summary>
     public TileType Type { get; set; } = TileType.Wall;
     /// <summary>
-    /// •”‰®‚©’Ê˜H‚ÌID
+    /// éƒ¨å±‹ã‹é€šè·¯ã®ID
     /// </summary>
     public int Id { get; set; } = -1;
 

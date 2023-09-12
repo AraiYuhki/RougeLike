@@ -117,6 +117,27 @@ public class Player : Unit
             HealInterval--;
         else
             Heal(1f, false);
+        base.TurnEnd();
+    }
+
+    protected override void ExecuteAilments()
+    {
+        var ailments = Data.Ailments.GroupBy(ailment => ailment.Type).ToDictionary(x => x.Key, x => x.Sum(ailment => ailment.RemainingTurn));
+        if (ailments.TryGetValue(AilmentType.Poison, out var param))
+            Damage(param, null);
+        if (ailments.TryGetValue(AilmentType.Exhaustion, out param))
+            Data.Stamina -= 0.1f * param;
+
+        if (ailments.TryGetValue(AilmentType.HandLock, out param))
+        {
+            cardController.ApplyAilment();
+        }
+
+        foreach (var ailment in Data.Ailments.ToList())
+        {
+            if (ailment.DecrementTurn())
+                Data.Ailments.Remove(ailment);
+        }
     }
 
     public void Attack(int damage, Enemy target, TweenCallback onEndAttack = null, bool isResourceAttack = false)

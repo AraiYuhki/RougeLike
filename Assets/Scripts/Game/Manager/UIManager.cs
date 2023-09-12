@@ -3,6 +3,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -19,6 +21,8 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private NoticeGroup notice;
 
+    [SerializeField]
+    private TMP_Text ailmentsLabel;
     [SerializeField]
     private MainMenuUI mainMenu;
     [SerializeField]
@@ -41,6 +45,16 @@ public class UIManager : MonoBehaviour
             );
         floorManager.SetMinimap(minimap);
         inventory.Initialize(floorManager, this, notice, player);
+    }
+
+    private void Update()
+    {
+        var builder = new StringBuilder();
+        foreach(var ailment in player.Data.Ailments)
+        {
+            builder.AppendLine($"{ailment.Type}{ailment.Param}({ailment.RemainingTurn})");
+        }
+        ailmentsLabel.text = builder.ToString();
     }
 
     public void OpenMainMenu(Action onComplete = null)

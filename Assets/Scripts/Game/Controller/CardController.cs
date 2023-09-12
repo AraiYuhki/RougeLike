@@ -31,6 +31,15 @@ public class CardController : MonoBehaviour
 
     public Card GetHandCard(int handIndex) => hands[handIndex];
 
+    private int EnableHandCount
+    {
+        get
+        {
+            var count = hands.Length - Player.Data.GetAilmengEffects(AilmentType.HandLock);
+            return Mathf.Max(0, count);
+        }
+    }
+
     public int AllCardsCount => deck.Count + cemetary.Count + hands.Count(hand => hand != null);
     public List<Card> AllCards => deck.Concat(cemetary).Concat(hands).Where(card => card != null).ToList();
 
@@ -135,7 +144,7 @@ public class CardController : MonoBehaviour
 
     public void DrawAll()
     {
-        for (var index = 0; index < hands.Length; index++)
+        for (var index = 0; index < EnableHandCount; index++)
             Draw(index);
     }
 
@@ -143,23 +152,29 @@ public class CardController : MonoBehaviour
     {
         if (deck.Count <= 0) return;
         if (hands[handIndex] != null) return;
+        if (handIndex >= EnableHandCount) return;
         var card = deck.First();
         deck.Remove(card);
         hands[handIndex] = card;
         card.Goto(handContainers[handIndex], () => card.VisibleFrontSide = true);
     }
+
     public void Use(int handIndex)
     {
         var card = hands[handIndex];
         if (card == null) return;
-        for (var index = 0; index < hands.Length; index++)
-        {
-            if (hands[index] == card)
-            {
-                hands[index] = null;
-                break;
-            }
-        }
+        hands[handIndex] = null;
+        cemetary.Add(card);
+        card.Goto(cemetaryContainer);
+        Draw(handIndex);
+        if (hands.All(hand => hand == null)) Reload();
+    }
+
+    public void GotoCemetary(int handIndex)
+    {
+        var card = hands[handIndex];
+        if (card == null) return;
+        hands[handIndex] = null;
         cemetary.Add(card);
         card.Goto(cemetaryContainer);
         Draw(handIndex);
@@ -190,5 +205,15 @@ public class CardController : MonoBehaviour
             .Where(hand => hand != null && hand.IsPassive)
             .Select(hand => hand.PassiveInfo)
             .ToList();
+    }
+
+    public void ApplyAilment()
+    {
+        for (var index = 0; index < hands.Length; index++)
+        {
+            if (index >= EnableHandCount && hands[index] != null)
+                GotoCemetary(index);
+        }
+        DrawAll();
     }
 }

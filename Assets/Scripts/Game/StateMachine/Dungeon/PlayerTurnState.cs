@@ -72,14 +72,6 @@ public class PlayerTurnState : IState
             var destPosition = currentPosition + move;
             var destTile = floorManager.GetTile(destPosition);
             var enemy = floorManager.GetUnit(destPosition);
-            //if (enemy != null)
-            //{
-            //    stateMachine.Goto(GameState.Wait);
-            //    player.SetDestAngle(move);
-            //    move = Vector2Int.zero;
-            //    player.Attack(enemy, () => stateMachine.Goto(GameState.EnemyTurn));
-            //    return;
-            //}
             if (enemy != null || destTile.IsWall || isTurnMode)
             {
                 player.SetDestAngle(move);

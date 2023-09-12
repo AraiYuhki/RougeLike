@@ -1,10 +1,13 @@
+using System;
 using System.Collections;
+using System.Data.Odbc;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 
 #if !EXCLUDE_UNITY_DEBUG_SHEET
 using UnityDebugSheet.Runtime.Core.Scripts;
 using UnityDebugSheet.Runtime.Core.Scripts.DefaultImpl.Cells;
+using UnityEditor.AddressableAssets;
 
 public class PlayerDebugPage : DefaultDebugPageBase
 {
@@ -20,6 +23,10 @@ public class PlayerDebugPage : DefaultDebugPageBase
     private SliderCellModel hpSlider = null;
 
     private int gemCount = 100;
+
+    private AilmentType ailmentType;
+    private int ailmentParam = 1;
+    private int ailmentTurn = 10;
 
     protected override void Start()
     {
@@ -44,6 +51,20 @@ public class PlayerDebugPage : DefaultDebugPageBase
         {
             var cardController = FindObjectOfType<CardController>();
             cardController.Shuffle(true);
+        });
+
+        var ailments = Enum.GetValues(typeof(AilmentType)).Cast<AilmentType>();
+        AddPicker(ailments.Select(ailment => ailment.ToString()), 0, "状態異常", activeOptionChanged: index =>
+        {
+            ailmentType = Enum.GetValues(typeof(AilmentType)).Cast<AilmentType>().ElementAt(index);
+        });
+        AddSlider(ailmentParam, 1, 100, "効果量", valueTextFormat: "{0}", valueChanged: newValue => ailmentParam = (int)newValue);
+        AddSlider(ailmentTurn, -1, 100, "継続ターン数", valueTextFormat: "{0}", valueChanged: newValue => ailmentTurn = (int)newValue);
+        AddButton("状態異常追加", clicked: () =>
+        {
+            player.Data.AddAilment(ailmentType, ailmentParam, ailmentTurn);
+            var cardController = FindObjectOfType<CardController>();
+            cardController.ApplyAilment();
         });
         yield break;
     }
