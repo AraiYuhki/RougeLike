@@ -18,7 +18,7 @@ public class AilmentData
     public int Param { get; private set; }
 
     public int RemainingTurn { get; private set; }
-    public bool IsInfinit => RemainingTurn < -1;
+    public bool IsInfinit => RemainingTurn <= -1;
 
     public AilmentData(AilmentType type, int param, int turn)
     {

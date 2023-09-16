@@ -205,6 +205,16 @@ public class Unit : MonoBehaviour
             Dead(attacker);
     }
 
+    public virtual void Damage(int damage)
+    {
+        DamagePopupManager.Create(this, damage, Color.magenta);
+        notice.Add($"{Name}は{damage}ダメージ受けた", Color.red);
+        Hp -= damage;
+        OnDamage?.Invoke(null, damage);
+        if (Hp <= 0)
+            Dead(null);
+    }
+
     public void Dead(Unit attacker)
     {
         if (this is Enemy enemy && attacker != null)

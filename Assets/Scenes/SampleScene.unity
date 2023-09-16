@@ -4928,6 +4928,7 @@ MonoBehaviour:
   player: {fileID: 1276448553}
   minimap: {fileID: 1128604652}
   notice: {fileID: 370729898}
+  ailmentsLabel: {fileID: 1117511724}
   mainMenu: {fileID: 1371490034}
   inventory: {fileID: 1230298181}
   useMenu: {fileID: 337096310}

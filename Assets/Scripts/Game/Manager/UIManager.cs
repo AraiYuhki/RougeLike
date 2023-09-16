@@ -52,7 +52,10 @@ public class UIManager : MonoBehaviour
         var builder = new StringBuilder();
         foreach(var ailment in player.Data.Ailments)
         {
-            builder.AppendLine($"{ailment.Type}{ailment.Param}({ailment.RemainingTurn})");
+            if (ailment.IsInfinit)
+                builder.AppendLine($"{ailment.Type}{ailment.Param}(∞)");
+            else
+                builder.AppendLine($"{ailment.Type}{ailment.Param}({ailment.RemainingTurn})");
         }
         ailmentsLabel.text = builder.ToString();
     }

@@ -122,9 +122,9 @@ public class Player : Unit
 
     protected override void ExecuteAilments()
     {
-        var ailments = Data.Ailments.GroupBy(ailment => ailment.Type).ToDictionary(x => x.Key, x => x.Sum(ailment => ailment.RemainingTurn));
+        var ailments = Data.Ailments.GroupBy(ailment => ailment.Type).ToDictionary(x => x.Key, x => x.Sum(ailment => ailment.Param));
         if (ailments.TryGetValue(AilmentType.Poison, out var param))
-            Damage(param, null);
+            Damage(param);
         if (ailments.TryGetValue(AilmentType.Exhaustion, out param))
             Data.Stamina -= 0.1f * param;
 
@@ -133,7 +133,7 @@ public class Player : Unit
             cardController.ApplyAilment();
         }
 
-        foreach (var ailment in Data.Ailments.ToList())
+        foreach (var ailment in Data.Ailments.Where(ailment => !ailment.IsInfinit).ToList())
         {
             if (ailment.DecrementTurn())
                 Data.Ailments.Remove(ailment);
