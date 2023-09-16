@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Burst;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -26,6 +25,7 @@ public class MAttackAreaEditor : EditorWindow
 
     public void OnDestroy()
     {
+        if (areaMaster == null) return;
         EditorUtility.SetDirty(areaMaster);
         AssetDatabase.SaveAssetIfDirty(areaMaster);
     }
