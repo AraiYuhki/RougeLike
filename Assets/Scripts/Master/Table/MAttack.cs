@@ -33,12 +33,7 @@ public class MAttack : ScriptableObject
         data = data.Concat(dest).OrderBy(row => row.GroupId).ToList();
 
         groups.Clear();
-        foreach (var row in data)
-        {
-            if (!groups.ContainsKey(row.GroupId))
-                groups.Add(row.GroupId, new());
-            groups[row.GroupId].Add(row);
-        }
+        OnEnable();
     }
 #endif
 }
