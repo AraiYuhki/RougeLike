@@ -46,6 +46,8 @@ public class AttackAreaInfo
         }
     }
 
+    public AttackAreaInfo() { }
+
     public static void InitializeOffsetMap()
     {
         var halfRadius = Mathf.FloorToInt(maxRadius / 2);
@@ -115,9 +117,31 @@ public class AttackAreaInfo
         }
     }
 #if DEBUG
+    public string Memo
+    {
+        get => memo;
+        set => memo = value;
+    }
+
+    public AttackAreaInfo(int id, int groupId)
+    {
+        this.id = id;
+        this.attackGroupId = groupId;
+    }
     public void SetData(List<AttackInfo> data)
     {
         this.data = data;
+    }
+
+    public AttackAreaInfo Clone()
+    {
+        return new AttackAreaInfo
+        {
+            id = this.id,
+            attackGroupId = this.attackGroupId,
+            memo = this.memo,
+            data = new List<AttackInfo>(),
+        };
     }
 #endif
 }

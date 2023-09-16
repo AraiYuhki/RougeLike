@@ -18,3 +18,13 @@ MonoBehaviour:
     maxSize: 3
     center: {x: 0, y: 0}
     attackGroupId: 1
+  - id: 2
+    memo: "\u8599\u304E\u6255\u3044"
+    maxSize: 0
+    center: {x: 0, y: 0}
+    attackGroupId: 2
+  - id: 3
+    memo: "\u8CAB\u901A\u653B\u6483"
+    maxSize: 0
+    center: {x: 0, y: 0}
+    attackGroupId: 3

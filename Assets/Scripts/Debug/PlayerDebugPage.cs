@@ -1,13 +1,11 @@
 using System;
 using System.Collections;
-using System.Data.Odbc;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 
 #if !EXCLUDE_UNITY_DEBUG_SHEET
 using UnityDebugSheet.Runtime.Core.Scripts;
 using UnityDebugSheet.Runtime.Core.Scripts.DefaultImpl.Cells;
-using UnityEditor.AddressableAssets;
 
 public class PlayerDebugPage : DefaultDebugPageBase
 {

@@ -1,15 +1,21 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Burst;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
 public class MAttackAreaEditor : EditorWindow
 {
-    [MenuItem("Tools/MAttackAreaEditor")]
-    public static void Open() => GetWindow<MAttackAreaEditor>();
+    [MenuItem("Tools/ÊîªÊíÉÁØÑÂõ≤„Ç®„Éá„Ç£„Çø")]
+    public static void Open()
+    {
+        var window = GetWindow<MAttackAreaEditor>();
+        window.titleContent = new GUIContent("ÊîªÊíÉÁØÑÂõ≤„Ç®„Éá„Ç£„Çø");
+    }
 
-    private MAttackArea master = null;
+    private MAttackArea areaMaster = null;
+    private MAttack attackMaster = null;
     private ReorderableList list = null;
 
     private AttackAreaInfo editingData = null;
@@ -20,15 +26,19 @@ public class MAttackAreaEditor : EditorWindow
 
     public void OnDestroy()
     {
-        EditorUtility.SetDirty(master);
-        AssetDatabase.SaveAssetIfDirty(master);
+        EditorUtility.SetDirty(areaMaster);
+        AssetDatabase.SaveAssetIfDirty(areaMaster);
     }
 
     public void OnGUI()
     {
-        master = EditorGUILayout.ObjectField(master, typeof(MAttackArea), false) as MAttackArea;
-        if (master == null) return;
-
+        areaMaster = EditorGUILayout.ObjectField(areaMaster, typeof(MAttackArea), false) as MAttackArea;
+        attackMaster = EditorGUILayout.ObjectField(attackMaster, typeof(MAttack), false) as MAttack;
+        if (areaMaster == null || attackMaster == null)
+        {
+            editingData = null;
+            return;
+        }
         var halfSize = position.width / 2 - 5;
         using (new EditorGUILayout.HorizontalScope())
         {
@@ -49,63 +59,49 @@ public class MAttackAreaEditor : EditorWindow
 
     private void DrawData(Rect rect, int index, bool isActive, bool isForcused)
     {
-        var data = master.All[index];
-        
-        rect.height = EditorGUIUtility.singleLineHeight;
-        EditorGUI.LabelField(rect, $"ID:{index}");
-        rect.y += EditorGUIUtility.singleLineHeight;
-        EditorGUI.LabelField(rect, "ÉTÉCÉY", data.MaxSize.ToString());
-        rect.y += EditorGUIUtility.singleLineHeight;
-        EditorGUI.LabelField(rect, "íÜêSì_", data.Center.ToString());
-        rect.y += EditorGUIUtility.singleLineHeight * 1.5f;
-        var tmpRect = rect;
-        tmpRect.width = 10;
-        tmpRect.height = 10;
-        for (var y = 0; y < data.MaxSize; y++)
+        var data = areaMaster.All[index];
+        rect.width -= 100;
+        EditorGUI.LabelField(rect, $"ID:{data.Id}: {data.Memo}");
+        rect.x += rect.width;
+        rect.width = 100;
+        if(GUI.Button(rect, "Á∑®ÈõÜ"))
         {
-            for (var x = 0; x < data.MaxSize; x++)
-            {
-                var color = Color.gray;
-                if (data.Center.x == x && data.Center.y == y)
-                    color = Color.black;
-                else if (data.Data.Any(d => d.Offset.x == x && d.Offset.y == y))
-                    color = Color.cyan;
-                EditorGUI.DrawRect(tmpRect, color);
-                tmpRect.x += tmpRect.width + 2;
-            }
-            tmpRect.x = rect.x;
-            tmpRect.y += tmpRect.height + 2;
+            InitializeEditData(data.Clone());
         }
-        rect.y = tmpRect.y + EditorGUIUtility.singleLineHeight;
-        if (GUI.Button(rect, "ï“èW"))
-            InitializeEditData(data);
-    }
-
-    private float CalculateHeight(int index)
-    {
-        var data = master.All[index];
-        return EditorGUIUtility.singleLineHeight * (data.MaxSize * 2 + 2);
     }
 
     private void InitializeEditData(AttackAreaInfo original)
     {
         editingData = original;
-        size = original.MaxSize;
-        center = original.Center;
+        var attackData = attackMaster.GetByGroupId(editingData.AttackGroupId) ?? new List<AttackInfo>();
+        if (attackData.Count <= 0)
+        {
+            size = 3;
+            center = Vector2Int.one;
+        }
+        else
+        {
+            size = attackData.Max(data => Mathf.Max(Mathf.Abs(data.Offset.x), Mathf.Abs(data.Offset.y))) * 2 + 1;
+            center = Vector2Int.one * (size / 2);
+        }
 
         flags = new bool[size, size];
-        foreach (var data in editingData.Data)
-            flags[data.Offset.x, data.Offset.y] = true;
+        foreach (var data in attackData)
+        {
+            var offset = data.Offset + center;
+            flags[offset.x, offset.y] = true;
+        }
     }
 
     private void InitializeList()
     {
         if (list == null)
         {
-            list = new ReorderableList(master.All, typeof(AttackAreaInfo));
+            list = new ReorderableList(areaMaster.All, typeof(AttackAreaInfo));
             list.drawElementCallback = DrawData;
-            list.elementHeightCallback = CalculateHeight;
-            list.drawHeaderCallback = rect => GUI.Label(rect, "ÉfÅ[É^");
+            list.onAddCallback = AddArea;
+            list.onRemoveCallback = RemoveArea;
+            list.drawHeaderCallback = rect => GUI.Label(rect, "„Éá„Éº„Çø");
         }
     }
 
@@ -113,29 +109,27 @@ public class MAttackAreaEditor : EditorWindow
     {
         if (editingData == null)
         {
-            EditorGUILayout.LabelField("ï“èWëŒè€ÇëIëÇµÇƒÇ≠ÇæÇ≥Ç¢");
+            EditorGUILayout.LabelField("Á∑®ÈõÜÂØæË±°„ÇíÈÅ∏Êäû„Åó„Å¶„Åè„Å†„Åï„ÅÑ");
             return;
         }
         using (new EditorGUILayout.HorizontalScope())
         {
-            if (GUILayout.Button("ìKóp"))
+            if (GUILayout.Button("ÈÅ©Áî®"))
             {
                 ApplyData();
                 return;
             }
-            if (GUILayout.Button("îjä¸"))
+            if (GUILayout.Button("Á†¥Ê£Ñ"))
             {
                 editingData = null;
                 return;
             }
         }
         EditorGUI.BeginChangeCheck();
-        var tmpSize = EditorGUILayout.IntSlider("ÉTÉCÉY", size, 3, 99);
+        var tmpSize = EditorGUILayout.IntSlider("„Çµ„Ç§„Ç∫", size, 3, 99);
         if (EditorGUI.EndChangeCheck()) UpdateData(tmpSize);
-        EditorGUI.BeginDisabledGroup(true);
-        EditorGUILayout.Vector2IntField("íÜêS", center);
-        EditorGUI.EndDisabledGroup();
-        EditorGUILayout.LabelField("ÉIÉäÉWÉiÉã");
+        editingData.Memo = EditorGUILayout.TextField("„É°„É¢", editingData.Memo);
+        EditorGUILayout.LabelField("„Ç™„É™„Ç∏„Éä„É´");
         if (flags == null) flags = new bool[size, size];
         using (new EditorGUILayout.VerticalScope())
         {
@@ -152,6 +146,31 @@ public class MAttackAreaEditor : EditorWindow
                 }
             }
         }
+    }
+
+    private void AddArea(ReorderableList list)
+    {
+        var newData = new AttackAreaInfo(
+            areaMaster.All.Max(area => area.Id) + 1,
+            areaMaster.All.Max(area => area.AttackGroupId) + 1
+            );
+        areaMaster.All.Add(newData);
+        areaMaster.Reset();
+        EditorUtility.SetDirty(areaMaster);
+        AssetDatabase.SaveAssetIfDirty(areaMaster);
+    }
+
+    private void RemoveArea(ReorderableList list)
+    {
+        var target = areaMaster.All[list.index];
+        areaMaster.All.Remove(target);
+        areaMaster.Reset();
+        attackMaster.ReplaceByGroupId(target.AttackGroupId, new List<AttackInfo>());
+        EditorUtility.SetDirty(areaMaster);
+        EditorUtility.SetDirty(attackMaster);
+        AssetDatabase.SaveAssetIfDirty(areaMaster);
+        AssetDatabase.SaveAssetIfDirty(attackMaster);
+        
     }
 
     private void UpdateData(int tmpSize)
@@ -182,12 +201,18 @@ public class MAttackAreaEditor : EditorWindow
             for (var y = 0; y < size; y++)
             {
                 if (!flags[x, y]) continue;
-                data.Add(new AttackInfo(groupId, new Vector2Int(x, y), 1));
+                var offset = new Vector2Int(x, y) - center;
+                data.Add(new AttackInfo(groupId, offset, 1));
             }
         }
+        var original = areaMaster.GetById(editingData.Id);
+        original.Memo = editingData.Memo;
+        attackMaster.ReplaceByGroupId(groupId, data);
         editingData.SetData(data);
         editingData = null;
-        EditorUtility.SetDirty(master);
-        AssetDatabase.SaveAssetIfDirty(master);
+        EditorUtility.SetDirty(areaMaster);
+        EditorUtility.SetDirty(attackMaster);
+        AssetDatabase.SaveAssetIfDirty(areaMaster);
+        AssetDatabase.SaveAssetIfDirty(attackMaster);
     }
 }

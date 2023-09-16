@@ -1,2 +1,4 @@
 id	memo	maxSize	center	attackGroupId
 1	周囲8マス攻擊	3	0,0	1
+2	薙ぎ払い	0	0,0	2
+3	貫通攻撃	0	0,0	3

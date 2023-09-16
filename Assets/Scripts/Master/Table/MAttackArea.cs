@@ -21,4 +21,10 @@ public class MAttackArea : ScriptableObject
         if (dictionary.TryGetValue(id, out var result)) return result;
         return null;
     }
+#if UNITY_EDITOR
+    public void Reset()
+    {
+        OnEnable();
+    }
+#endif
 }
