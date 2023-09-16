@@ -19,6 +19,7 @@ MonoBehaviour:
     param: 15
     range: 0
     price: 50
+    category: 0
     attackAreaDataId: -1
     passiveEffectId: -1
   - id: 2
@@ -27,6 +28,7 @@ MonoBehaviour:
     param: 30
     range: 0
     price: 200
+    category: 0
     attackAreaDataId: -1
     passiveEffectId: -1
   - id: 3
@@ -35,6 +37,7 @@ MonoBehaviour:
     param: 15
     range: 10
     price: 300
+    category: 0
     attackAreaDataId: -1
     passiveEffectId: -1
   - id: 4
@@ -43,6 +46,7 @@ MonoBehaviour:
     param: 15
     range: 0
     price: 300
+    category: 0
     attackAreaDataId: 1
     passiveEffectId: -1
   - id: 5
@@ -51,6 +55,7 @@ MonoBehaviour:
     param: 30
     range: 0
     price: 500
+    category: 0
     attackAreaDataId: -1
     passiveEffectId: -1
   - id: 6
@@ -59,6 +64,7 @@ MonoBehaviour:
     param: 30
     range: 0
     price: 100
+    category: 1
     attackAreaDataId: -1
     passiveEffectId: -1
   - id: 7
@@ -67,6 +73,7 @@ MonoBehaviour:
     param: 30
     range: 0
     price: 100
+    category: 1
     attackAreaDataId: -1
     passiveEffectId: -1
   - id: 8
@@ -75,6 +82,7 @@ MonoBehaviour:
     param: 1
     range: 0
     price: 200
+    category: 3
     attackAreaDataId: -1
     passiveEffectId: -1
   - id: 9
@@ -83,6 +91,7 @@ MonoBehaviour:
     param: 15
     range: 0
     price: 100
+    category: 0
     attackAreaDataId: -1
     passiveEffectId: -1
   - id: 10
@@ -91,6 +100,7 @@ MonoBehaviour:
     param: 0
     range: 0
     price: 300
+    category: 2
     attackAreaDataId: -1
     passiveEffectId: 1
   - id: 11
@@ -99,6 +109,7 @@ MonoBehaviour:
     param: 0
     range: 0
     price: 300
+    category: 2
     attackAreaDataId: -1
     passiveEffectId: 2
   - id: 12
@@ -107,6 +118,7 @@ MonoBehaviour:
     param: 0
     range: 0
     price: 300
+    category: 2
     attackAreaDataId: -1
     passiveEffectId: 3
   - id: 13
@@ -115,6 +127,7 @@ MonoBehaviour:
     param: 0
     range: 0
     price: 300
+    category: 2
     attackAreaDataId: -1
     passiveEffectId: 4
   - id: 14
@@ -123,6 +136,7 @@ MonoBehaviour:
     param: 0
     range: 0
     price: 300
+    category: 2
     attackAreaDataId: -1
     passiveEffectId: 5
   - id: 15
@@ -131,6 +145,7 @@ MonoBehaviour:
     param: 0
     range: 0
     price: 300
+    category: 2
     attackAreaDataId: -1
     passiveEffectId: 6
   - id: 16
@@ -139,6 +154,7 @@ MonoBehaviour:
     param: 0
     range: 0
     price: 700
+    category: 2
     attackAreaDataId: -1
     passiveEffectId: 7
   - id: 17
@@ -147,5 +163,6 @@ MonoBehaviour:
     param: 0
     range: 0
     price: 300
+    category: 2
     attackAreaDataId: -1
     passiveEffectId: 8

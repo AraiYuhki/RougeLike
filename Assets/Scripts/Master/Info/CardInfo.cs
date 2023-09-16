@@ -15,6 +15,14 @@ public enum CardType
     Passive,
 }
 
+public enum CardCategory
+{
+    Attack,     // 攻撃系
+    Utility,    // アイテム系
+    Passive,    // 装備系
+    Special,    //　特殊系(連続攻撃など)
+}
+
 [Serializable]
 public class CardInfo
 {
@@ -30,6 +38,8 @@ public class CardInfo
     private int range;
     [SerializeField, CsvColumn("price")]
     private int price;
+    [SerializeField, CsvColumn("category")]
+    private CardCategory category;
     [SerializeField, CsvColumn("attackAreaId")]
     private int attackAreaDataId = -1;
     [SerializeField, CsvColumn("passiveEffectId")]

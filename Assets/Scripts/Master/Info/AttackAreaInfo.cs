@@ -19,10 +19,6 @@ public class AttackAreaInfo
     private int id;
     [SerializeField, CsvColumn("memo")]
     private string memo;
-    [SerializeField, CsvColumn("maxSize")]
-    private int maxSize;
-    [SerializeField, CsvColumn("center")]
-    private Vector2Int center;
     [SerializeField, CsvColumn("attackGroupId")]
     private int attackGroupId;
 
@@ -32,8 +28,6 @@ public class AttackAreaInfo
     private static Dictionary<int, List<(int x, int y)>> offsetMap;
 
     public int Id => id;
-    public int MaxSize => MaxSize;
-    public Vector2Int Center => center;
     public int AttackGroupId => attackGroupId;
 
     public List<AttackInfo> Data
