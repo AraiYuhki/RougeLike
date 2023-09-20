@@ -205,4 +205,10 @@ public class ShopWindow : MonoBehaviour
             card.Enable = canRemove;
         deckMenu.ReselectCurrentItem(true);
     }
+
+    private void OnDestroy()
+    {
+        tween?.Kill();
+        tween = null;
+    }
 }

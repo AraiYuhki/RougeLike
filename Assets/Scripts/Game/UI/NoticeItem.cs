@@ -73,4 +73,10 @@ public class NoticeItem : MonoBehaviour
             transform.localPosition += (destPosition - transform.localPosition) * Time.deltaTime * moveRate;
         }
     }
+
+    private void OnDestroy()
+    {
+        tween?.Kill();
+        tween = null;
+    }
 }

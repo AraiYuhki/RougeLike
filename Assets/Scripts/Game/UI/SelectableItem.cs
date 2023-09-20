@@ -65,5 +65,9 @@ public class SelectableItem : MonoBehaviour
         onSelect?.Invoke();
     }
     public void Submit() => button.onClick?.Invoke();
-    protected void OnDestroy() => tween?.Kill();
+    protected void OnDestroy()
+    {
+        tween?.Kill();
+        tween = null;
+    }
 }

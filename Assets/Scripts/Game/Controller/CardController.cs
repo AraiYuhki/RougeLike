@@ -43,9 +43,18 @@ public class CardController : MonoBehaviour
     public int AllCardsCount => deck.Count + cemetary.Count + hands.Count(hand => hand != null);
     public List<Card> AllCards => deck.Concat(cemetary).Concat(hands).Where(card => card != null).ToList();
 
+    private List<Sequence> tweenList = new List<Sequence>();
+
     private void Update()
     {
         deckCardCountLabel.text = deck.Count.ToString();
+    }
+
+    private void OnDestroy()
+    {
+        foreach (var tween in tweenList)
+            tween.Kill();
+        tweenList.Clear();
     }
 
     public void Initialize()
@@ -70,10 +79,12 @@ public class CardController : MonoBehaviour
         deck.Add(card);
 
         var sequence = DOTween.Sequence();
+        tweenList.Add(sequence);
         sequence.Append(card.transform.DOLocalMove(Vector3.zero, 0.2f));
         sequence.AppendInterval(0.4f);
         sequence.OnComplete(() =>
         {
+            tweenList.Remove(sequence);
             card.Goto(deckContainer);
             Shuffle();
             DrawAll();
@@ -102,6 +113,7 @@ public class CardController : MonoBehaviour
         if (isReset)
         {
             var sequence = DOTween.Sequence();
+            tweenList.Add(sequence);
             var delay = 0f;
             foreach(var card in hands.Concat(cemetary).Where(card => card != null))
             {
@@ -117,6 +129,7 @@ public class CardController : MonoBehaviour
             for (var index = 0; index < hands.Length; index++) hands[index] = null;
             sequence.OnComplete(() =>
             {
+                tweenList.Remove(sequence);
                 DrawAll();
             });
             return;
@@ -127,6 +140,7 @@ public class CardController : MonoBehaviour
     public void Reload()
     {
         var sequence = DOTween.Sequence();
+        tweenList.Add(sequence);
         var delay = 0f;
         foreach (var card in cemetary)
         {
@@ -139,7 +153,11 @@ public class CardController : MonoBehaviour
         }
         cemetary.Clear();
         deck.Shuffle();
-        sequence.OnComplete(DrawAll);
+        sequence.OnComplete(() =>
+        {
+            tweenList.Remove(sequence);
+            DrawAll();
+        });
     }
 
     public void DrawAll()

@@ -214,6 +214,12 @@ public class Card : MonoBehaviour
         });
     }
 
+    private void OnDestroy()
+    {
+        tween?.Kill();
+        tween = null;
+    }
+
 #if UNITY_EDITOR
     private void OnValidate()
     {

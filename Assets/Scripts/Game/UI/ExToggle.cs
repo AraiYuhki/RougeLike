@@ -38,6 +38,12 @@ public class ExToggle : MonoBehaviour
         });
     }
 
+    private void OnDestroy()
+    {
+        tween?.Kill();
+        tween = null;
+    }
+
     public void Select(bool flag)
     {
         toggle.isOn = flag;

@@ -46,4 +46,10 @@ public class Fade : MonoSingleton<Fade>
             canvas.enabled = false;
         });
     }
+
+    private void OnDestroy()
+    {
+        tween?.Kill();
+        tween = null;
+    }
 }

@@ -248,4 +248,10 @@ public class Minimap : MonoBehaviour
         }
         tween.OnComplete(() => tween = null);
     }
+
+    private void OnDestroy()
+    {
+        tween?.Kill();
+        tween = null;
+    }
 }

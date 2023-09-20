@@ -36,6 +36,7 @@ public class DamagePopup : MonoBehaviour
 
     private void OnDestroy()
     {
-        tween.Kill();
+        tween?.Kill();
+        tween = null;
     }
 }

@@ -82,4 +82,10 @@ public class DialogManager : MonoSingleton<DialogManager>
         dialogQueue.Remove(dialog);
         Destroy(dialog.gameObject);
     }
+
+    private void OnDestroy()
+    {
+        tween?.Kill();
+        tween = null;
+    }
 }

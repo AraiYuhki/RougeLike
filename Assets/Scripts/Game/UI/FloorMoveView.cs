@@ -67,4 +67,10 @@ public class FloorMoveView : MonoBehaviour
             canvas.enabled = false;
         });
     }
+
+    private void OnDestroy()
+    {
+        tween?.Kill();
+        tween = null;
+    }
 }

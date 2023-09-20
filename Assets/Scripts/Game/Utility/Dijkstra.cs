@@ -58,6 +58,7 @@ public class Dijkstra
 
     public List<int> GetRoot(int from, int to)
     {
+        if (from < 0 || to < 0) return null;
         nodes[from].Status = NodeStatus.Open;
         nodes[from].Score = 0;
         openNodes.Add(nodes[from]);
@@ -88,6 +89,11 @@ public class Dijkstra
 
     private int AddTmpNode(Path path)
     {
+        if(path == null)
+        {
+            Debug.LogError($"Path is null!!");
+            return -1;
+        }
         var halfCost = path.PathPositionList.Count / 2;
         var tmpId = -path.Id;
         var tmpNode = new Node() { Id = tmpId, IsTmporary = true, Path = path };

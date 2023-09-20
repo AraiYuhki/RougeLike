@@ -1,5 +1,4 @@
 using DG.Tweening;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,6 +11,8 @@ public class ItemManager : MonoBehaviour
     private Item[] gemTemplates = new Item[0];
 
     public List<Item> ItemList { get; private set; } = new List<Item>();
+
+    private Tween tween = null;
 
     public void Initialize(int sumPrice, int minCount = 1, int maxCount = 5)
     {
@@ -39,7 +40,11 @@ public class ItemManager : MonoBehaviour
         item.GemCount = price;
         item.SetPosition(floorManager.GetTile(position.x, position.y));
         if (isAnimation)
-            item.transform.DOLocalJump(item.transform.localPosition, 1, 1, 0.4f);
+        {
+            tween?.Kill();
+            tween = item.transform.DOLocalJump(item.transform.localPosition, 1, 1, 0.4f);
+            tween.OnComplete(() => tween = null);
+        }
         ItemList.Add(item);
         floorManager.SetItem(item, position);
         return item;
@@ -60,5 +65,11 @@ public class ItemManager : MonoBehaviour
     {
         ItemList.Remove(item);
         Destroy(item.gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        tween?.Kill();
+        tween = null;
     }
 }
