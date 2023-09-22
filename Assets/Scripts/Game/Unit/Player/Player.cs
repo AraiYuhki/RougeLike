@@ -167,10 +167,12 @@ public class Player : Unit
         }
 
         var sequence = DOTween.Sequence();
+        tweenList.Add(sequence);
         sequence.Append(unit.transform.DOLocalMove(Vector3.forward * 2f, 0.2f).SetEase(Ease.InCubic));
         sequence.Append(unit.transform.DOLocalMove(Vector3.zero, 0.2f).SetEase(Ease.OutCubic));
         sequence.OnComplete(() =>
         {
+            tweenList.Remove(sequence);
             OnAttack?.Invoke(this, target);
             var resultDamage = (int)(lastDamage * (ChargeStack + 1));
             if (isResourceAttack)

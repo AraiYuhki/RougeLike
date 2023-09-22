@@ -3,6 +3,7 @@ using DG.Tweening;
 using System;
 using UnityEditor;
 using System.Linq;
+using System.Collections.Generic;
 
 public class Unit : MonoBehaviour
 {
@@ -25,6 +26,8 @@ public class Unit : MonoBehaviour
 
     public bool EndRotation { get; protected set; }
     public Vector2Int Angle { get; protected set; } = Vector2Int.up;
+
+    protected List<Tween> tweenList = new List<Tween>();
 
     public Action<Unit, Vector2Int> OnMoved{get;set;}
     public Action<Unit, Unit> OnAttack{get;set;}
@@ -72,6 +75,13 @@ public class Unit : MonoBehaviour
     {
     }
 
+    protected virtual void OnDestroy()
+    {
+        foreach (var tween in tweenList)
+            tween.Kill();
+        tweenList.Clear();
+    }
+
     public void Move(int x, int z) => Move(new Vector2Int(x, z));
     public virtual void Move(Vector2Int move) => Move(move, null);
 
@@ -79,10 +89,12 @@ public class Unit : MonoBehaviour
     {
         var currentPosition = transform.localPosition;
         var sequence = DOTween.Sequence();
+        tweenList.Add(sequence);
         sequence.Append(unit.transform.DOLocalMove(Vector3.forward * 2f, 0.2f).SetEase(Ease.InCubic));
         sequence.Append(unit.transform.DOLocalMove(Vector3.zero, 0.2f).SetEase(Ease.OutCubic));
         sequence.OnComplete(() =>
         {
+            tweenList.Remove(sequence);
             OnAttack?.Invoke(this, target);
             target.Damage(damage, this, isResourceAttack);
             onComplete?.Invoke();
@@ -98,10 +110,12 @@ public class Unit : MonoBehaviour
         var tween = DOTween.Sequence();
         // 角度はアニメーション前に取得しておく
         var angle = transform.localEulerAngles.y;
+        tweenList.Add(tween);
         tween.Append(unit.transform.DOLocalRotate(Vector3.up * 360f, 0.6f, RotateMode.FastBeyond360));
         tween.AppendInterval(0.2f);
         tween.OnComplete(() =>
         {
+            tweenList.Remove(tween);
             foreach (var offset in attackArea.Data.Select(data => data.Offset))
             {
                 var rotatedOffset = AttackAreaInfo.GetRotatedOffset(angle, offset);
@@ -122,10 +136,12 @@ public class Unit : MonoBehaviour
         damage = (int)(damage * (ChargeStack + 1));
         var currentTile = floorManager.GetTile(Position);
         var tween = DOTween.Sequence();
+        tweenList.Add(tween);
         tween.Append(unit.transform.DOLocalRotate(Vector3.up * 360f * 3f, 0.6f, RotateMode.FastBeyond360));
         tween.AppendInterval(0.2f);
         tween.OnComplete(() =>
         {
+            tweenList.Remove(tween);
             if (currentTile.IsRoom)
             {
                 foreach (var enemy in enemyManager.Enemies)
@@ -158,8 +174,10 @@ public class Unit : MonoBehaviour
             .DOLocalMove(new Vector3(target.position.x, 0.5f, target.position.y), 0.1f * target.length)
             .SetEase(Ease.Linear)
             .Play();
+        tweenList.Add(tween);
         tween.OnComplete(() =>
         {
+            tweenList.Remove(tween);
             Destroy(bullet);
             if (this is Player player && target.enemy != null)
             {
@@ -244,13 +262,20 @@ public class Unit : MonoBehaviour
     {
         Position = position;
         var tween = transform.DOLocalMove(new Vector3(position.x, 0.5f, position.y), 0.2f).SetEase(Ease.OutCubic);
-        if (onComplete != null) tween.onComplete = onComplete;
+        tweenList.Add(tween);
+        tween.OnComplete(() =>
+        {
+            tweenList.Remove(tween);
+            onComplete?.Invoke();
+        });
     }
 
     public virtual void SetDestAngle(Vector2Int move)
     {
         Angle = move;
         var destAngle = Vector3.SignedAngle(Vector3.forward, new Vector3(move.x, 0f, move.y), Vector3.up);
-        transform.DORotate(new Vector3(0f, destAngle, 0f), 0.1f).SetEase(Ease.OutCubic);
+        var tween = transform.DORotate(new Vector3(0f, destAngle, 0f), 0.1f).SetEase(Ease.OutCubic);
+        tweenList.Add(tween);
+        tween.OnComplete(() => tweenList.Remove(tween));
     }
 }

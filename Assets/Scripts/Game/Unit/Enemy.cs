@@ -10,8 +10,11 @@ public class Enemy : Unit
     public override string Name => Data.Name;
     public override void PowerUp(int value, Action onComplete = null)
     {
-        transform.DOPunchScale(Vector3.one * 2f, 0.5f).OnComplete(() =>
+        var tween = transform.DOPunchScale(Vector3.one * 2f, 0.5f);
+        tweenList.Add(tween);
+        tween.OnComplete(() =>
         {
+            tweenList.Remove(tween);
             onComplete?.Invoke();
             Data.Atk += value;
         });
@@ -39,6 +42,12 @@ public class Enemy : Unit
     {
         EndRotation = false;
         var destAngle = Vector3.SignedAngle(Vector3.forward, new Vector3(move.x, 0f, move.y), Vector3.up);
-        transform.DORotate(new Vector3(0f, destAngle, 0f), 0.1f).SetEase(Ease.OutCubic).OnComplete(() => EndRotation = true);
+        var tween = transform.DORotate(new Vector3(0f, destAngle, 0f), 0.1f).SetEase(Ease.OutCubic);
+        tweenList.Add(tween);
+        tween.OnComplete(() =>
+        {
+            tweenList.Remove(tween);
+            EndRotation = true;
+        });
     }
 }
