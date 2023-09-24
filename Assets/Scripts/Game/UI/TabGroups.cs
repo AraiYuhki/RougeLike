@@ -12,6 +12,9 @@ public class TabGroups : MonoBehaviour
     [SerializeField]
     private int selectIndex = 0;
 
+    /// <summary>
+    /// 変更前のタブインデックス、変更後のタブインデックス
+    /// </summary>
     public Action OnChangeTab { get; set; }
 
     private bool isChanging = false;

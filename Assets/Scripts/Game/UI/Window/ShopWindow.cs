@@ -118,6 +118,8 @@ public class ShopWindow : MonoBehaviour
         InitializeShop();
         tabGroups.OnChangeTab = () =>
         {
+            deckMenu.Enable = tabGroups.SelectIndex == (int)TabType.Deck;
+            shopMenu.Enable = tabGroups.SelectIndex == (int)TabType.Shop;
             if (tabGroups.SelectIndex != (int)TabType.Deck) return;
             InitializeDeck();
         };
