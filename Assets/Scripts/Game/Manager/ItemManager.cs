@@ -12,7 +12,6 @@ public class ItemManager : MonoBehaviour
 
     public List<Item> ItemList { get; private set; } = new List<Item>();
 
-    private Tween tween = null;
 
     public void Initialize(int sumPrice, int minCount = 1, int maxCount = 5)
     {
@@ -41,9 +40,7 @@ public class ItemManager : MonoBehaviour
         item.SetPosition(floorManager.GetTile(position.x, position.y));
         if (isAnimation)
         {
-            tween?.Kill();
-            tween = item.transform.DOLocalJump(item.transform.localPosition, 1, 1, 0.4f);
-            tween.OnComplete(() => tween = null);
+            item.JumpTo();
         }
         ItemList.Add(item);
         floorManager.SetItem(item, position);
@@ -65,11 +62,5 @@ public class ItemManager : MonoBehaviour
     {
         ItemList.Remove(item);
         Destroy(item.gameObject);
-    }
-
-    private void OnDestroy()
-    {
-        tween?.Kill();
-        tween = null;
     }
 }
