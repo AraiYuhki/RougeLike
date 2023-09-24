@@ -1,5 +1,7 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -187,5 +189,48 @@ public class Player : Unit
         sequence.SetAutoKill(true);
         sequence.Play();
         ChargeStack = 0;
+    }
+
+    public override void DrawAndUse(int count, CardCategory category, Action onComplete)
+    {
+        cardController.HideHand();
+        base.DrawAndUse(count, category, () =>
+        {
+            onComplete?.Invoke();
+            cardController.ShowHand();
+        });
+    }
+
+    public override async void ContinouseAttack(int count, Action onComplete)
+    {
+        var useCards = new List<Card>();
+        for (var i = 0; i < count; i++)
+        {
+            var card = cardController.ToStack();
+            if (card == null) break;
+            useCards.Add(card);
+            await UniTask.Delay(200);
+        }
+        await UniTask.Delay(500);
+        foreach((var card, var index) in useCards.Select((card, index) => (card, index)))
+        {
+            var isUsed = false;
+            cardController.UseStack(index);
+            if (card.Data.Category == CardCategory.Attack)
+            {
+                card.Use(() => isUsed = true);
+                Debug.LogError($"use attack card {card.Data.Id}:{card.Data.Name}");
+            }
+            else
+            {
+                Debug.LogError($"Trash card {card.Data.Id}:{card.Data.Name}");
+                await UniTask.Delay(200);
+                isUsed = true;
+            }
+            
+            while (!isUsed) await UniTask.Yield();
+        }
+        onComplete?.Invoke();
+        base.ContinouseAttack(count, onComplete);
     }
 }

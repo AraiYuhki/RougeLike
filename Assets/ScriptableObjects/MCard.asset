@@ -16,8 +16,8 @@ MonoBehaviour:
   - id: 1
     name: "\u5F31\u653B\u6483"
     type: 0
-    param: 15
-    range: 0
+    param1: 15
+    param2: 0
     price: 50
     category: 0
     attackAreaDataId: -1
@@ -25,8 +25,8 @@ MonoBehaviour:
   - id: 2
     name: "\u5F37\u653B\u6483"
     type: 0
-    param: 30
-    range: 0
+    param1: 30
+    param2: 0
     price: 200
     category: 0
     attackAreaDataId: -1
@@ -34,8 +34,8 @@ MonoBehaviour:
   - id: 3
     name: "\u9060\u8DDD\u96E2\u653B\u6483"
     type: 2
-    param: 15
-    range: 10
+    param1: 15
+    param2: 10
     price: 300
     category: 0
     attackAreaDataId: -1
@@ -43,8 +43,8 @@ MonoBehaviour:
   - id: 4
     name: "\u7BC4\u56F2\u653B\u6483"
     type: 1
-    param: 15
-    range: 0
+    param1: 15
+    param2: 0
     price: 300
     category: 0
     attackAreaDataId: 1
@@ -52,8 +52,8 @@ MonoBehaviour:
   - id: 5
     name: "\u5168\u4F53\u653B\u6483"
     type: 3
-    param: 30
-    range: 0
+    param1: 30
+    param2: 0
     price: 500
     category: 0
     attackAreaDataId: -1
@@ -61,8 +61,8 @@ MonoBehaviour:
   - id: 6
     name: "\u85AC\u8349"
     type: 4
-    param: 30
-    range: 0
+    param1: 30
+    param2: 0
     price: 100
     category: 1
     attackAreaDataId: -1
@@ -70,8 +70,8 @@ MonoBehaviour:
   - id: 7
     name: "\u304A\u306B\u304E\u308A"
     type: 5
-    param: 30
-    range: 0
+    param1: 30
+    param2: 0
     price: 100
     category: 1
     attackAreaDataId: -1
@@ -79,8 +79,8 @@ MonoBehaviour:
   - id: 8
     name: "\u30C1\u30E3\u30FC\u30B8"
     type: 6
-    param: 1
-    range: 0
+    param1: 1
+    param2: 0
     price: 200
     category: 3
     attackAreaDataId: -1
@@ -88,81 +88,90 @@ MonoBehaviour:
   - id: 9
     name: "\u30EA\u30BD\u30FC\u30B9\u30A2\u30BF\u30C3\u30AF"
     type: 7
-    param: 15
-    range: 0
+    param1: 15
+    param2: 0
     price: 100
     category: 0
     attackAreaDataId: -1
     passiveEffectId: -1
   - id: 10
     name: "\u76AE\u306E\u76FE"
-    type: 8
-    param: 0
-    range: 0
+    type: 9
+    param1: 0
+    param2: 0
     price: 300
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 1
   - id: 11
     name: "\u5272\u5408\u9632\u5FA1"
-    type: 8
-    param: 0
-    range: 0
+    type: 9
+    param1: 0
+    param2: 0
     price: 300
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 2
   - id: 12
     name: "\u9244\u306E\u5263"
-    type: 8
-    param: 0
-    range: 0
+    type: 9
+    param1: 0
+    param2: 0
     price: 300
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 3
   - id: 13
     name: "\u5272\u5408\u30C0\u30E1\u30FC\u30B8UP"
-    type: 8
-    param: 0
-    range: 0
+    type: 9
+    param1: 0
+    param2: 0
     price: 300
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 4
   - id: 14
     name: "\u91D1\u30C9\u30ED\u30C3\u30D7UP"
-    type: 8
-    param: 0
-    range: 0
+    type: 9
+    param1: 0
+    param2: 0
     price: 300
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 5
   - id: 15
     name: "\u30C8\u30B2\u306E\u76FE"
-    type: 8
-    param: 0
-    range: 0
+    type: 9
+    param1: 0
+    param2: 0
     price: 300
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 6
   - id: 16
     name: "\u30AB\u30A6\u30F3\u30BF\u30FC"
-    type: 8
-    param: 0
-    range: 0
+    type: 9
+    param1: 0
+    param2: 0
     price: 700
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 7
   - id: 17
     name: "\u6E80\u8DB3\u611F"
-    type: 8
-    param: 0
-    range: 0
+    type: 9
+    param1: 0
+    param2: 0
     price: 300
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 8
+  - id: 18
+    name: "\u9023\u7D9A\u653B\u6483"
+    type: 8
+    param1: 5
+    param2: 0
+    price: 300
+    category: 3
+    attackAreaDataId: -1
+    passiveEffectId: -1

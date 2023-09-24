@@ -50,6 +50,33 @@ public class Unit : MonoBehaviour
         });
     }
 
+    public virtual void DrawAndUse(int count, CardCategory category, Action onComplete)
+    {
+        switch(category)
+        {
+            case CardCategory.Attack:
+                ContinouseAttack(count, onComplete);
+                break;
+            case CardCategory.Utility:
+                ContinouseUse(count, onComplete);
+                break;
+            default:
+                throw new NotImplementedException($"{category}は未実装です");
+        }
+    }
+
+    /// <summary>
+    /// 指定した枚数カードを引いて、引いた攻擊カードを全て使用し、他のカードは捨てる
+    /// </summary>
+    /// <param name="count"></param>
+    public virtual void ContinouseAttack(int count, Action onComplete) { }
+
+    /// <summary>
+    /// 指定した枚数のカードを引いて、引いた道具系カードをすべて使用し、他のカードは捨てる
+    /// </summary>
+    /// <param name="count"></param>
+    public virtual void ContinouseUse(int count, Action onComplete) { }
+
     public virtual DamagePopupManager DamagePopupManager { protected get; set; }
     
 

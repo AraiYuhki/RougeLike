@@ -1,5 +1,10 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
+using System.Linq;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public enum CardType
 {
@@ -10,7 +15,9 @@ public enum CardType
     Heal,               // 回復
     StaminaHeal,        // スタミナ回復
     Charge,             // 攻撃力2倍(重複するごとに倍率が100％追加され、最大で4倍)
-    ResourceAttack,     // これでとどめを刺すと必ずお金を落とす代わりに攻撃力が低め
+    ResourceAttack,     // これで与えたダメージ分のお金を落とす
+
+    DrawAndUse,         //　指定数のカードを引いて、そのまま使用する
 
     Passive,
 }
@@ -32,10 +39,10 @@ public class CardInfo
     private string name;
     [SerializeField, CsvColumn("type")]
     private CardType type;
-    [SerializeField, CsvColumn("param")]
-    private float param;
-    [SerializeField, CsvColumn("range")]
-    private int range;
+    [SerializeField, CsvColumn("param1")]
+    private float param1;
+    [SerializeField, CsvColumn("param2")]
+    private int param2;
     [SerializeField, CsvColumn("price")]
     private int price;
     [SerializeField, CsvColumn("category")]
@@ -61,16 +68,34 @@ public class CardInfo
         set => type = value;
     }
 
-    public float Param
+    public CardCategory Category
     {
-        get => param;
-        set => param = value;
+        get => category;
+        set => category = value;
+    }
+
+    public float Param1
+    {
+        get => param1;
+        set => param1 = value;
+    }
+
+    public int Param2
+    {
+        get => param2;
+        set => param2 = value;
     }
 
     public int Range
     {
-        get => range;
-        set => range = value;
+        get => param2;
+        set => param2 = value;
+    }
+
+    public CardCategory TargetCategory
+    {
+        get => (CardCategory)param2;
+        set => param2 = (int)value;
     }
 
     public int Price
@@ -108,7 +133,7 @@ public class CardInfo
         {
             Name = Name,
             Type = Type,
-            Param = Param,
+            Param1 = Param1,
             Range = Range,
             Price = Price,
             AttackAreaDataId = AttackAreaDataId,

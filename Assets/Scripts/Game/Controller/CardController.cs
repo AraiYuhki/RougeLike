@@ -1,4 +1,6 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -18,13 +20,24 @@ public class CardController : MonoBehaviour
     [SerializeField]
     private Transform cemetaryContainer;
     [SerializeField]
-    private List<Transform> handContainers;
+    private Transform[] handContainers = new Transform[0];
+    [SerializeField]
+    private Transform[] useStackContainers = new Transform[0];
+
+    [SerializeField]
+    private Transform handGroup;
+
+    [SerializeField]
+    private float showHandPositionY = -340f;
+    [SerializeField]
+    private float hideHandPositionY = -440f;
 
     [SerializeField]
     private TMP_Text deckCardCountLabel;
 
     private List<Card> deck = new List<Card>();
     private Card[] hands = new Card[4];
+    private Card[] useStack = new Card[9];
     private List<Card> cemetary = new List<Card>();
 
     public Player Player { get; set; }
@@ -44,6 +57,9 @@ public class CardController : MonoBehaviour
     public List<Card> AllCards => deck.Concat(cemetary).Concat(hands).Where(card => card != null).ToList();
 
     private List<Sequence> tweenList = new List<Sequence>();
+
+    private bool isShowHandGroup = true;
+    private Tween handGroupTween = null;
 
     private void Update()
     {
@@ -188,6 +204,35 @@ public class CardController : MonoBehaviour
         if (hands.All(hand => hand == null)) Reload();
     }
 
+    public Card ToStack()
+    {
+        if (deck.Count <= 0) return null;
+        var lastIndex = -1;
+        foreach ((var container, var index) in useStack.Select((card, index) => (card, index)))
+        {
+            if (container == null)
+            {
+                lastIndex = index;
+                break;
+            }
+        }
+        if (lastIndex < 0) return null;
+        var card = deck.First();
+        deck.Remove(card);
+        useStack[lastIndex] = card;
+        card.Goto(useStackContainers[lastIndex], () => card.VisibleFrontSide = true);
+        return card;
+    }
+
+    public void UseStack(int index)
+    {
+        var card = useStack[index];
+        if (card == null) return;
+        useStack[index] = null;
+        cemetary.Add(card);
+        card.Goto(cemetaryContainer);
+    }
+
     public void GotoCemetary(int handIndex)
     {
         var card = hands[handIndex];
@@ -233,5 +278,23 @@ public class CardController : MonoBehaviour
                 GotoCemetary(index);
         }
         DrawAll();
+    }
+
+    public void ShowHand()
+    {
+        if (isShowHandGroup) return;
+        handGroupTween?.Kill();
+        handGroupTween = handGroup.DOLocalMoveY(showHandPositionY, 0.2f);
+        handGroupTween.OnComplete(() => handGroupTween = null);
+        isShowHandGroup = true;
+    }
+
+    public void HideHand()
+    {
+        if (!isShowHandGroup) return;
+        handGroupTween?.Kill();
+        handGroupTween = handGroup.DOLocalMoveY(hideHandPositionY, 0.2f);
+        handGroupTween.OnComplete(() => handGroupTween = null);
+        isShowHandGroup = false;
     }
 }

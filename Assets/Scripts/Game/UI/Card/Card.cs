@@ -95,21 +95,24 @@ public class Card : MonoBehaviour
                 LongRangeAttack(onComplete);
                 break;
             case CardType.RangeAttack:
-                Owner.Attack((int)Data.Param, Data.AttackAreaData, onComplete);
+                Owner.Attack((int)Data.Param1, Data.AttackAreaData, onComplete);
                 break;
             case CardType.RoomAttack:
-                Owner.RoomAttack((int)Data.Param, onComplete);
+                Owner.RoomAttack((int)Data.Param1, onComplete);
                 break;
             case CardType.Heal:
-                Owner.Heal(Data.Param);
+                Owner.Heal(Data.Param1);
                 onComplete?.Invoke();
                 break;
             case CardType.StaminaHeal:
-                Owner.RecoveryStamina(Data.Param);
+                Owner.RecoveryStamina(Data.Param1);
                 onComplete?.Invoke();
                 break;
             case CardType.Charge:
-                Owner.Charge(Data.Param, onComplete);
+                Owner.Charge(Data.Param1, onComplete);
+                break;
+            case CardType.DrawAndUse:
+                Owner.DrawAndUse((int)Data.Param1, Data.TargetCategory, onComplete);
                 break;
             default:
                 throw new NotImplementedException();
@@ -120,7 +123,7 @@ public class Card : MonoBehaviour
     {
         var destPosition = Owner.Position + Owner.Angle;
         var target = floorManager.GetUnit(destPosition) as Enemy;
-        var power = (int)(Data.Param * (Owner.ChargeStack + 1f));
+        var power = (int)(Data.Param1 * (Owner.ChargeStack + 1f));
         if (!enoughCost) power /= 2;
         if (target != null)
             Owner.Attack(power, target, () => onComplete?.Invoke(), isResourceAttack);
@@ -130,7 +133,7 @@ public class Card : MonoBehaviour
 
     private void LongRangeAttack(Action onComplete = null)
     {
-        Owner.Shoot((int)Data.Param, Data.Range, onComplete);
+        Owner.Shoot((int)Data.Param1, Data.Range, onComplete);
     }
 
     public bool CanUse()
@@ -156,6 +159,7 @@ public class Card : MonoBehaviour
                 return false;
             case CardType.Charge:
             case CardType.Passive:
+            case CardType.DrawAndUse:
                 return true;
             default:
                 throw new NotImplementedException();

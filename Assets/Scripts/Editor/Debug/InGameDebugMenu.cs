@@ -13,12 +13,8 @@ public class InGameDebugMenu : EditorWindow
 
     private int changeHp = 0;
     private float changeStamina = 0;
-    private int addExp = 0;
 
     private int addGems = 0;
-    private int selectItemId = 0;
-    private int selectWeaponId = 0;
-    private int selectShieldId = 0;
 
     public void OnGUI()
     {
@@ -40,11 +36,6 @@ public class InGameDebugMenu : EditorWindow
         {
             if (GUILayout.Button("HP変更")) target.Hp = changeHp;
             changeHp = EditorGUILayout.IntField(changeHp);
-        }
-        using (new EditorGUILayout.HorizontalScope())
-        {
-            if (GUILayout.Button("経験値増減")) target.AddExp(addExp);
-            addExp = EditorGUILayout.IntField(addExp);
         }
         PlayerMenu();
         EnemyMenu();
