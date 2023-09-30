@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 using System.Linq;
+using System.ComponentModel;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -37,6 +38,8 @@ public class CardInfo
     private int id;
     [SerializeField, CsvColumn("name")]
     private string name;
+    [SerializeField, CsvColumn("description")]
+    private string description;
     [SerializeField, CsvColumn("type")]
     private CardType type;
     [SerializeField, CsvColumn("param1")]
@@ -51,6 +54,8 @@ public class CardInfo
     private int attackAreaDataId = -1;
     [SerializeField, CsvColumn("passiveEffectId")]
     private int passiveEffectId = -1;
+    [SerializeField, CsvColumn("illust")]
+    private Sprite illust;
 
     private AttackAreaInfo attackAreaData;
 
@@ -60,6 +65,12 @@ public class CardInfo
     {
         get => name;
         set => name = value;
+    }
+
+    public string Description
+    {
+        get => description;
+        set => description = value;
     }
 
     public virtual CardType Type
@@ -110,6 +121,12 @@ public class CardInfo
         set => attackAreaDataId = value;
     }
 
+    public Sprite Illust
+    {
+        get => illust;
+        set => illust = value;
+    }
+
     public AttackAreaInfo AttackAreaData
     {
         get
@@ -132,12 +149,15 @@ public class CardInfo
         return new CardInfo
         {
             Name = Name,
+            Description = Description,
             Type = Type,
+            Category = Category,
             Param1 = Param1,
-            Range = Range,
+            Param2 = Param2,
             Price = Price,
             AttackAreaDataId = AttackAreaDataId,
             PassiveEffectId = PassiveEffectId,
+            Illust = Illust,
         };
     }
 

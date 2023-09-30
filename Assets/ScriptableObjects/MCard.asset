@@ -15,6 +15,7 @@ MonoBehaviour:
   data:
   - id: 1
     name: "\u5F31\u653B\u6483"
+    description: "15\u30C0\u30E1\u30FC\u30B8"
     type: 0
     param1: 15
     param2: 0
@@ -22,8 +23,10 @@ MonoBehaviour:
     category: 0
     attackAreaDataId: -1
     passiveEffectId: -1
+    illust: {fileID: 21300000, guid: 6ec1c38865f239245b0bca283e3e287b, type: 3}
   - id: 2
     name: "\u5F37\u653B\u6483"
+    description: "30\u30C0\u30E1\u30FC\u30B8"
     type: 0
     param1: 30
     param2: 0
@@ -31,8 +34,10 @@ MonoBehaviour:
     category: 0
     attackAreaDataId: -1
     passiveEffectId: -1
+    illust: {fileID: 21300000, guid: 5b33796ce922e4b4ea68673d6b7c122e, type: 3}
   - id: 3
     name: "\u9060\u8DDD\u96E2\u653B\u6483"
+    description: "\u5C04\u7A0B10<br>15\u30C0\u30E1\u30FC\u30B8"
     type: 2
     param1: 15
     param2: 10
@@ -40,8 +45,10 @@ MonoBehaviour:
     category: 0
     attackAreaDataId: -1
     passiveEffectId: -1
+    illust: {fileID: 21300000, guid: dee920ccb19bc3b4f84319343c942501, type: 3}
   - id: 4
     name: "\u7BC4\u56F2\u653B\u6483"
+    description: "\u5468\u56F2\u306B15\u30C0\u30E1\u30FC\u30B8"
     type: 1
     param1: 15
     param2: 0
@@ -49,17 +56,21 @@ MonoBehaviour:
     category: 0
     attackAreaDataId: 1
     passiveEffectId: -1
+    illust: {fileID: 21300000, guid: 1bcc90354bbd89b4cadfb49071cae0a1, type: 3}
   - id: 5
     name: "\u5168\u4F53\u653B\u6483"
+    description: "\u540C\u3058\u90E8\u5C4B\u306B10\u30C0\u30E1\u30FC\u30B8"
     type: 3
-    param1: 30
+    param1: 10
     param2: 0
     price: 500
     category: 0
     attackAreaDataId: -1
     passiveEffectId: -1
+    illust: {fileID: 21300000, guid: aabcfb18e3df9d74a854b69ce1b96de9, type: 3}
   - id: 6
     name: "\u85AC\u8349"
+    description: "HP30\u56DE\u5FA9"
     type: 4
     param1: 30
     param2: 0
@@ -67,8 +78,10 @@ MonoBehaviour:
     category: 1
     attackAreaDataId: -1
     passiveEffectId: -1
+    illust: {fileID: 21300000, guid: 0166f00ebdcfb0447be2a47f7cc2656a, type: 3}
   - id: 7
     name: "\u304A\u306B\u304E\u308A"
+    description: "\u30B9\u30BF\u30DF\u30CA30%\u56DE\u5FA9"
     type: 5
     param1: 30
     param2: 0
@@ -76,8 +89,10 @@ MonoBehaviour:
     category: 1
     attackAreaDataId: -1
     passiveEffectId: -1
+    illust: {fileID: 21300000, guid: fa450166cc34b6e43bd24eb416d5cbb1, type: 3}
   - id: 8
     name: "\u30C1\u30E3\u30FC\u30B8"
+    description: "\u6B21\u306E\u653B\u6483\u306E\u30C0\u30E1\u30FC\u30B82\u500D"
     type: 6
     param1: 1
     param2: 0
@@ -85,8 +100,10 @@ MonoBehaviour:
     category: 3
     attackAreaDataId: -1
     passiveEffectId: -1
+    illust: {fileID: 21300000, guid: 795ffab1c858e5744a9c47ee110f4b1b, type: 3}
   - id: 9
     name: "\u30EA\u30BD\u30FC\u30B9\u30A2\u30BF\u30C3\u30AF"
+    description: "15\u30C0\u30E1\u30FC\u30B8<br>\u30C0\u30E1\u30FC\u30B8\u5206\u306E\u30B8\u30A7\u30E0\u3092\u30C9\u30ED\u30C3\u30D7"
     type: 7
     param1: 15
     param2: 0
@@ -94,8 +111,10 @@ MonoBehaviour:
     category: 0
     attackAreaDataId: -1
     passiveEffectId: -1
+    illust: {fileID: 21300000, guid: 40fd834bc224e314b869a2689c79f7d5, type: 3}
   - id: 10
     name: "\u76AE\u306E\u76FE"
+    description: "\u3010\u30D1\u30C3\u30B7\u30D6\u3011<br>1\u30C0\u30E1\u30FC\u30B8\u8EFD\u6E1B"
     type: 9
     param1: 0
     param2: 0
@@ -103,8 +122,10 @@ MonoBehaviour:
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 1
+    illust: {fileID: 21300000, guid: ffae06713a18c3d479ecb34188cdb0b3, type: 3}
   - id: 11
     name: "\u5272\u5408\u9632\u5FA1"
+    description: "\u3010\u30D1\u30C3\u30B7\u30D6\u3011<br>\u53D7\u3051\u308B\u30C0\u30E1\u30FC\u30B8\u534A\u6E1B"
     type: 9
     param1: 0
     param2: 0
@@ -112,8 +133,10 @@ MonoBehaviour:
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 2
+    illust: {fileID: 21300000, guid: 0a0859a18d5c9c74abfaa208425e51c5, type: 3}
   - id: 12
     name: "\u9244\u306E\u5263"
+    description: "\u3010\u30D1\u30C3\u30B7\u30D6\u3011<br>+5\u30C0\u30E1\u30FC\u30B8"
     type: 9
     param1: 0
     param2: 0
@@ -121,8 +144,10 @@ MonoBehaviour:
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 3
+    illust: {fileID: 21300000, guid: 94edc2c36b5694841868b13ca986f594, type: 3}
   - id: 13
     name: "\u5272\u5408\u30C0\u30E1\u30FC\u30B8UP"
+    description: "\u3010\u30D1\u30C3\u30B7\u30D6\u3011<br>\u30C0\u30E1\u30FC\u30B8x1.5"
     type: 9
     param1: 0
     param2: 0
@@ -130,8 +155,10 @@ MonoBehaviour:
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 4
+    illust: {fileID: 21300000, guid: 03465be2dfdd2cc4e9ebbca6a97885a2, type: 3}
   - id: 14
     name: "\u91D1\u30C9\u30ED\u30C3\u30D7UP"
+    description: "\u3010\u30D1\u30C3\u30B7\u30D6\u3011<br>\u30B8\u30A7\u30E0\u8FFD\u52A0\u30C9\u30ED\u30C3\u30D7"
     type: 9
     param1: 0
     param2: 0
@@ -139,8 +166,10 @@ MonoBehaviour:
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 5
+    illust: {fileID: 21300000, guid: 8b90a5759c4455040977dbbd7be6b432, type: 3}
   - id: 15
     name: "\u30C8\u30B2\u306E\u76FE"
+    description: "\u3010\u30D1\u30C3\u30B7\u30D6\u3011<br>\u30C0\u30E1\u30FC\u30B8\u53CD\u5C04<br>1\u30C0\u30E1\u30FC\u30B8"
     type: 9
     param1: 0
     param2: 0
@@ -148,8 +177,10 @@ MonoBehaviour:
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 6
+    illust: {fileID: 21300000, guid: 10ca0546d233b9c4cae8ffe7a214acdc, type: 3}
   - id: 16
     name: "\u30AB\u30A6\u30F3\u30BF\u30FC"
+    description: "\u3010\u30D1\u30C3\u30B7\u30D6\u3011<br>\u30C0\u30E1\u30FC\u30B8\u53CD\u5C04<br>\u53D7\u3051\u305F\u30C0\u30E1\u30FC\u30B8\u306E50%"
     type: 9
     param1: 0
     param2: 0
@@ -157,8 +188,10 @@ MonoBehaviour:
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 7
+    illust: {fileID: 21300000, guid: 10ca0546d233b9c4cae8ffe7a214acdc, type: 3}
   - id: 17
     name: "\u6E80\u8DB3\u611F"
+    description: "\u3010\u30D1\u30C3\u30B7\u30D6\u3011<br>\u8179\u6E1B\u308A50%\u8EFD\u6E1B"
     type: 9
     param1: 0
     param2: 0
@@ -166,12 +199,15 @@ MonoBehaviour:
     category: 2
     attackAreaDataId: -1
     passiveEffectId: 8
+    illust: {fileID: 21300000, guid: 73d000437c8287047908c673ca087048, type: 3}
   - id: 18
     name: "\u9023\u7D9A\u653B\u6483"
+    description: "5\u679A\u30AB\u30FC\u30C9\u3092\u5F15\u304D<br>\u5F15\u3044\u305F\u653B\u64CA\u3092\u3059\u3079\u3066\u4F7F\u7528\u3059\u308B"
     type: 8
     param1: 5
     param2: 0
-    price: 300
+    price: 500
     category: 3
     attackAreaDataId: -1
     passiveEffectId: -1
+    illust: {fileID: 21300000, guid: e1fbd47210b670e479209bcf64d46fdc, type: 3}

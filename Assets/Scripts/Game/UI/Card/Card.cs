@@ -14,7 +14,9 @@ public class Card : MonoBehaviour
     [SerializeField]
     private GameObject backSide;
     [SerializeField]
-    private TMP_Text label;
+    private TMP_Text titleLabel;
+    [SerializeField]
+    private TMP_Text detailLabel;
     [SerializeField]
     private Image illust;
     [SerializeField]
@@ -53,7 +55,9 @@ public class Card : MonoBehaviour
         if (info.IsPassive)
             PassiveInfo = DB.Instance.MPassiveEffect.GetById(info.PassiveEffectId).Clone();
         Owner = owner;
-        label.text = info.Name;
+        titleLabel.text = info.Name;
+        detailLabel.text = info.Description;
+        illust.sprite = info.Illust;
     }
 
     public void Goto(Transform target, Action onComplete = null)

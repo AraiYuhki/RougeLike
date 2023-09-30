@@ -156,7 +156,7 @@ public class ShopWindow : MonoBehaviour
         foreach (var data in cards)
         {
             var card = Instantiate(originalCard);
-            card.SetData(data, null);
+            card.SetData(data, null, false);
             card.Enable = player.Data.Gems >= data.Price;
             shopMenu.AddItem(card);
         }
@@ -170,7 +170,7 @@ public class ShopWindow : MonoBehaviour
         foreach (var card in cardController.AllCards.OrderBy(card => card.Data.Id))
         {
             var obj = Instantiate(originalCard);
-            obj.SetData(card.Data, card);
+            obj.SetData(card.Data, card, true);
             obj.Enable = canRemove;
             deckMenu.AddItem(obj);
         }

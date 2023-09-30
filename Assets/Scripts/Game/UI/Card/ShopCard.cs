@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class ShopCard : SelectableItem
 {
     [SerializeField]
+    private TMP_Text descriptionLabel;
+    [SerializeField]
     private Image illust;
     [SerializeField]
     private TMP_Text priceLabel;
@@ -20,13 +22,14 @@ public class ShopCard : SelectableItem
         set => button.interactable = value;
     }
 
-    public void SetData(CardInfo data, Card card, Action onSelect = null, Action onClick = null)
+    public void SetData(CardInfo data, Card card, bool isRemove)
     {
         Card = card;
         Data = data;
         label.text = data.Name;
-        priceLabel.text = $"{data.Price}G";
-        Initialize(onSelect, () => onClick?.Invoke());
+        descriptionLabel.text = data.Description;
+        priceLabel.text = isRemove ? "200G" : $"{data.Price}G";
+        illust.sprite = data.Illust;
     }
 
     public void Click() => button.onClick?.Invoke();

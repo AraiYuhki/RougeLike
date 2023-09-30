@@ -219,11 +219,9 @@ public class Player : Unit
             if (card.Data.Category == CardCategory.Attack)
             {
                 card.Use(() => isUsed = true);
-                Debug.LogError($"use attack card {card.Data.Id}:{card.Data.Name}");
             }
             else
             {
-                Debug.LogError($"Trash card {card.Data.Id}:{card.Data.Name}");
                 await UniTask.Delay(200);
                 isUsed = true;
             }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.U2D;
 
 public class CardController : MonoBehaviour
 {
@@ -34,6 +35,8 @@ public class CardController : MonoBehaviour
 
     [SerializeField]
     private TMP_Text deckCardCountLabel;
+    [SerializeField]
+    private SpriteAtlas cardIcons = null;
 
     private List<Card> deck = new List<Card>();
     private Card[] hands = new Card[4];
