@@ -57,7 +57,7 @@ public class CardInfo
     [SerializeField, CsvColumn("illust")]
     private Sprite illust;
 
-    private AttackAreaInfo attackAreaData;
+    private AttackAreaInfo attackAreaData = null;
 
     public int Id => id;
 

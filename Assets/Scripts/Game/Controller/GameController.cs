@@ -105,13 +105,14 @@ public class GameController : MonoBehaviour
         enemyManager.Clear();
         itemManager.Clear();
         floorManager.Clear();
+
         var floorInfo = dungeonData.GetFloor(CurrentFloor);
         floorManager.Create(floorInfo, dungeonData.IsTower);
+        player.SetPosition(floorManager.FloorData.SpawnPoint);
         enemyManager.SetFloorData(floorInfo);
+        itemManager.Initialize(150, 1, 5);
         for (var count = 0; count < 4; count++)
             enemyManager.Spawn();
-        itemManager.Initialize(150, 1, 5);
-        player.SetPosition(floorManager.FloorData.SpawnPoint);
         ForceUpdateMinimap();
     }
 

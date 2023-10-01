@@ -1,10 +1,11 @@
-using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class ItemManager : MonoBehaviour
 {
+    [SerializeField]
+    private Player player;
     [SerializeField]
     private FloorManager floorManager;
     [SerializeField]
@@ -20,9 +21,9 @@ public class ItemManager : MonoBehaviour
         var spawnedGems = 0;
         while(spawnedGems < sumPrice)
         {
-            var value = UnityEngine.Random.Range(min, max);
+            var value = Random.Range(min, max);
             spawnedGems += value;
-            Spawn(value);
+            Spawn(value, GetSpawnTile());
         }
     }
 
@@ -47,12 +48,11 @@ public class ItemManager : MonoBehaviour
         return item;
     }
 
-    public void Spawn(int price)
+    private void Spawn(int price, TileData tile)
     {
         var template = gemTemplates.First();
         var item = Instantiate(template, floorManager.transform);
         item.GemCount = price;
-        var tile = floorManager.GetRoomTiles().Where(tile => floorManager.GetItem(tile.Position) == null).Random();
         item.SetPosition(tile);
         floorManager.SetItem(item, tile.Position);
         ItemList.Add(item);
@@ -62,5 +62,19 @@ public class ItemManager : MonoBehaviour
     {
         ItemList.Remove(item);
         Destroy(item.gameObject);
+    }
+
+    private TileData GetSpawnTile()
+    {
+        var playerTile = floorManager.GetTile(player.Position);
+        return floorManager.GetRoomTiles().Where(tile => Filter(tile, playerTile.Position)).Random();
+    }
+
+    private bool Filter(TileData tile, Point playerPosition)
+    {
+        if (floorManager.GetItem(tile.Position) != null) return false;
+        if (floorManager.GetUnit(tile.Position) != null) return false;
+        if (tile.Position == playerPosition) return false;
+        return true;
     }
 }

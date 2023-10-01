@@ -123,7 +123,7 @@ public class Unit : MonoBehaviour
         {
             tweenList.Remove(sequence);
             OnAttack?.Invoke(this, target);
-            target.Damage(damage, this, isResourceAttack);
+            target.Damage(damage, this);
             onComplete?.Invoke();
         });
         sequence.SetAutoKill(true);
@@ -131,7 +131,7 @@ public class Unit : MonoBehaviour
         ChargeStack = 0;
     }
 
-    public virtual void Attack(int damage, AttackAreaInfo attackArea, Action onComplete = null, bool isResourceAttack = false)
+    public virtual void Attack(int damage, AttackAreaInfo attackArea, Action onComplete = null)
     {
         damage = (int)(damage * (ChargeStack + 1));
         var tween = DOTween.Sequence();
@@ -150,7 +150,7 @@ public class Unit : MonoBehaviour
                 var target = floorManager.GetUnit(position);
                 if (this is Player player && target is Enemy enemy)
                 {
-                    enemy.Damage(damage, this, isResourceAttack);
+                    enemy.Damage(damage, this);
                 }
             }
             onComplete?.Invoke();
