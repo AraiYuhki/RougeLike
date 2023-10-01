@@ -4,8 +4,6 @@ using UnityEngine;
 [Serializable]
 public class AttackInfo
 {
-    [SerializeField, CsvColumn("id")]
-    private int id;
     [SerializeField, CsvColumn("groupId")]
     private int groupId;
     [SerializeField, CsvColumn("offset")]
@@ -13,7 +11,6 @@ public class AttackInfo
     [SerializeField, CsvColumn("rate")]
     private uint rate;
 
-    public int Id => id;
     public int GroupId => groupId;
     public Vector2Int Offset => offset;
     public uint Rate => rate;
