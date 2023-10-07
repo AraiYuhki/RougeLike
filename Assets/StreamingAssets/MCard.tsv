@@ -1,18 +1,19 @@
-id	name	type	param	range	price	category	attackAreaId	passiveEffectId
-1	弱攻撃	NormalAttack	15	0	50	Attack	-1	-1
-2	強攻撃	NormalAttack	30	0	200	Attack	-1	-1
-3	遠距離攻撃	LongRangeAttack	15	10	300	Attack	-1	-1
-4	範囲攻撃	RangeAttack	15	0	300	Attack	1	-1
-5	全体攻撃	RoomAttack	30	0	500	Attack	-1	-1
-6	薬草	Heal	30	0	100	Utility	-1	-1
-7	おにぎり	StaminaHeal	30	0	100	Utility	-1	-1
-8	チャージ	Charge	1	0	200	Special	-1	-1
-9	リソースアタック	ResourceAttack	15	0	100	Attack	-1	-1
-10	皮の盾	Passive	0	0	300	Passive	-1	1
-11	割合防御	Passive	0	0	300	Passive	-1	2
-12	鉄の剣	Passive	0	0	300	Passive	-1	3
-13	割合ダメージUP	Passive	0	0	300	Passive	-1	4
-14	金ドロップUP	Passive	0	0	300	Passive	-1	5
-15	トゲの盾	Passive	0	0	300	Passive	-1	6
-16	カウンター	Passive	0	0	700	Passive	-1	7
-17	満足感	Passive	0	0	300	Passive	-1	8
+id	name	description	type	param1	param2	price	category	attackAreaId	passiveEffectId	illust
+1	弱攻撃	15ダメージ	NormalAttack	15	0	50	Attack	-1	-1	icon_slash (UnityEngine.Sprite)
+2	強攻撃	30ダメージ	NormalAttack	30	0	200	Attack	-1	-1	icon_hard_slash (UnityEngine.Sprite)
+3	遠距離攻撃	射程10<br>15ダメージ	LongRangeAttack	15	10	300	Attack	-1	-1	icon_arrow_shot (UnityEngine.Sprite)
+4	範囲攻撃	周囲に15ダメージ	RangeAttack	15	0	300	Attack	1	-1	icon_around_slice (UnityEngine.Sprite)
+5	全体攻撃	同じ部屋に10ダメージ	RoomAttack	10	0	500	Attack	-1	-1	icon_blade_dance (UnityEngine.Sprite)
+6	薬草	HP30回復	Heal	30	0	100	Utility	-1	-1	icon_herb (UnityEngine.Sprite)
+7	おにぎり	スタミナ30%回復	StaminaHeal	30	0	100	Utility	-1	-1	icon_riceball (UnityEngine.Sprite)
+8	チャージ	次の攻撃のダメージ2倍	Charge	1	0	200	Special	-1	-1	icon_powerup (UnityEngine.Sprite)
+9	リソースアタック	15ダメージ<br>ダメージ分のジェムをドロップ	ResourceAttack	15	0	100	Attack	-1	-1	icon_steel (UnityEngine.Sprite)
+10	皮の盾	【パッシブ】<br>1ダメージ軽減	Passive	0	0	300	Passive	-1	1	icon_leather_shield (UnityEngine.Sprite)
+11	割合防御	【パッシブ】<br>受けるダメージ半減	Passive	0	0	300	Passive	-1	2	icon_barrier (UnityEngine.Sprite)
+12	鉄の剣	【パッシブ】<br>+5ダメージ	Passive	0	0	300	Passive	-1	3	icon_short_sword (UnityEngine.Sprite)
+13	割合ダメージUP	【パッシブ】<br>ダメージx1.5	Passive	0	0	300	Passive	-1	4	icon_claw_necklace (UnityEngine.Sprite)
+14	金ドロップUP	【パッシブ】<br>ジェム追加ドロップ	Passive	0	0	300	Passive	-1	5	icon_dropi_up (UnityEngine.Sprite)
+15	トゲの盾	【パッシブ】<br>ダメージ反射<br>1ダメージ	Passive	0	0	300	Passive	-1	6	icon_reflect (UnityEngine.Sprite)
+16	カウンター	【パッシブ】<br>ダメージ反射<br>受けたダメージの50%	Passive	0	0	700	Passive	-1	7	icon_reflect (UnityEngine.Sprite)
+17	満足感	【パッシブ】<br>腹減り50%軽減	Passive	0	0	300	Passive	-1	8	icon_stamina_ring (UnityEngine.Sprite)
+18	連続攻撃	5枚カードを引き<br>引いた攻擊をすべて使用する	DrawAndUse	5	0	1000	Special	-1	-1	icon_wild_dance (UnityEngine.Sprite)
