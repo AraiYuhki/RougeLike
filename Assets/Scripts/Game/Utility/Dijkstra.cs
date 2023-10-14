@@ -1,3 +1,4 @@
+ï»¿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -56,9 +57,22 @@ public class Dijkstra
         Initialize();
     }
 
+    private void Initialize()
+    {
+        hasTmpNode = false;
+        nodes = floorData.Rooms.ToDictionary(room => room.Id, room => new Node() { Id = room.Id, Room = room });
+        foreach (var path in floorData.Paths)
+        {
+            nodes[path.FromRoomId].ConnectedCosts[path.ToRoomId] = path.PathPositionList.Count;
+            nodes[path.ToRoomId].ConnectedCosts[path.FromRoomId] = path.PathPositionList.Count;
+        }
+    }
+
     public List<int> GetRoot(int from, int to)
     {
-        if (from < 0 || to < 0) return null;
+        if (from == 0 || to == 0) return null;
+        foreach (var node in nodes.Values)
+            node.Status = NodeStatus.None;
         nodes[from].Status = NodeStatus.Open;
         nodes[from].Score = 0;
         openNodes.Add(nodes[from]);
@@ -77,10 +91,19 @@ public class Dijkstra
 
         var current = goal;
         var result = new List<int>();
-        while (current != null)
+        try
         {
-            result.Add(current.Id);
-            current = current.Parent;
+            while (current != null)
+            {
+                // åŒã˜ã‚¿ã‚¤ãƒ«ã‚’ç™»éŒ²ã—ã‚ˆã†ã¨ã—ãŸã‚‰ãƒ«ãƒ¼ãƒ—ã—ã¦ã„ã‚‹å¯èƒ½æ€§ãŒã‚ã‚‹ã®ã§Breakã™ã‚‹
+                if (result.Contains(current.Id)) break;
+                result.Add(current.Id);
+                current = current.Parent;
+            }
+        }
+        catch (OutOfMemoryException e)
+        {
+            Debug.LogException(e);
         }
         result.Reverse();
         Debug.Log(string.Join("->", result));
@@ -118,7 +141,7 @@ public class Dijkstra
         if (!start.IsRoom)
         {
             var path = floorData.Paths.FirstOrDefault(path => path.Id == start.Id);
-            // Œ»İˆÊ’u‚ª’Ê˜H‚Ìê‡‚Íˆê“I‚Èƒm[ƒh‚ğì¬‚·‚é
+            // ç¾åœ¨ä½ç½®ãŒé€šè·¯ã®å ´åˆã¯ä¸€æ™‚çš„ãªãƒãƒ¼ãƒ‰ã‚’ä½œæˆã™ã‚‹
             startId = AddTmpNode(path);
         }
         if (!end.IsRoom)
@@ -141,10 +164,10 @@ public class Dijkstra
         for (var index = 0;index < nodeList.Count; index++)
         {
             var currentNode = nodes[nodeList[index]];
-            // Œ´‘¥’Ê˜Hƒm[ƒh‚ÍÅ‰‚Ìƒm[ƒh‚É‚µ‚©‚È‚¢‚Í‚¸‚È‚Ì‚ÅA‚»‚êˆÈŠO‚Ìƒpƒ^[ƒ“‚Í‹–—e‚µ‚È‚¢
+            // åŸå‰‡é€šè·¯ãƒãƒ¼ãƒ‰ã¯æœ€åˆã®ãƒãƒ¼ãƒ‰ã«ã—ã‹ãªã„ã¯ãšãªã®ã§ã€ãã‚Œä»¥å¤–ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã¯è¨±å®¹ã—ãªã„
             if (index == 0)
             {
-                // Å‰‚Ìƒm[ƒh‚ª’Ê˜H‚Ìê‡‚Í‰½‚à‚µ‚È‚¢
+                // æœ€åˆã®ãƒãƒ¼ãƒ‰ãŒé€šè·¯ã®å ´åˆã¯ä½•ã‚‚ã—ãªã„
                 if (!currentNode.IsPathNode)
                 {
                     var nextNode = nodes[nodeList[index + 1]];
@@ -154,14 +177,14 @@ public class Dijkstra
             }
             var prevNode = nodes[nodeList[index - 1]];
             var prevRoomId = 0;
-            // ‚Ğ‚Æ‚Â‘O‚Ìƒm[ƒh‚ª’Ê˜H‚Ìê‡‚Í’Ê˜H‚ÌÚ‘±æ‚©‚ç•”‰®‚ÌID‚ğ—Ş„‚µAƒ`ƒFƒbƒNƒ|ƒCƒ“ƒg‚ÌÀ•W‚ğ’T‚·
+            // ã²ã¨ã¤å‰ã®ãƒãƒ¼ãƒ‰ãŒé€šè·¯ã®å ´åˆã¯é€šè·¯ã®æ¥ç¶šå…ˆã‹ã‚‰éƒ¨å±‹ã®IDã‚’é¡æ¨ã—ã€ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆã®åº§æ¨™ã‚’æ¢ã™
             if (prevNode.IsPathNode)
                 prevRoomId = prevNode.Path.ToRoomId == currentNode.Id ? prevNode.Path.FromRoomId : prevNode.Path.ToRoomId;
             else
                 prevRoomId = prevNode.Id;
             checkPoints.Add(currentNode.Room.ConnectedPoint[prevRoomId]);
 
-            // ÅŒã‚Ìƒm[ƒh‚È‚ç–Ú“I’n‚ğ’Ç‰Á
+            // æœ€å¾Œã®ãƒãƒ¼ãƒ‰ãªã‚‰ç›®çš„åœ°ã‚’è¿½åŠ 
             if (index == nodeList.Count - 1)
                 checkPoints.Add(endTile.Position);
             else
@@ -252,17 +275,6 @@ public class Dijkstra
         }
         if (nodes.Where(node => node.Value.Status != NodeStatus.Close).Any()) return checkedNodes;
         return null;
-    }
-
-    private void Initialize()
-    {
-        hasTmpNode = false;
-        nodes = floorData.Rooms.ToDictionary(room => room.Id, room => new Node() { Id = room.Id, Room = room });
-        foreach (var path in floorData.Paths)
-        {
-            nodes[path.FromRoomId].ConnectedCosts[path.ToRoomId] = path.PathPositionList.Count;
-            nodes[path.ToRoomId].ConnectedCosts[path.FromRoomId] = path.PathPositionList.Count;
-        }
     }
 }
 

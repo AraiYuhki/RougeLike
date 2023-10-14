@@ -69,6 +69,7 @@ public class DefaultAI : EnemyAI
             cantMoveTurns++;
             return;
         }
+        cantMoveTurns = 0;
         Enemy.MoveTo(nextTile, onComplete);
     }
 
@@ -96,9 +97,8 @@ public class DefaultAI : EnemyAI
                 {
                     var targetRoomId = floorInfo.RoomIds.Random();
                     Enemy.TargetTile = floorInfo.GetRoomTiles(targetRoomId).Random();
-                    cantMoveTurns = 0;
                     checkPoints = floorInfo.GetCheckpoints(Enemy.Position, Enemy.TargetTile.Position);
-                    if (targetRoomId != currentTile.Id || checkPoints.Count > 0) break;
+                    if (targetRoomId != currentTile.Id && checkPoints.Count > 0) break;
                     count++;
                 }
             }
