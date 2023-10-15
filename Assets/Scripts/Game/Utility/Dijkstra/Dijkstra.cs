@@ -2,49 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Stopwatch = System.Diagnostics.Stopwatch;
 
-public class Dijkstra
+public partial class Dijkstra
 {
-    public enum NodeStatus
-    {
-        None,
-        Open,
-        Close
-    }
-
-    public class Node
-    {
-        public int Id { get; set; }
-        public NodeStatus Status { get; set; } = NodeStatus.None;
-        public Room Room { get; set; } = null;
-        public Path Path { get; set; } = null;
-        public int Score { get; set; } = int.MaxValue;
-        public Node Parent { get; set; }
-        public Dictionary<int, int> ConnectedCosts { get; set; } = new Dictionary<int, int>();
-        public bool IsTmporary { get; set; } = false;
-        public bool IsPathNode => Path != null;
-
-        public void Clear()
-        {
-            Score = int.MaxValue;
-            Parent = null;
-            Status = NodeStatus.None;
-        }
-
-        public Vector3 Position
-        {
-            get
-            {
-                if (Room != null)
-                    return Room.Center;
-                if (Path != null)
-                    return Path.Center;
-                return Vector3.zero;
-            }
-        }
-    }
-
     private Dictionary<int, Node> nodes = new Dictionary<int, Node>();
     private List<Node> openNodes = new List<Node>();
     private FloorData floorData;
@@ -60,19 +20,36 @@ public class Dijkstra
     private void Initialize()
     {
         hasTmpNode = false;
-        nodes = floorData.Rooms.ToDictionary(room => room.Id, room => new Node() { Id = room.Id, Room = room });
+        nodes = floorData.Rooms.ToDictionary(room => room.Id, room => new Node() { Room = room });
         foreach (var path in floorData.Paths)
         {
+            var pathNode = new Node { Path = path };
+            var halfCost = path.PathPositionList.Count / 2;
+
+            pathNode.ConnectedCosts[path.FromRoomId] = path.PathPositionList.Count - halfCost;
+            pathNode.ConnectedCosts[path.ToRoomId] = path.PathPositionList.Count - halfCost;
+            nodes.Add(pathNode.Id, pathNode);
+
             nodes[path.FromRoomId].ConnectedCosts[path.ToRoomId] = path.PathPositionList.Count;
             nodes[path.ToRoomId].ConnectedCosts[path.FromRoomId] = path.PathPositionList.Count;
         }
     }
 
+    private void Reset()
+    {
+        foreach (var node in nodes.Values)
+        {
+            node.Status = NodeStatus.None;
+            node.Parent = null;
+            node.Score = int.MaxValue;
+        }
+    }
+
     public List<int> GetRoot(int from, int to)
     {
-        if (from == 0 || to == 0) return null;
-        foreach (var node in nodes.Values)
-            node.Status = NodeStatus.None;
+        if (from < 0 || to < 0) return null;
+        Reset();
+
         nodes[from].Status = NodeStatus.Open;
         nodes[from].Score = 0;
         openNodes.Add(nodes[from]);
@@ -110,45 +87,11 @@ public class Dijkstra
         return result;
     }
 
-    private int AddTmpNode(Path path)
-    {
-        if(path == null)
-        {
-            Debug.LogError($"Path is null!!");
-            return -1;
-        }
-        var halfCost = path.PathPositionList.Count / 2;
-        var tmpId = -path.Id;
-        var tmpNode = new Node() { Id = tmpId, IsTmporary = true, Path = path };
-        tmpNode.ConnectedCosts.Add(path.FromRoomId, halfCost);
-        tmpNode.ConnectedCosts.Add(path.ToRoomId, halfCost);
-        
-        nodes[path.FromRoomId].ConnectedCosts.Remove(path.ToRoomId);
-        nodes[path.ToRoomId].ConnectedCosts.Remove(path.FromRoomId);
-
-        nodes[path.FromRoomId].ConnectedCosts[tmpId] = halfCost;
-        nodes[path.ToRoomId].ConnectedCosts[tmpId] = halfCost;
-        nodes.Add(tmpId, tmpNode);
-        hasTmpNode = true;
-        return tmpId;
-    }
-
     public List<int> GetRoot(TileData start, TileData end)
     {
         if (hasTmpNode) Initialize();
-        var startId = start.Id;
-        var endId = end.Id;
-        if (!start.IsRoom)
-        {
-            var path = floorData.Paths.FirstOrDefault(path => path.Id == start.Id);
-            // 現在位置が通路の場合は一時的なノードを作成する
-            startId = AddTmpNode(path);
-        }
-        if (!end.IsRoom)
-        {
-            var path = floorData.Paths.FirstOrDefault(path => path.Id == start.Id);
-            endId = AddTmpNode(path);
-        }
+        var startId = start.IsRoom ? start.Id : start.Id + PathNodeIdOffset;
+        var endId = end.IsRoom ? end.Id : end.Id + PathNodeIdOffset;
         return GetRoot(startId, endId);
     }
 
@@ -249,7 +192,7 @@ public class Dijkstra
 
     public static List<Room> FindClosedPath(List<Room> rooms, List<Path> paths)
     {
-        var nodes = rooms.ToDictionary(room => room.Id, room => new Node() { Id = room.Id, Room = room });
+        var nodes = rooms.ToDictionary(room => room.Id, room => new Node() { Room = room });
         foreach (var path in paths)
             nodes[path.FromRoomId].ConnectedCosts[path.ToRoomId] = path.PathPositionList.Count;
 

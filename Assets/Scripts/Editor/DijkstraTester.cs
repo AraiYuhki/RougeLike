@@ -44,13 +44,13 @@ public class DijkstraTester : EditorWindow
 
         if (GUILayout.Button("生成")) Generate();
 
-        if (floorData == null) return;
+        if (floorData == null || dijkstra == null) return;
 
         using(new EditorGUILayout.HorizontalScope())
         {
-            var roomIds = floorData.Rooms.Select(room => room.Id).ToArray();
-            startId = EditorGUILayout.IntPopup("開始地点", startId, roomIds.Select(id => id.ToString()).ToArray(), roomIds);
-            endId = EditorGUILayout.IntPopup("終了地点", endId, roomIds.Select(id => id.ToString()).ToArray(), roomIds);
+            var noeIds = dijkstra.Nodes.Keys.ToArray();
+            startId = EditorGUILayout.IntPopup("開始地点", startId, noeIds.Select(id => id.ToString()).ToArray(), noeIds);
+            endId = EditorGUILayout.IntPopup("終了地点", endId, noeIds.Select(id => id.ToString()).ToArray(), noeIds);
             if (GUILayout.Button("経路探索"))
             {
                 var root = dijkstra.GetRoot(startId, endId);
@@ -99,7 +99,6 @@ public class DijkstraTester : EditorWindow
     private void Generate()
     {
         floorData = DungeonGenerator.GenerateFloor(width, height, roomCount, deletePercent);
-        Debug.LogError(floorData.Rooms.Count);
         dijkstra = new Dijkstra(floorData);
         root?.Clear();
     }
