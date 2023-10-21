@@ -27,7 +27,7 @@ public class Room
 
     public int EndY => Y + Height;
 
-    public Vector3 Center => new Vector3(X + Width * 0.5f, Y + Height * 0.5f, 0f);
+    public Point Center => new Point(X + Width * 0.5f, Y + Height * 0.5f);
 
     public Room()
     {

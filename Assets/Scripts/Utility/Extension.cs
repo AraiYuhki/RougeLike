@@ -42,6 +42,7 @@ public static class Extension
     }
 
     public static IEnumerable<T> Randmize<T>(this IList<T> values) => values.OrderBy(_ => Guid.NewGuid());
+    public static IEnumerable<T> Randmize<T>(this IEnumerable<T> values) => values.OrderBy(_ => Guid.NewGuid());
 
     public static void Shuffle<T>(this IList<T> values)
     {

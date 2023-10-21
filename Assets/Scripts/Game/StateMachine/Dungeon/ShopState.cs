@@ -6,10 +6,12 @@ public class ShopState : IState
 {
     private DungeonStateMachine stateMachine;
     private ShopWindow window;
+    private FloorManager floorManager;
 
-    public ShopState(DungeonStateMachine stateMachine, ShopWindow window)
+    public ShopState(DungeonStateMachine stateMachine, ShopWindow window, FloorManager floorManager)
     {
         this.stateMachine = stateMachine;
+        this.floorManager = floorManager;
         this.window = window;
         this.window.StateMachine = stateMachine;
         this.window.OnClose = () => stateMachine.Goto(GameState.NextFloorLoad);
@@ -17,7 +19,8 @@ public class ShopState : IState
 
     public void OnEnter()
     {
-        window.Open();
+        var shopSetting = DB.Instance.MFloorShop.GetById(floorManager.FloorInfo.ShopId);
+        window.Open(shopSetting);
     }
 
     public void OnExit()

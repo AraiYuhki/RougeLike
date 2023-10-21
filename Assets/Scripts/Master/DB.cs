@@ -21,6 +21,7 @@ public class DB
     private MDungeon dungeonData;
     private MFloor floorData;
     private MFloorEnemySpawn floorEnemySpawnData;
+    private MFloorShop floorShop;
     private MCard cardData;
     private MPassiveEffect passiveEffectData;
     private MAttack attackData;
@@ -30,6 +31,7 @@ public class DB
     public MDungeon MDungeon => dungeonData;
     public MFloor MFloor => floorData;
     public MFloorEnemySpawn MFloorEnemySpawn => floorEnemySpawnData;
+    public MFloorShop MFloorShop => floorShop;
     public MCard MCard => cardData;
     public MPassiveEffect MPassiveEffect => passiveEffectData;
     public MAttack MAttack => attackData;
@@ -47,6 +49,7 @@ public class DB
         cardData = Addressables.LoadAssetAsync<MCard>("MCard").WaitForCompletion();
         attackData = Addressables.LoadAssetAsync<MAttack>("MAttack").WaitForCompletion();
         attackAreaData = Addressables.LoadAssetAsync<MAttackArea>("MAttackArea").WaitForCompletion();
+        floorShop = Addressables.LoadAssetAsync<MFloorShop>("MFloorShop").WaitForCompletion();
         floorEnemySpawnData = Addressables.LoadAssetAsync<MFloorEnemySpawn>("MFloorEnemySpawn").WaitForCompletion();
         floorData = Addressables.LoadAssetAsync<MFloor>("MFloor").WaitForCompletion();
         dungeonData = Addressables.LoadAssetAsync<MDungeon>("MDungeon").WaitForCompletion();
@@ -59,6 +62,7 @@ public class DB
         SafeRelease(cardData);
         SafeRelease(attackData);
         SafeRelease(attackAreaData);
+        SafeRelease(floorShop);
         SafeRelease(floorEnemySpawnData);
         SafeRelease(floorData);
         SafeRelease(dungeonData);

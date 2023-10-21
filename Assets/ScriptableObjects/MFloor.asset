@@ -19,15 +19,21 @@ MonoBehaviour:
     size: {x: 20, y: 20}
     maxRoomCount: 4
     deletePathProbability: 0
+    initialSpawnEnemyCount: 2
+    spawnEnemyIntervalTurn: 30
     floorMaterialName: Material/Sand
     wallMaterialName: Material/Tiles3
     enemySpawnGroupId: 1
+    shopId: 0
   - id: 2
     dungeonId: 1
     sameSettingCount: 20
     size: {x: 30, y: 30}
     maxRoomCount: 5
     deletePathProbability: 0.1
+    initialSpawnEnemyCount: 3
+    spawnEnemyIntervalTurn: 30
     floorMaterialName: Material/Dirt
     wallMaterialName: Material/Rocks1
     enemySpawnGroupId: 2
+    shopId: 0

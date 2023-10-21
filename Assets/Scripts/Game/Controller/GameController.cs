@@ -71,16 +71,16 @@ public class GameController : MonoBehaviour
         stateMachine.AddState(GameState.MainMenu, new MenuState(stateMachine, uiManager));
         stateMachine.AddState(GameState.NextFloorLoad, new LoadFloorState(player, stateMachine, this, floorManager, floorMoveView));
         stateMachine.AddState(GameState.Dialog, new DialogState());
-        stateMachine.AddState(GameState.Shop, new ShopState(stateMachine, shopWindow));
+        stateMachine.AddState(GameState.Shop, new ShopState(stateMachine, shopWindow, floorManager));
     }
 
     private void Start()
     {
         dungeonData = DB.Instance.MDungeon.GetById(1);
         CurrentFloor = 1;
-        var floorData = dungeonData.GetFloor(CurrentFloor);
+        var floorInfo = dungeonData.GetFloor(CurrentFloor);
         floorManager.Clear();
-        floorManager.Create(floorData, dungeonData.IsTower);
+        floorManager.Create(floorInfo, dungeonData.IsTower);
         player.Initialize();
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         player.OnMoved += floorManager.OnMoveUnit;
@@ -89,7 +89,7 @@ public class GameController : MonoBehaviour
 
         turnControll = StartCoroutine(stateMachine.Update());
 
-        enemyManager.Initialize(player, floorData);
+        enemyManager.Initialize(player, floorInfo);
         itemManager.Initialize(150, 1, 5);
         Fade.Instance.FadeIn(() => stateMachine.Goto(GameState.PlayerTurn));
     }
@@ -111,7 +111,7 @@ public class GameController : MonoBehaviour
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         enemyManager.SetFloorData(floorInfo);
         itemManager.Initialize(150, 1, 5);
-        for (var count = 0; count < 4; count++)
+        for (var count = 0; count < floorInfo.InitialSpawnEnemyCount; count++)
             enemyManager.Spawn();
         ForceUpdateMinimap();
     }

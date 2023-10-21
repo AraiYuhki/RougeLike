@@ -1,5 +1,6 @@
 using DG.Tweening;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -98,7 +99,7 @@ public class ShopWindow : MonoBehaviour
         };
     }
 
-    public void Open(Action onComplete = null)
+    public void Open(FloorShopInfo shopSetting, Action onComplete = null)
     {
         if (IsOpened) return;
         IsOpened = true;
@@ -115,7 +116,7 @@ public class ShopWindow : MonoBehaviour
             tween = null;
             onComplete?.Invoke();
         });
-        InitializeShop();
+        InitializeShop(shopSetting);
         tabGroups.OnChangeTab = () =>
         {
             deckMenu.Enable = tabGroups.SelectIndex == (int)TabType.Deck;
@@ -149,10 +150,14 @@ public class ShopWindow : MonoBehaviour
     public void LeftTrigger() => tabGroups.SelectIndex--;
     public void Submit() => currentMenu.Submit();
 
-    public void InitializeShop()
+    public void InitializeShop(FloorShopInfo shopSetting)
     {
         shopMenu.Clear();
-        var cards = DB.Instance.MCard.All.Randmize().Take(3).ToList();
+        var cards = new List<CardInfo>();
+        if (shopSetting.isSellAll)
+            cards = DB.Instance.MCard.All.Randmize().Take(3).ToList();
+        else
+            cards = DB.Instance.MCard.All.Where(card => shopSetting.Cards.Contains(card.Id)).Randmize().Take(3).ToList();
         foreach (var data in cards)
         {
             var card = Instantiate(originalCard);

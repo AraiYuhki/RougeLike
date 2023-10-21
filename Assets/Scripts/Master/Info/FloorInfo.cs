@@ -19,12 +19,18 @@ public class FloorInfo
     private int maxRoomCount = 3;
     [SerializeField, Range(0f, 1f), CsvColumn("deletePathProbability")]
     private float deletePathProbability;
-    [SerializeField, CsvColumn("floorMaterial"), AddressableMaterial]
+    [SerializeField, Range(0, 99), CsvColumn("initialSpawnEnemyCount")]
+    private int initialSpawnEnemyCount = 4;
+    [SerializeField, Range(5, 9999), CsvColumn("spawnEnemyIntervalTurn")]
+    private int spawnEnemyIntervalTurn = 30;
+    [SerializeField, CsvColumn("floorMaterial")]
     private string floorMaterialName;
-    [SerializeField, CsvColumn("wallMaterial"), AddressableMaterial]
+    [SerializeField, CsvColumn("wallMaterial")]
     private string wallMaterialName;
     [SerializeField, CsvColumn("enemySpawnGroupId")]
     private int enemySpawnGroupId;
+    [SerializeField, CsvColumn("shopId")]
+    private int shopId;
 
     public int Id => id;
     public int DungeonId => dungeonId;
@@ -35,6 +41,9 @@ public class FloorInfo
     public string FloorMaterialName => floorMaterialName;
     public string WallMaterialName => wallMaterialName;
     public int EnemySpawnGroupId => enemySpawnGroupId;
+    public int InitialSpawnEnemyCount => initialSpawnEnemyCount;
+    public int SpawnEnemyIntervalTurn => spawnEnemyIntervalTurn;
+    public int ShopId => shopId;
 
     public Material FloorMaterial
         => Addressables.LoadAssetAsync<Material>(floorMaterialName).WaitForCompletion();

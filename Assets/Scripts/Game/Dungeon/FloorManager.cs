@@ -20,6 +20,7 @@ public class FloorManager : MonoBehaviour
 
     public bool IsTower { get; private set; }
     public FloorData FloorData { get; private set; }
+    public FloorInfo FloorInfo { get; private set; }
     public Vector2Int Size { get; private set; } = new Vector2Int(20, 20);
     public TileData[,] Map => FloorData.Map;
     public int[] RoomIds => FloorData.Map.Cast<TileData>().Where(tile => tile.IsRoom).Select(tile => tile.Id).Distinct().ToArray();
@@ -122,6 +123,7 @@ public class FloorManager : MonoBehaviour
 
     public void Create(FloorInfo floorInfo, bool isTower)
     {
+        FloorInfo = floorInfo;
         wall.GetComponent<Renderer>().material = floorInfo.WallMaterial;
         floor.GetComponent<Renderer>().material = floorInfo.FloorMaterial;
         Create(floorInfo.Size.x, floorInfo.Size.y, floorInfo.MaxRoomCount, isTower);

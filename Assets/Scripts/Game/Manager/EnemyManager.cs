@@ -23,7 +23,6 @@ public class EnemyManager : MonoBehaviour
     private Player player = null;
     private List<EnemyAI> enemies = new List<EnemyAI>();
     private int spawnedCount = 0;
-    const int spawnIntervalTurn = 30;
 
     public List<Enemy> Enemies => enemies.Select(enemy => enemy.Enemy).ToList();
 
@@ -31,7 +30,7 @@ public class EnemyManager : MonoBehaviour
     {
         this.floorSetting = floorSetting;
         this.player = player;
-        for (var count = 0; count < 4; count++)
+        for (var count = 0; count < floorSetting.InitialSpawnEnemyCount; count++)
             Spawn();
     }
 
@@ -71,7 +70,7 @@ public class EnemyManager : MonoBehaviour
 
     public async UniTask Controll()
     {
-        if (spawnIntervalTurn < spawnedCount)
+        if (floorSetting.SpawnEnemyIntervalTurn < spawnedCount)
         {
             Spawn();
             spawnedCount = 0;

@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using Cysharp.Threading.Tasks;
 #if UNITY_EDITOR
 using UnityEditor.AddressableAssets;
 using UnityEditor;
@@ -14,16 +15,16 @@ public class AddressableMaterialAttribute : PropertyAttribute
 [CustomPropertyDrawer(typeof(AddressableMaterialAttribute))]
 public class AddressableMaterialAttributeDrawer : PropertyDrawer
 {
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    public override async void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         EditorGUI.LabelField(position, label);
         position.width -= EditorGUIUtility.labelWidth;
+        EditorGUI.BeginChangeCheck();
         position.width *= 0.5f;
         position.x += EditorGUIUtility.labelWidth;
         property.stringValue = EditorGUI.TextField(position, property.stringValue);
         position.x += position.width;
-        var material = LoadMaterial(property.stringValue);
-        EditorGUI.BeginChangeCheck();
+        var material = await LoadMaterial(property.stringValue);
         var newMaterial = EditorGUI.ObjectField(position, material, typeof(Material), false) as Material;
         if (newMaterial != null && newMaterial != material)
         {
@@ -40,11 +41,11 @@ public class AddressableMaterialAttributeDrawer : PropertyDrawer
         }
     }
 
-    private Material LoadMaterial(string materialName)
+    private async UniTask<Material> LoadMaterial(string materialName)
     {
         try
         {
-            return Addressables.LoadAssetAsync<Material>(materialName).WaitForCompletion();
+            return await Addressables.LoadAssetAsync<Material>(materialName);
         }
         catch
         {
