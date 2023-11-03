@@ -26,6 +26,7 @@ public class FloorManager : MonoBehaviour
     public int[] RoomIds => FloorData.Map.Cast<TileData>().Where(tile => tile.IsRoom).Select(tile => tile.Id).Distinct().ToArray();
 
     private Unit[,] units;
+    private Trap[,] traps;
     private Item[,] items;
 
     public void SetMinimap(Minimap minimap)
@@ -54,6 +55,9 @@ public class FloorManager : MonoBehaviour
     }
     public Unit GetUnit(Vector2Int position) => GetUnit(position.x, position.y);
     public int GetUnitCount() => units.ToArray().Where(unit => unit != null).Count();
+
+    public Trap GetTrap(int x, int y) => traps[x, y];
+    public Trap GetTrap(Vector2Int position) => traps[position.x, position.y];
 
     public Item GetItem(int x, int y) => items[x, y];
     public Item GetItem(Vector2Int position) => items[position.x, position.y];
@@ -85,6 +89,10 @@ public class FloorManager : MonoBehaviour
     public List<TileData> GetRoomTiles() => Map.ToArray().Where(tile => tile.IsRoom).ToList();
     public List<TileData> GetRoomTiles(int roomId) => Map.ToArray().Where(tile => tile.IsRoom && tile.Id == roomId).ToList();
     public List<TileData> GetRoomTilesExcludeRoomId(int excludeRoomId) => Map.ToArray().Where(tile => tile.IsRoom && tile.Id != excludeRoomId).ToList();
+    public List<TileData> GetEmptyRoomTiles()
+        => Map.ToArray()
+        .Where(tile => tile.IsRoom && GetUnit(tile.Position) == null)
+        .ToList();
     public List<TileData> GetEmptyRoomTiles(int excludeRoomId)
         => Map.ToArray()
         .Where(tile => tile.IsRoom && tile.Id != excludeRoomId && GetUnit(tile.Position) == null)
@@ -135,6 +143,7 @@ public class FloorManager : MonoBehaviour
         FloorData = DungeonGenerator.GenerateFloor(width, height, maxRoom);
         units = new Unit[Size.x, Size.y];
         items = new Item[Size.x, Size.y];
+        traps = new Trap[Size.x, Size.y];
         this.IsTower = isTower;
 
         var transform = wall.transform;
@@ -289,6 +298,23 @@ public class FloorManager : MonoBehaviour
                 if (units[x, y] == unit)
                 {
                     units[x, y] = null;
+                    return;
+                }
+            }
+        }
+    }
+
+    public void SetTrap(Trap trap, Vector2Int position) => traps[position.x, position.y] = trap;
+    public void RemoveTranp(Vector2Int position) => traps[position.x, position.y] = null;
+    public void RemoveTrap(Trap trap)
+    {
+        for (var x = 0;x < Size.x;x++)
+        {
+            for(var y = 0; y < Size.y; y++)
+            {
+                if (traps[x, y] == trap)
+                {
+                    traps[x, y] = null;
                     return;
                 }
             }

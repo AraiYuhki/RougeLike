@@ -5056,6 +5056,7 @@ GameObject:
   - component: {fileID: 1009754815}
   - component: {fileID: 1009754816}
   - component: {fileID: 1009754817}
+  - component: {fileID: 1009754818}
   m_Layer: 0
   m_Name: Controller
   m_TagString: Untagged
@@ -5078,6 +5079,7 @@ MonoBehaviour:
   floorManager: {fileID: 100000723}
   enemyManager: {fileID: 1009754815}
   itemManager: {fileID: 1009754816}
+  trapManager: {fileID: 1009754818}
   dialogManager: {fileID: 89703661}
   uiManager: {fileID: 1009754817}
   noticeGroup: {fileID: 370729898}
@@ -5161,6 +5163,27 @@ MonoBehaviour:
   mainMenu: {fileID: 1371490034}
   inventory: {fileID: 1230298181}
   useMenu: {fileID: 337096310}
+--- !u!114 &1009754818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1009754811}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f8010af6e46b4b45b4b9ac543ed4bc2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 1276448553}
+  floorManager: {fileID: 100000723}
+  noticeGroup: {fileID: 370729898}
+  trapTemplates:
+  - {fileID: 4591363561603068429, guid: 4bcc2f472c8201e47b84f6db8b9aed3e, type: 3}
+  - {fileID: 3995481014250413112, guid: 50ec99678fd196846bdc266d3481cc1f, type: 3}
+  - {fileID: 8401487307703880393, guid: 7ce35e3580bad2f45a90ad95875b8fa6, type: 3}
+  - {fileID: 7649530433197738457, guid: 7e7e3e7ed63938f4bafd6ead6a97a737, type: 3}
+  - {fileID: 4478655744530192001, guid: 0d13087bd463353438a904b7952d746b, type: 3}
 --- !u!114 &1087938086 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 11496292, guid: 0abab5bb77339e4428787a870eb31bd3, type: 3}

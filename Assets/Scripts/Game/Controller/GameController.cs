@@ -20,6 +20,8 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private ItemManager itemManager;
     [SerializeField]
+    private TrapManager trapManager;
+    [SerializeField]
     private DialogManager dialogManager;
     [SerializeField]
     private UIManager uiManager;
@@ -91,6 +93,7 @@ public class GameController : MonoBehaviour
 
         enemyManager.Initialize(player, floorInfo);
         itemManager.Initialize(150, 1, 5);
+        trapManager.Initialize(4);
         Fade.Instance.FadeIn(() => stateMachine.Goto(GameState.PlayerTurn));
     }
 
@@ -104,6 +107,7 @@ public class GameController : MonoBehaviour
         CurrentFloor++;
         enemyManager.Clear();
         itemManager.Clear();
+        trapManager.Clear();
         floorManager.Clear();
 
         var floorInfo = dungeonData.GetFloor(CurrentFloor);
@@ -111,6 +115,7 @@ public class GameController : MonoBehaviour
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         enemyManager.SetFloorData(floorInfo);
         itemManager.Initialize(150, 1, 5);
+        trapManager.Initialize(4);
         for (var count = 0; count < floorInfo.InitialSpawnEnemyCount; count++)
             enemyManager.Spawn();
         ForceUpdateMinimap();

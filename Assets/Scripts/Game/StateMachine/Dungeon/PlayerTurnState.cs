@@ -80,6 +80,7 @@ public class PlayerTurnState : IState
             {
                 player.Move(move);
                 TakeItem();
+                CheckTrap();
                 // 移動先が階段か確認する
                 isExecuteCommand = !CheckStair();
             }
@@ -140,6 +141,13 @@ public class PlayerTurnState : IState
         floorManager.RemoveItem(item.Position);
         itemManager.Despawn(item);
         stateMachine.Goto(GameState.EnemyTurn);
+    }
+
+    private void CheckTrap()
+    {
+        var trap = floorManager.GetTrap(player.Position);
+        if (trap == null) return;
+        trap.Execute(player);
     }
 
     private bool CheckStair()

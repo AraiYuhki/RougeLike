@@ -70,7 +70,11 @@ public class DefaultAI : EnemyAI
             return;
         }
         cantMoveTurns = 0;
-        Enemy.MoveTo(nextTile, onComplete);
+        Enemy.MoveTo(nextTile, () =>
+        {
+            CheckTrap();
+            onComplete?.Invoke();
+        });
     }
 
     public override async UniTask Attack()
@@ -118,5 +122,12 @@ public class DefaultAI : EnemyAI
             return floorInfo.GetRoot(Enemy.Position, checkPoints.First());
         }
         return floorInfo.GetRoot(Enemy.Position, player.Position);
+    }
+
+    private void CheckTrap()
+    {
+        var trap = floorInfo.GetTrap(Enemy.Position);
+        if (trap == null) return;
+        trap.Execute(Enemy);
     }
 }
