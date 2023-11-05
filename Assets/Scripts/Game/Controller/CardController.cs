@@ -140,7 +140,7 @@ public class CardController : MonoBehaviour
                 card.transform.parent = deckContainer;
                 sequence.Insert(delay, card.transform.DOLocalMove(Vector3.zero, 0.2f));
                 sequence.Insert(delay, card.transform.DOScale(Vector3.one, 0.2f));
-                card.VisibleFrontSide = false;
+                sequence.InsertCallback(delay, () => card.CloseAsync().Forget());
                 delay += 0.05f;
             }
             cemetary.Clear();
@@ -167,7 +167,7 @@ public class CardController : MonoBehaviour
             card.transform.parent = deckContainer;
             sequence.Insert(delay, card.transform.DOLocalMove(Vector3.zero, 0.2f));
             sequence.Insert(delay, card.transform.DOScale(Vector3.one, 0.2f));
-            card.VisibleFrontSide = false;
+            sequence.InsertCallback(delay, () => card.CloseAsync().Forget());
             delay += 0.05f;
         }
         cemetary.Clear();
@@ -193,7 +193,7 @@ public class CardController : MonoBehaviour
         var card = deck.First();
         deck.Remove(card);
         hands[handIndex] = card;
-        card.Goto(handContainers[handIndex], () => card.VisibleFrontSide = true);
+        card.Goto(true, handContainers[handIndex]);
     }
 
     public void Use(int handIndex)
@@ -223,7 +223,7 @@ public class CardController : MonoBehaviour
         var card = deck.First();
         deck.Remove(card);
         useStack[lastIndex] = card;
-        card.Goto(useStackContainers[lastIndex], () => card.VisibleFrontSide = true);
+        card.Goto(true, useStackContainers[lastIndex]);
         return card;
     }
 

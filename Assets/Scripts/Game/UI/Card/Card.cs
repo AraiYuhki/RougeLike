@@ -21,6 +21,8 @@ public class Card : MonoBehaviour
     private Image illust;
     [SerializeField]
     private bool visibleFrontSide = false;
+    [SerializeField]
+    private Animator _animator;
 
     private Sequence tween = null;
     private FloorManager floorManager;
@@ -43,6 +45,12 @@ public class Card : MonoBehaviour
 
     public bool IsPassive => PassiveInfo != null;
 
+    public async UniTask OpenAsync() => await _animator.PlayAsync(AnimatorHash.Open);
+
+    public async UniTask CloseAsync() => await _animator.PlayAsync(AnimatorHash.Close);
+
+    public void SwitchSide(AnimationEvent e) => VisibleFrontSide = e.intParameter == 1;
+
     public void SetManager(FloorManager floorManager, EnemyManager enemyManager)
     {
         this.floorManager = floorManager;
@@ -58,6 +66,19 @@ public class Card : MonoBehaviour
         titleLabel.text = info.Name;
         detailLabel.text = info.Description;
         illust.sprite = info.Illust;
+    }
+
+    public void Goto(bool isOpen, Transform target)
+    {
+        tween?.Kill();
+        transform.SetParent(target);
+        tween = DOTween.Sequence();
+        tween.Append(transform.DOLocalMove(Vector3.zero, 0.3f));
+        tween.Join(transform.DOScale(Vector3.one, 0.3f));
+        if (isOpen)
+            OpenAsync().Forget();
+        else
+            CloseAsync().Forget();
     }
 
     public void Goto(Transform target, Action onComplete = null)
