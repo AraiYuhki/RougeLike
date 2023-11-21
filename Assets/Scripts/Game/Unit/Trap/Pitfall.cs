@@ -8,16 +8,6 @@ public class Pitfall : Trap
     private Animator animator;
     public override TrapType Type => TrapType.Pitfall;
 
-    private async void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            await animator.PlayAsync(AnimatorHash.Execute);
-            await UniTask.Delay(TimeSpan.FromSeconds(1f));
-            await animator.PlayAsync(AnimatorHash.Release);
-        }
-    }
-
     public override async void Execute(Unit executer)
     {
         base.Execute(executer);

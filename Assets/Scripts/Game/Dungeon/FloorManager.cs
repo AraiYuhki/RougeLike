@@ -129,12 +129,63 @@ public class FloorManager : MonoBehaviour
         StartCoroutine(Create());
     }
 
-    public void Create(FloorInfo floorInfo, bool isTower)
+    public FloorInfo Create(DungeonInfo dungeonData, int currentFloor)
     {
-        FloorInfo = floorInfo;
+        var floorInfo = dungeonData.GetFloor(currentFloor);
         wall.GetComponent<Renderer>().material = floorInfo.WallMaterial;
         floor.GetComponent<Renderer>().material = floorInfo.FloorMaterial;
-        Create(floorInfo.Size.x, floorInfo.Size.y, floorInfo.MaxRoomCount, isTower);
+        Clear();
+        FloorInfo = floorInfo;
+        Size = floorInfo.Size;
+        FloorData = DungeonGenerator.GenerateFloor(Size.x, Size.y, floorInfo.MaxRoomCount);
+        units = new Unit[Size.x, Size.y];
+        items = new Item[Size.x, Size.y];
+        traps = new Trap[Size.x, Size.y];
+        IsTower = dungeonData.IsTower;
+        aStar = new AStar(Map, this);
+        dijkstra = new Dijkstra(FloorData);
+        minimap?.Initialize(FloorData);
+        return floorInfo;
+    }
+
+    public void CreateMesh()
+    {
+        var transform = wall.transform;
+        var wallMesh = wall.GetComponent<MeshFilter>().sharedMesh;
+        var floorMesh = floor.GetComponent<MeshFilter>().sharedMesh;
+
+        var combinedWall = new List<CombineInstance>();
+        var combinedFloor = new List<CombineInstance>();
+
+        for (var x = 0; x < Size.x; x++)
+        {
+            for (var z = 0; z < Size.y; z++)
+            {
+                if (FloorData.IsStair(x, z))
+                {
+                    CreateStair(x, z);
+                    continue;
+                }
+                var combine = new CombineInstance();
+                if (traps[x, z] != null && traps[x, z].Type == TrapType.Pitfall) continue;
+                if (Map[x, z].IsWall)
+                {
+                    transform.localPosition = new Vector3(x, 0.5f, z);
+                    combine.transform = transform.localToWorldMatrix;
+                    combine.mesh = wallMesh;
+                    combinedWall.Add(combine);
+                    continue;
+                }
+                transform.localPosition = new Vector3(x, -0.5f, z);
+                combine.transform = transform.localToWorldMatrix;
+                combine.mesh = floorMesh;
+                combinedFloor.Add(combine);
+            }
+        }
+        CreateCombinedMesh(combinedWall, wall.GetComponent<MeshRenderer>().sharedMaterial, "walls");
+        CreateCombinedMesh(combinedFloor, floor.GetComponent<MeshRenderer>().sharedMaterial, "floors");
+        this.transform.parent.position = new Vector3(-Size.x * 0.5f, 0f, -Size.y * 0.5f);
+        wall.transform.localPosition = Vector3.zero;
     }
 
     public void Create(int width, int height, int maxRoom, bool isTower)

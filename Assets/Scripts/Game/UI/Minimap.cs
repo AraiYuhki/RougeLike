@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +20,8 @@ public class Minimap : MonoBehaviour
     private EnemyManager enemyManager;
     [SerializeField]
     private ItemManager itemManager;
+    [SerializeField]
+    private TrapManager trapManager;
     [SerializeField]
     private FloorManager floorManager;
 
@@ -47,8 +50,9 @@ public class Minimap : MonoBehaviour
     private RectTransform rectTransform = null;
     private Texture2D texture;
 
-    private List<Image> enemies = new List<Image>();
-    private List<Image> items = new List<Image>();
+    private List<Image> enemies = new ();
+    private List<Image> items = new ();
+    private List<Image> traps = new();
     private Image stair = null;
 
     private FloorData floorData;
@@ -73,10 +77,12 @@ public class Minimap : MonoBehaviour
         originalPosition = -halfTileSize * size + Vector2.one * halfTileSize;
         playerIcon.rectTransform.sizeDelta = Vector2.one * tileSize;
 
-        foreach (var enemy in enemies) Destroy(enemy);
+        foreach (var enemy in enemies) Destroy(enemy.gameObject);
         enemies.Clear();
-        foreach (var item in items) Destroy(item);
+        foreach (var item in items) Destroy(item.gameObject);
         items.Clear();
+        foreach (var trap in traps) Destroy(trap.gameObject);
+        traps.Clear();
 
         if (texture != null) Destroy(texture);
         tileLayer.rectTransform.sizeDelta = size * tileSize;
@@ -114,6 +120,7 @@ public class Minimap : MonoBehaviour
         playerIcon.transform.rotation = Quaternion.Euler(0f, 0f, -player.transform.localEulerAngles.y);
         UpdateEnemies();
         UpdateItems();
+        UpdateTraps();
     }
 
     public void SetVisibleMap(Point position)
@@ -201,6 +208,24 @@ public class Minimap : MonoBehaviour
         }
     }
 
+    private void UpdateTraps()
+    {
+        var traps = trapManager.TrapList;
+        while (this.traps.Count < traps.Count)
+            this.traps.Add(CreateImage(tileLayer.transform, Color.red, trapSprite));
+        foreach (var trap in this.traps)
+            trap.gameObject.SetActive(false);
+
+        foreach ((var trap, var index) in traps.Select((trap, index) => (trap, index)))
+        {
+            var trapTile = floorData.Map[trap.Position.x, trap.Position.y];
+            var position = this.traps[index].transform.localPosition;
+            position.x = trap.Position.x * tileSize + originalPosition.x;
+            position.y = trap.Position.y * tileSize + originalPosition.y;
+            this.traps[index].transform.localPosition = position;
+            this.traps[index].gameObject.SetActive(CheckVisible(trap.Position));
+        }
+    }
     private bool CheckVisible(Vector2Int position)
     {
         var playerTile = floorData.Map[player.Position.x, player.Position.y];

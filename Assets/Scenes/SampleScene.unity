@@ -5571,6 +5571,7 @@ MonoBehaviour:
   player: {fileID: 1276448553}
   enemyManager: {fileID: 1009754815}
   itemManager: {fileID: 1009754816}
+  trapManager: {fileID: 1009754818}
   floorManager: {fileID: 100000723}
   tileSize: 20
   tileLayer: {fileID: 1143390287}

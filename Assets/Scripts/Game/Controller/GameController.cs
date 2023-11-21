@@ -80,9 +80,8 @@ public class GameController : MonoBehaviour
     {
         dungeonData = DB.Instance.MDungeon.GetById(1);
         CurrentFloor = 1;
-        var floorInfo = dungeonData.GetFloor(CurrentFloor);
-        floorManager.Clear();
-        floorManager.Create(floorInfo, dungeonData.IsTower);
+
+        var floorInfo = floorManager.Create(dungeonData, CurrentFloor);
         player.Initialize();
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         player.OnMoved += floorManager.OnMoveUnit;
@@ -94,6 +93,7 @@ public class GameController : MonoBehaviour
         enemyManager.Initialize(player, floorInfo);
         itemManager.Initialize(150, 1, 5);
         trapManager.Initialize(4);
+        floorManager.CreateMesh();
         Fade.Instance.FadeIn(() => stateMachine.Goto(GameState.PlayerTurn));
     }
 
@@ -110,14 +110,14 @@ public class GameController : MonoBehaviour
         trapManager.Clear();
         floorManager.Clear();
 
-        var floorInfo = dungeonData.GetFloor(CurrentFloor);
-        floorManager.Create(floorInfo, dungeonData.IsTower);
+        var floorInfo = floorManager.Create(dungeonData, CurrentFloor);
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         enemyManager.SetFloorData(floorInfo);
         itemManager.Initialize(150, 1, 5);
         trapManager.Initialize(4);
         for (var count = 0; count < floorInfo.InitialSpawnEnemyCount; count++)
             enemyManager.Spawn();
+        floorManager.CreateMesh();
         ForceUpdateMinimap();
     }
 

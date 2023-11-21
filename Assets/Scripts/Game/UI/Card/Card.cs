@@ -75,23 +75,21 @@ public class Card : MonoBehaviour
         tween = DOTween.Sequence();
         tween.Append(transform.DOLocalMove(Vector3.zero, 0.3f));
         tween.Join(transform.DOScale(Vector3.one, 0.3f));
+        tween.OnComplete(() => tween = null);
         if (isOpen)
             OpenAsync().Forget();
         else
             CloseAsync().Forget();
     }
 
-    public void Goto(Transform target, Action onComplete = null)
+    public void Goto(Transform target)
     {
         tween?.Kill();
         transform.SetParent(target);
         tween = DOTween.Sequence();
         tween.Append(transform.DOLocalMove(Vector3.zero, 0.3f));
         tween.Join(transform.DOScale(Vector3.one, 0.3f));
-        tween.OnComplete(() => {
-            tween = null;
-            onComplete?.Invoke();
-        });
+        tween.OnComplete(() => tween = null);
     }
 
     /// <summary>
