@@ -8,25 +8,18 @@ public class MFloor : ScriptableObject
     [SerializeField]
     private List<FloorInfo> data;
 
-    private Dictionary<int, FloorInfo> dictionary = new();
     private Dictionary<int, List<FloorInfo>> groups = new();
     public List<FloorInfo> All => data;
-
-    public FloorInfo GetByeId(int id)
-    {
-        if (dictionary.TryGetValue(id, out var result)) return result;
-        return null;
-    }
 
     public List<FloorInfo> GetByDungeonId(int dungeonId)
     {
         if (groups.TryGetValue(dungeonId, out var result)) return result;
-        return null;
+        return new List<FloorInfo>();
     }
 
     public void OnEnable()
     {
-        dictionary = data.ToDictionary(row => row.Id, row => row);
+        groups.Clear();
         foreach (var row in data)
         {
             if (!groups.ContainsKey(row.DungeonId))
@@ -34,4 +27,17 @@ public class MFloor : ScriptableObject
             groups[row.DungeonId].Add(row);
         }
     }
+
+#if UNITY_EDITOR
+    public void RemoveByDungeonId(int dungeonId)
+    {
+        data = data.Where(info => info.DungeonId != dungeonId).ToList();
+        OnEnable();
+    }
+    public void AddData(List<FloorInfo> data)
+    {
+        this.data.AddRange(data);
+        OnEnable();
+    }
+#endif
 }

@@ -16,6 +16,8 @@ public class DungeonInfo
     public string Name => name;
     public bool IsTower => isTower;
 
+    public DungeonInfo() { }
+
     public FloorInfo GetFloor(int floorNum)
     {
         var floorList = DB.Instance.MFloor.GetByDungeonId(id);
@@ -37,4 +39,15 @@ public class DungeonInfo
             isTower = isTower
         };
     }
+#if UNITY_EDITOR
+    public DungeonInfo(int id) => this.id = id;
+    public void SetName(string name) => this.name = name;
+    public void SetIsTower(bool isTower) => this.isTower = isTower;
+
+    public void Apply(DungeonInfo data)
+    {
+        name = data.name;
+        isTower = data.isTower;
+    }
+#endif
 }

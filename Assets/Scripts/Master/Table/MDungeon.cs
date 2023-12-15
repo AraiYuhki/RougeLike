@@ -22,4 +22,12 @@ public class MDungeon : ScriptableObject
     {
         groups = data.ToDictionary(row => row.Id, row => row);
     }
+
+#if UNITY_EDITOR
+    public void RemoveById(int id)
+    {
+        data.Remove(data.FirstOrDefault(row => row.Id == id));
+        OnEnable();
+    }
+#endif
 }

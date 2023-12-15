@@ -2,13 +2,10 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 
 [Serializable]
 public class FloorInfo
 {
-    [SerializeField, CsvColumn("id")]
-    private int id;
     [SerializeField, CsvColumn("dungeonId")]
     private int dungeonId;
     [SerializeField, CsvColumn("sameSettingCount")]
@@ -23,34 +20,31 @@ public class FloorInfo
     private int initialSpawnEnemyCount = 4;
     [SerializeField, Range(5, 9999), CsvColumn("spawnEnemyIntervalTurn")]
     private int spawnEnemyIntervalTurn = 30;
-    [SerializeField, CsvColumn("floorMaterial")]
-    private string floorMaterialName;
-    [SerializeField, CsvColumn("wallMaterial")]
-    private string wallMaterialName;
+    [SerializeField]
+    private Material floorMaterial;
+    [SerializeField]
+    private Material wallMaterial;
     [SerializeField, CsvColumn("enemySpawnGroupId")]
     private int enemySpawnGroupId;
     [SerializeField, CsvColumn("shopId")]
     private int shopId;
 
-    public int Id => id;
     public int DungeonId => dungeonId;
     public int SameSettingCount => sameSettingCount;
     public Vector2Int Size => size;
     public int MaxRoomCount => maxRoomCount;
     public float DeletePathProbability => deletePathProbability;
-    public string FloorMaterialName => floorMaterialName;
-    public string WallMaterialName => wallMaterialName;
     public int EnemySpawnGroupId => enemySpawnGroupId;
     public int InitialSpawnEnemyCount => initialSpawnEnemyCount;
     public int SpawnEnemyIntervalTurn => spawnEnemyIntervalTurn;
     public int ShopId => shopId;
 
-    public Material FloorMaterial
-        => Addressables.LoadAssetAsync<Material>(floorMaterialName).WaitForCompletion();
-    public Material WallMaterial
-        => Addressables.LoadAssetAsync<Material>(wallMaterialName).WaitForCompletion();
+    public Material FloorMaterial => floorMaterial;
+    public Material WallMaterial => wallMaterial;
     public List<int> Enemies
         => DB.Instance.MFloorEnemySpawn.GetByGroupId(EnemySpawnGroupId).Select(info => info.EnemyId).ToList();
+
+    public FloorInfo() { }
 
     public FloorInfo Clone()
     {
@@ -60,11 +54,32 @@ public class FloorInfo
             sameSettingCount = sameSettingCount,
             size = size,
             maxRoomCount = maxRoomCount,
+            wallMaterial = wallMaterial,
+            floorMaterial = floorMaterial,
             deletePathProbability = deletePathProbability,
-            floorMaterialName = floorMaterialName,
-            wallMaterialName = wallMaterialName,
             enemySpawnGroupId = enemySpawnGroupId,
         };
     }
+
+#if UNITY_EDITOR
+    public FloorInfo(int dungeonId)
+    {
+        this.dungeonId = dungeonId;
+    }
+    public void SetSameSettingCount(int count) => sameSettingCount = Mathf.Max(count, 0);
+    public void SetSize(Vector2Int size)
+    {
+        this.size = size;
+        this.size.x = Mathf.Max(size.x, 10);
+        this.size.y = Mathf.Max(size.y, 10);
+    }
+    public void SetMaxRoomCount(int count) => maxRoomCount = count;
+    public void SetDeletePathProbability(float probability) => deletePathProbability = probability;
+    public void SetInitialSpawnEnemyCount(int count) => initialSpawnEnemyCount = count;
+    public void SetSpawnEnemyIntervalTurn(int turn) => spawnEnemyIntervalTurn = turn;
+    public void SetEnemySpawnGroupId(int groupId) => enemySpawnGroupId = groupId;
+    public void SetFloorMaterial(Material material) => floorMaterial = material;
+    public void SetWallMaterial(Material material) => wallMaterial = material;
+#endif
 
 }

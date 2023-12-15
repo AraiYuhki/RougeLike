@@ -55,6 +55,16 @@ public static class Extension
         }
     }
 
+    public static int IndexOf<T>(this IEnumerable<T> values, Func<T, bool> action)
+    {
+        foreach ((var value, var index) in values.Select((value, index) => (value, index)))
+        {
+            if (action(value))
+                return index;
+        }
+        return -1;
+    }
+
     public static Vector2 ToVector2(this Vector2Int self) => new Vector2(self.x, self.y);
     public static Vector3 ToVector3(this Vector2 self, float z = 0f) => new Vector3(self.x, self.y, z);
     public static Vector3 ToVector3(this Vector2Int self, float z = 0f) => new Vector3(self.x, self.y, z);
