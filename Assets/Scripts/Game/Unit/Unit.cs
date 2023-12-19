@@ -4,6 +4,7 @@ using System;
 using UnityEditor;
 using System.Linq;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 
 public class Unit : MonoBehaviour
 {
@@ -288,7 +289,7 @@ public class Unit : MonoBehaviour
     public virtual void SetPosition(Vector2Int position, TweenCallback onComplete)
     {
         Position = position;
-        var tween = transform.DOLocalMove(new Vector3(position.x, 0.5f, position.y), 0.2f).SetEase(Ease.OutCubic);
+        var tween = transform.DOLocalMove(new Vector3(position.x, 0.5f, position.y), 0.2f).SetEase(Ease.OutQuad);
         tweenList.Add(tween);
         tween.OnComplete(() =>
         {

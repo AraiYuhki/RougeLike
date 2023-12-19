@@ -132,8 +132,8 @@ public class FloorManager : MonoBehaviour
     public FloorInfo Create(DungeonInfo dungeonData, int currentFloor)
     {
         var floorInfo = dungeonData.GetFloor(currentFloor);
-        wall.GetComponent<Renderer>().material = floorInfo.WallMaterial;
-        floor.GetComponent<Renderer>().material = floorInfo.FloorMaterial;
+        wall.GetComponent<Renderer>().sharedMaterial = floorInfo.WallMaterial;
+        floor.GetComponent<Renderer>().sharedMaterial = floorInfo.FloorMaterial;
         Clear();
         FloorInfo = floorInfo;
         Size = floorInfo.Size;

@@ -5,24 +5,8 @@ using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
-public class DungeonEditor : EditorWindow
+public partial class DungeonEditor : EditorWindow
 {
-    private class EditableFloorInfo
-    {
-        public FloorInfo FloorInfo { get; set; }
-        public bool Foldout { get; set; }
-
-        public EditableFloorInfo(FloorInfo floorInfo)
-        {
-            FloorInfo = floorInfo;
-        }
-
-        public EditableFloorInfo(int dungeonId)
-        {
-            FloorInfo = new FloorInfo(dungeonId);
-        }
-    }
-
     enum Mode
     {
         Select,
@@ -68,7 +52,7 @@ public class DungeonEditor : EditorWindow
             }
         };
         floorListView.drawElementCallback = DrawFloorEditor;
-        floorListView.elementHeightCallback = index => floorInfoList[index].Foldout ? 10 * EditorGUIUtility.singleLineHeight : EditorGUIUtility.singleLineHeight;
+        floorListView.elementHeightCallback = index => floorInfoList[index].GetContentHeight();
 
         enemySpawnGroupIdList = DB.Instance.MFloorEnemySpawn.All.GroupBy(info => info.GroupId).Select(group => group.Key).ToList();
     }
@@ -88,6 +72,8 @@ public class DungeonEditor : EditorWindow
     private void Save()
     {
         var db = DB.Instance;
+        if (db.MDungeon == null) db.Reload();
+
         if (db.MDungeon.All.Any(info => info.Id == dungeonInfo.Id))
             db.MDungeon.GetById(dungeonInfo.Id).Apply(dungeonInfo);
         else
@@ -172,6 +158,11 @@ public class DungeonEditor : EditorWindow
 
         using (var scrollView = new EditorGUILayout.ScrollViewScope(floorScrollPosition))
         {
+            if (floorListView == null)
+            {
+                mode = Mode.Select;
+                return;
+            }
             floorListView.DoLayoutList();
             floorScrollPosition = scrollView.scrollPosition;
         }
@@ -180,63 +171,11 @@ public class DungeonEditor : EditorWindow
     private void DrawFloorEditor(Rect rect, int index, bool isActive, bool isFocused)
     {
         var floor = floorInfoList[index].FloorInfo;
-        rect.height = EditorGUIUtility.singleLineHeight;
-
         var startIndex = 1;
         for (var count = 0; count < index; count++)
-        {
             startIndex += floorInfoList[count].FloorInfo.SameSettingCount + 1;
-        }
         var label = CreateFloorLabel(startIndex, floor.SameSettingCount, dungeonInfo.IsTower);
-        floorInfoList[index].Foldout = EditorGUI.Foldout(rect, floorInfoList[index].Foldout, label);
-        if (!floorInfoList[index].Foldout)
-        {
-            return;
-        }
-
-        var originalX = rect.x;
-        var height = EditorGUIUtility.singleLineHeight + 5f;
-        rect.y += height;
-        floor.SetSize(EditorGUI.Vector2IntField(rect, "フロアサイズ", floor.Size));
-        rect.y += height * 2f;
-
-        var originalWidth = rect.width;
-        rect.width = rect.width * 0.5f - 20f;
-
-        floor.SetDeletePathProbability(EditorGUI.Slider(rect, "通路の削除率", floor.DeletePathProbability, 0f, 1f));
-        rect.x += rect.width + 10f;
-
-        floor.SetMaxRoomCount(EditorGUI.IntSlider(rect, "最大部屋数", floor.MaxRoomCount, 1, 999));
-
-        rect.x = originalX;
-        rect.y += height;
-
-        EditorGUIUtility.labelWidth = 200;
-
-        floor.SetInitialSpawnEnemyCount(EditorGUI.IntSlider(rect, "侵入時に出現する敵の数", floor.InitialSpawnEnemyCount, 0, 30));
-        rect.x += rect.width + 10f;
-
-        floor.SetSpawnEnemyIntervalTurn(EditorGUI.IntSlider(rect, "敵が出現する間隔(ターン数)", floor.SpawnEnemyIntervalTurn, 1, 1000));
-        rect.x = originalX;
-        rect.y += height;
-
-        EditorGUIUtility.labelWidth = 150f;
-
-        floor.SetFloorMaterial(EditorGUI.ObjectField(rect, "床素材", floor.FloorMaterial, typeof(Material), false) as Material);
-        rect.x += rect.width + 10f;
-        floor.SetWallMaterial(EditorGUI.ObjectField(rect, "壁素材", floor.WallMaterial, typeof(Material), false) as Material);
-
-        rect.x = originalX;
-        rect.width = originalWidth;
-        rect.y += height;
-
-        EditorGUI.BeginChangeCheck();
-        var selectIndex = enemySpawnGroupIdList.IndexOf(floor.EnemySpawnGroupId);
-        selectIndex = EditorGUI.Popup(rect, "敵出現パターン", selectIndex, enemySpawnGroupIdList.Select(group => $"ID:{group}").ToArray());
-        if (EditorGUI.EndChangeCheck())
-            floor.SetEnemySpawnGroupId(enemySpawnGroupIdList[selectIndex]);
-        rect.y += height;
-        floor.SetSameSettingCount(EditorGUI.IntField(rect, "同じ設定が続く階数", floor.SameSettingCount));
+        floorInfoList[index].DrawFloorEditor(rect, label, enemySpawnGroupIdList);
     }
 
     /// <summary>

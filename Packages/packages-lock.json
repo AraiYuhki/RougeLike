@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.coffee.sub-asset-editor": {
+      "version": "https://github.com/mob-sakai/SubAssetEditor.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "01464178eec1e4dbe741c11c9baeb94a151c99ee"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,

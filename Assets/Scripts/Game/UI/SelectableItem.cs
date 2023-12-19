@@ -20,7 +20,7 @@ public class SelectableItem : MonoBehaviour
 
     protected bool isSelected = false;
     protected Action onSelect = null;
-    protected Action onSubmit = null;
+    public Action OnSubmit { get; set; } = null;
     protected Tween tween;
 
     public string Label

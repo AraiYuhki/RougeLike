@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GridScrollMenu : MonoBehaviour
+public class GridScrollMenu : MenuBase
 {
     [SerializeField]
     private ScrollRect scrollView;
-    [SerializeField]
-    private Transform container;
     [SerializeField]
     private RectTransform rectTransform;
     [SerializeField]
@@ -25,24 +23,23 @@ public class GridScrollMenu : MonoBehaviour
 
     private Vector2Int selectedIndex = Vector2Int.zero;
 
-    private int SelectedIndex => columnCount * selectedIndex.y + selectedIndex.x;
+    protected override int SelectedIndex
+    {
+        get => columnCount * selectedIndex.y + selectedIndex.x;
+        set
+        {
+        }
+    }
 
-    public List<SelectableItem> Items { get; private set; } = new List<SelectableItem>();
-    public bool Enable { get; set; }
     public Action<SelectableItem> OnSubmit { get; set; }
     public T GetSelectedItem<T>() where T : SelectableItem => Items[SelectedIndex] as T;
-    public void Submit()
-    {
-        if (!Enable) return;
-        Items[SelectedIndex].Submit();
-    }
     public void Initialize()
     {
         selectedIndex = Vector2Int.zero;
         ReselectCurrentItem();
     }
 
-    public void ReselectCurrentItem(bool fixIndex = false)
+    public override void ReselectCurrentItem(bool fixIndex = false)
     {
         if (Items.Count <= 0) return;
         if (fixIndex)
@@ -60,20 +57,18 @@ public class GridScrollMenu : MonoBehaviour
         bottomRowIndex = rowCountInPage;
     }
 
-    public void AddItem<T>(T item) where T : SelectableItem
+    public override void AddItem<T>(T item)
     {
-        Items.Add(item);
-        item.transform.parent = container.transform;
-        item.transform.localScale = Vector3.one;
+        base.AddItem(item);
 
-        item.Initialize(() =>
+        item.Initialize((Action)(() =>
         {
-            Items[SelectedIndex].Select(false);
+            Items[(int)this.SelectedIndex].Select(false);
             var index = Items.IndexOf(item);
-            selectedIndex.x = index % columnCount;
-            selectedIndex.y = index / columnCount;
-            Items[SelectedIndex].Select(true);
-        },
+            this.selectedIndex.x = index % columnCount;
+            this.selectedIndex.y = index / columnCount;
+            Items[(int)this.SelectedIndex].Select(true);
+        }),
         () =>
         {
             if (!Enable) return;
@@ -87,10 +82,9 @@ public class GridScrollMenu : MonoBehaviour
         }
     }
 
-    public void RemoveItem<T>(T item) where T : SelectableItem
+    public override void RemoveItem<T>(T item)
     {
-        Items.Remove(item);
-        Destroy(item.gameObject);
+        base.RemoveItem(item);
         if (Items.Count > 0)
         {
             rowCount = Mathf.CeilToInt(Items.Count / columnCount);
@@ -103,17 +97,10 @@ public class GridScrollMenu : MonoBehaviour
 
     }
 
-    public void Clear()
-    {
-        foreach (var item in Items)
-            Destroy(item.gameObject);
-        Items.Clear();
-    }
-
-    public void Right() => Move(Vector2Int.right);
-    public void Left() => Move(Vector2Int.left);
-    public void Up() => Move(Vector2Int.down);
-    public void Down() => Move(Vector2Int.up);
+    public override void Right() => Move(Vector2Int.right);
+    public override void Left() => Move(Vector2Int.left);
+    public override void Up() => Move(Vector2Int.down);
+    public override void Down() => Move(Vector2Int.up);
 
     public void Move(Vector2Int move)
     {
@@ -128,7 +115,7 @@ public class GridScrollMenu : MonoBehaviour
         Items[SelectedIndex].Select(true);
     }
 
-    private void FixIndex()
+    protected override void FixIndex()
     {
         // 先にY軸インデックスを補正する
         if (selectedIndex.y < 0) selectedIndex.y += rowCount;

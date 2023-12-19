@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -73,4 +73,12 @@ public class DB
         if (target == null) return;
         Addressables.Release(target);
     }
+
+#if UNITY_EDITOR
+    [MenuItem("Tools/Master/DB再読み込み")]
+    public static void ReloadDB()
+    {
+        instance?.Reload();
+    }
+#endif
 }

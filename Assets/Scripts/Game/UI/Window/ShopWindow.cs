@@ -27,13 +27,18 @@ public class ShopWindow : MonoBehaviour
     private ShopCard originalCard;
 
     [SerializeField]
-    private GridScrollMenu shopMenu;
+    private SelectableItem gotoDeck;
+    [SerializeField]
+    private SelectableItem gotoShop;
+
+    [SerializeField]
+    private HorizontalMenu shopMenu;
     [SerializeField]
     private GridScrollMenu deckMenu;
 
     private Sequence tween;
 
-    private GridScrollMenu currentMenu
+    private MenuBase currentMenu
     {
         get
         {
@@ -158,6 +163,7 @@ public class ShopWindow : MonoBehaviour
             cards = DB.Instance.MCard.All.Randmize().Take(3).ToList();
         else
             cards = DB.Instance.MCard.All.Where(card => shopSetting.Cards.Contains(card.Id)).Randmize().Take(3).ToList();
+        shopMenu.AddItem(gotoDeck);
         foreach (var data in cards)
         {
             var card = Instantiate(originalCard);
@@ -172,6 +178,7 @@ public class ShopWindow : MonoBehaviour
     {
         deckMenu.Clear();
         var canRemove = player.Data.Gems >= 200;
+        deckMenu.AddItem(gotoShop);
         foreach (var card in cardController.AllCards.OrderBy(card => card.Data.Id))
         {
             var obj = Instantiate(originalCard);
