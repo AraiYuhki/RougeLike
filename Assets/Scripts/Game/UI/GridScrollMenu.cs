@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -117,21 +117,21 @@ public class GridScrollMenu : MenuBase
 
     protected override void FixIndex()
     {
-        // æ‚ÉY²ƒCƒ“ƒfƒbƒNƒX‚ğ•â³‚·‚é
+        // å…ˆã«Yè»¸ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’è£œæ­£ã™ã‚‹
         if (selectedIndex.y < 0) selectedIndex.y += rowCount;
         else if (selectedIndex.y >= rowCount) selectedIndex.y -= rowCount;
 
-        // Œ»İ‚Ìs‚Ì—ñ”‚ğZo
+        // ç¾åœ¨ã®è¡Œã®åˆ—æ•°ã‚’ç®—å‡º
         var currentLineColumns = columnCount;
-        var lastIndex = (selectedIndex.y + 1) * columnCount - 1; // Œ»İ‚Ìs‚Ì––”ö‚ÌƒCƒ“ƒfƒbƒNƒX‚ğZo
-        // Œ»İ‚Ìs––‚ÌƒCƒ“ƒfƒbƒNƒX‚ª—v‘f”‚æ‚è‘å‚«‚¢ê‡A—ñ”‚ª‘«‚è‚Ä‚¢‚È‚¢‚Ì‚ÅA·‚Ì•ª‚¾‚¯Œ¸‚ç‚·
+        var lastIndex = (selectedIndex.y + 1) * columnCount - 1; // ç¾åœ¨ã®è¡Œã®æœ«å°¾ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’ç®—å‡º
+        // ç¾åœ¨ã®è¡Œæœ«ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ãŒè¦ç´ æ•°ã‚ˆã‚Šå¤§ãã„å ´åˆã€åˆ—æ•°ãŒè¶³ã‚Šã¦ã„ãªã„ã®ã§ã€å·®ã®åˆ†ã ã‘æ¸›ã‚‰ã™
         if (lastIndex >= Items.Count)
         {
             var diff = lastIndex - Items.Count;
             currentLineColumns = columnCount - (diff + 1);
             selectedIndex.x = Mathf.Clamp(selectedIndex.x, 0, currentLineColumns);
         }
-        // X²‚ÌƒCƒ“ƒfƒbƒNƒX‚ğ•â³‚·‚é
+        // Xè»¸ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã‚’è£œæ­£ã™ã‚‹
         if (selectedIndex.x < 0) selectedIndex.x += currentLineColumns;
         else if (selectedIndex.x >= currentLineColumns) selectedIndex.x -= currentLineColumns;
     }

@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +12,6 @@ public class Mine : Trap
     {
         base.Execute(executer);
         executer.Damage(damage);
-        noticeGroup.Add("’n—‹‚ªày—ô‚µ‚½", Color.red);
+        noticeGroup.Add("åœ°é›·ãŒç‚¸è£‚ã—ãŸ", Color.red);
     }
 }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -10,7 +10,7 @@ public class FloorViewer : EditorWindow
     private static AStar aStar;
     private static List<Vector2Int> root = new List<Vector2Int>();
 
-    [MenuItem("Tools/ƒtƒƒAƒrƒ…ƒA[")]
+    [MenuItem("Tools/ãƒ•ãƒ­ã‚¢ãƒ“ãƒ¥ã‚¢ãƒ¼")]
     public static void Open()
     {
         GetWindow<FloorViewer>();
@@ -18,14 +18,14 @@ public class FloorViewer : EditorWindow
 
     public void OnGUI()
     {
-        if (GUILayout.Button("“Ç‚İ‚İ"))
+        if (GUILayout.Button("èª­ã¿è¾¼ã¿"))
             ReadFile();
-        if (GUILayout.Button("Œo˜H’TõA*"))
+        if (GUILayout.Button("çµŒè·¯æ¢ç´¢A*"))
         {
             aStar = new AStar(floorData.Map, floorData.SpawnPoint, floorData.StairPosition);
             root = aStar.Execute();
         }
-        if (GUILayout.Button("Œo˜H’Tõƒ_ƒCƒNƒXƒgƒ‰"))
+        if (GUILayout.Button("çµŒè·¯æ¢ç´¢ãƒ€ã‚¤ã‚¯ã‚¹ãƒˆãƒ©"))
         {
             var dijkstra = new Dijkstra(floorData);
             dijkstra.GetRoot(floorData.Rooms.First().Id, floorData.Rooms.Last().Id);
@@ -35,7 +35,7 @@ public class FloorViewer : EditorWindow
 
     private void ReadFile()
     {
-        var filePath = EditorUtility.OpenFilePanelWithFilters("ƒtƒƒAî•ñ‘I‘ğ", FloorUtil.SavePath, new string[] { "ƒtƒƒAî•ñ", "flr" });
+        var filePath = EditorUtility.OpenFilePanelWithFilters("ãƒ•ãƒ­ã‚¢æƒ…å ±é¸æŠ", FloorUtil.SavePath, new string[] { "ãƒ•ãƒ­ã‚¢æƒ…å ±", "flr" });
         floorData = FloorUtil.Deserialize(filePath);
     }
 

@@ -1,4 +1,4 @@
-using UnityEditor;
+ï»¿using UnityEditor;
 using UnityEngine;
 public class FloorCreator : EditorWindow
 {
@@ -7,7 +7,7 @@ public class FloorCreator : EditorWindow
     private static int maxRoom = 3;
     private static bool isTower = false;
 
-    [MenuItem("Tools/ƒtƒƒA¶¬")]
+    [MenuItem("Tools/ãƒ•ãƒ­ã‚¢ç”Ÿæˆ")]
     public static void Open()
     {
         GetWindow<FloorCreator>();
@@ -15,18 +15,18 @@ public class FloorCreator : EditorWindow
 
     public void OnGUI()
     {
-        width = EditorGUILayout.IntSlider("•", width, 20, 100);
-        height = EditorGUILayout.IntSlider("‰œs", height, 20, 100);
-        maxRoom = EditorGUILayout.IntSlider("Å‘å•”‰®”", maxRoom, 3, 100);
-        isTower = EditorGUILayout.Toggle("“ƒ", isTower);
+        width = EditorGUILayout.IntSlider("å¹…", width, 20, 100);
+        height = EditorGUILayout.IntSlider("å¥¥è¡Œ", height, 20, 100);
+        maxRoom = EditorGUILayout.IntSlider("æœ€å¤§éƒ¨å±‹æ•°", maxRoom, 3, 100);
+        isTower = EditorGUILayout.Toggle("å¡”", isTower);
 
-        if (GUILayout.Button("¶¬"))
+        if (GUILayout.Button("ç”Ÿæˆ"))
         {
             var floor = FindObjectOfType<FloorManager>();
             while (floor.transform.childCount > 0) DestroyImmediate(floor.transform.GetChild(0).gameObject);
             floor.Create(width, height, maxRoom, isTower);
         }
-        if (GUILayout.Button("ƒNƒŠƒA"))
+        if (GUILayout.Button("ã‚¯ãƒªã‚¢"))
         {
             var floor = FindObjectOfType<FloorManager>();
             while (floor.transform.childCount > 0) DestroyImmediate(floor.transform.GetChild(0).gameObject);

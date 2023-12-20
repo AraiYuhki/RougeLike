@@ -1,14 +1,14 @@
-using System;
+ï»¿using System;
 using UnityEngine;
 
 public enum AilmentType
 {
-    HandLock,   // èD••‚¶
-    Poison,     // “Å(HPƒXƒŠƒbƒv)
-    Exhaustion, // ”æ˜J(• Œ¸‚è’Ç‰Á)
-    Bind,       // S‘©(ˆÚ“®•s‰Â)
-    Paralysis,  // –ƒáƒ(ƒJ[ƒhg—p•s‰Â)
-    Blind,      // –Ó–Ú(‹”F”ÍˆÍŒ¸­)
+    HandLock,   // æ‰‹æœ­å°ã˜
+    Poison,     // æ¯’(HPã‚¹ãƒªãƒƒãƒ—)
+    Exhaustion, // ç–²åŠ´(è…¹æ¸›ã‚Šè¿½åŠ )
+    Bind,       // æ‹˜æŸ(ç§»å‹•ä¸å¯)
+    Paralysis,  // éº»ç—º(ã‚«ãƒ¼ãƒ‰ä½¿ç”¨ä¸å¯)
+    Blind,      // ç›²ç›®(è¦–èªç¯„å›²æ¸›å°‘)
 }
 
 [Serializable]
@@ -33,7 +33,7 @@ public class AilmentData
     }
 
     /// <summary>
-    /// ƒ^[ƒ“Œo‰ß‚³‚¹‚ÄAŒ‹‰Ê“I‚Éc‚èƒ^[ƒ“”‚ª‚È‚­‚È‚ê‚ÎTrue‚ğ•Ô‚·
+    /// ã‚¿ãƒ¼ãƒ³çµŒéã•ã›ã¦ã€çµæœçš„ã«æ®‹ã‚Šã‚¿ãƒ¼ãƒ³æ•°ãŒãªããªã‚Œã°Trueã‚’è¿”ã™
     /// </summary>
     /// <returns></returns>
     public bool DecrementTurn ()

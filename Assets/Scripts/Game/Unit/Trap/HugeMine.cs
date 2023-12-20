@@ -1,4 +1,4 @@
-using System.Linq;
+ï»¿using System.Linq;
 using UnityEngine;
 
 public class HugeMine : Trap
@@ -13,6 +13,6 @@ public class HugeMine : Trap
         executer.Damage(damage);
         foreach (var unit in floorManager.GetAroundTilesAt(executer.Position).Select(tile => floorManager.GetUnit(tile.Position)).Where(unit => unit != null))
             unit.Damage(damage);
-        noticeGroup.Add("‘å‚«‚È’n—‹‚ªày—ô‚µ‚½", Color.red);
+        noticeGroup.Add("å¤§ããªåœ°é›·ãŒç‚¸è£‚ã—ãŸ", Color.red);
     }
 }

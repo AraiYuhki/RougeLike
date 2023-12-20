@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 
@@ -17,12 +17,12 @@ public class Pitfall : Trap
         if (executer is Enemy enemy)
         {
             enemy.Dead(null);
-            noticeGroup.Add($"{enemy.Data.Name}‚Í—‚Æ‚µŒŠ‚É—‚¿‚½");
+            noticeGroup.Add($"{enemy.Data.Name}ã¯è½ã¨ã—ç©´ã«è½ã¡ãŸ");
         }
         else if (executer is Player player)
         {
             player.Damage(10);
-            noticeGroup.Add("ƒvƒŒƒCƒ„[‚Í—‚Æ‚µŒŠ‚É—‚¿‚½");
+            noticeGroup.Add("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¯è½ã¨ã—ç©´ã«è½ã¡ãŸ");
         }
     }
 }

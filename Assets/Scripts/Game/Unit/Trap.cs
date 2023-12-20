@@ -1,12 +1,12 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public enum TrapType
 {
-    Mine,       // ’n—‹
-    HugeMine,   // ‘å‚«‚È’n—‹
-    PoisonTrap, // “Å•H
-    BearTrap,   // ƒgƒ‰ƒoƒTƒ~
-    Pitfall,    // —‚Æ‚µŒŠ
+    Mine,       // åœ°é›·
+    HugeMine,   // å¤§ããªåœ°é›·
+    PoisonTrap, // æ¯’è±
+    BearTrap,   // ãƒˆãƒ©ãƒã‚µãƒŸ
+    Pitfall,    // è½ã¨ã—ç©´
 }
 
 public abstract class Trap : MonoBehaviour

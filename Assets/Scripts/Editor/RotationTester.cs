@@ -1,4 +1,4 @@
-using UnityEditor;
+Ôªøusing UnityEditor;
 using UnityEngine;
 
 public class RotationTester : EditorWindow
@@ -21,17 +21,17 @@ public class RotationTester : EditorWindow
     public void OnGUI()
     {
         EditorGUI.BeginChangeCheck();
-        var tmpSize = EditorGUILayout.IntSlider("ÉTÉCÉY", size, 3, 999);
+        var tmpSize = EditorGUILayout.IntSlider("„Çµ„Ç§„Ç∫", size, 3, 999);
         EditorGUI.BeginDisabledGroup(true);
         var center = Mathf.CeilToInt(tmpSize / 2);
-        EditorGUILayout.IntField("íÜêS", center);
+        EditorGUILayout.IntField("‰∏≠ÂøÉ", center);
         EditorGUI.EndDisabledGroup();
         if (tmpSize % 2 == 1) size = tmpSize;
         if (EditorGUI.EndChangeCheck())
         {
             CreateOriginalData();
         }
-        EditorGUILayout.LabelField("ÉIÉäÉWÉiÉã");
+        EditorGUILayout.LabelField("„Ç™„É™„Ç∏„Éä„É´");
         using (new EditorGUILayout.VerticalScope())
         {
             for (var y = 0; y < size; y++)
@@ -47,8 +47,8 @@ public class RotationTester : EditorWindow
                 }
             }
         }
-        angle = EditorGUILayout.IntSlider("äpìx", angle, 0, 359);
-        EditorGUILayout.LabelField("âÒì]å„");
+        angle = EditorGUILayout.IntSlider("ËßíÂ∫¶", angle, 0, 359);
+        EditorGUILayout.LabelField("ÂõûËª¢Âæå");
         EditorGUI.BeginDisabledGroup(true);
         using (new EditorGUILayout.VerticalScope())
         {

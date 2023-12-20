@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 
@@ -20,12 +20,12 @@ public class BearTrap : Trap
         if (executer is Player player)
         {
             player.Data.AddAilment(AilmentType.Bind, 0, turn);
-            noticeGroup.Add("ƒvƒŒƒCƒ„[‚Íƒgƒ‰ƒoƒTƒ~‚ğ“¥‚ñ‚¾", Color.red);
+            noticeGroup.Add("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¯ãƒˆãƒ©ãƒã‚µãƒŸã‚’è¸ã‚“ã ", Color.red);
         }
         else if (executer is Enemy enemy)
         {
             enemy.Data.AddAilment(AilmentType.Bind, 0, turn);
-            noticeGroup.Add($"{enemy.Name}‚Íƒgƒ‰ƒoƒTƒ~‚ğ“¥‚ñ‚¾", Color.red);
+            noticeGroup.Add($"{enemy.Name}ã¯ãƒˆãƒ©ãƒã‚µãƒŸã‚’è¸ã‚“ã ", Color.red);
         }
         await animator.PlayAsync(AnimatorHash.Execute);
         await UniTask.Delay(TimeSpan.FromSeconds(1f));

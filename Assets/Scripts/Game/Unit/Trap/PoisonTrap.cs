@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PoisonTrap : Trap
 {
@@ -14,12 +14,12 @@ public class PoisonTrap : Trap
         if (executer is Player player)
         {
             player.Data.AddAilment(AilmentType.Poison, power, turn);
-            noticeGroup.Add("�v���C���[�͓ŕH�𓥂�", Color.red);
+            noticeGroup.Add("プレイヤーは毒菱を踏んだ", Color.red);
         }
         else if (executer is Enemy enemy)
         {
             enemy.Data.AddAilment(AilmentType.Poison, power, turn);
-            noticeGroup.Add($"{enemy.Name}�͓ŕH�𓥂�", Color.magenta);
+            noticeGroup.Add($"{enemy.Name}は毒菱を踏んだ", Color.magenta);
         }
     }
 

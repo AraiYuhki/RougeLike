@@ -1,4 +1,4 @@
-public class WaitState : IState
+﻿public class WaitState : IState
 {
     public void OnEnter()
     {

@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -317,13 +317,13 @@ public class FloorManager : MonoBehaviour
 
         foreach ((var room, var index) in roomList.Select((room, index) => (room, index)))
         {
-            // –Ú“I‚Ì•”‰®
+            // ç›®çš„ã®éƒ¨å±‹
             if (room == roomList.Last())
             {
                 result.Add(targetTile);
                 continue;
             }
-            // Ÿ‚Ì•”‰®‚ÉŒq‚ª‚é’Ê˜H‚ğæ“¾
+            // æ¬¡ã®éƒ¨å±‹ã«ç¹‹ãŒã‚‹é€šè·¯ã‚’å–å¾—
             var nextPath = room.ConnectedPathList[roomList[index + 1].Id];
             result.Add(GetTile(nextPath.From));
             result.Add(GetTile(nextPath.To));

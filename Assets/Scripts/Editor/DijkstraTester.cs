@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -27,31 +27,31 @@ public class DijkstraTester : EditorWindow
 
     private Dijkstra dijkstra;
 
-    [MenuItem("Tools/ƒ_ƒCƒNƒXƒgƒ‰ƒeƒXƒ^[")]
+    [MenuItem("Tools/ãƒ€ã‚¤ã‚¯ã‚¹ãƒˆãƒ©ãƒ†ã‚¹ã‚¿ãƒ¼")]
     public static void Open() => GetWindow<DijkstraTester>();
 
     public void OnGUI()
     {
-        if (GUILayout.Button("“Ç‚İ‚İ"))
+        if (GUILayout.Button("èª­ã¿è¾¼ã¿"))
             LoadFile();
         using (new EditorGUILayout.HorizontalScope())
         {
-            width = EditorGUILayout.IntField("•", width);
-            height = EditorGUILayout.IntField("‰œs", height);
-            roomCount = EditorGUILayout.IntField("•”‰®”", roomCount);
-            deletePercent = EditorGUILayout.Slider("’Ê˜HíœŠm—§", deletePercent, 0f, 1f);
+            width = EditorGUILayout.IntField("å¹…", width);
+            height = EditorGUILayout.IntField("å¥¥è¡Œ", height);
+            roomCount = EditorGUILayout.IntField("éƒ¨å±‹æ•°", roomCount);
+            deletePercent = EditorGUILayout.Slider("é€šè·¯å‰Šé™¤ç¢ºç«‹", deletePercent, 0f, 1f);
         }
 
-        if (GUILayout.Button("¶¬")) Generate();
+        if (GUILayout.Button("ç”Ÿæˆ")) Generate();
 
         if (floorData == null || dijkstra == null) return;
 
         using(new EditorGUILayout.HorizontalScope())
         {
             var noeIds = dijkstra.Nodes.Keys.ToArray();
-            startId = EditorGUILayout.IntPopup("ŠJn’n“_", startId, noeIds.Select(id => id.ToString()).ToArray(), noeIds);
-            endId = EditorGUILayout.IntPopup("I—¹’n“_", endId, noeIds.Select(id => id.ToString()).ToArray(), noeIds);
-            if (GUILayout.Button("Œo˜H’Tõ"))
+            startId = EditorGUILayout.IntPopup("é–‹å§‹åœ°ç‚¹", startId, noeIds.Select(id => id.ToString()).ToArray(), noeIds);
+            endId = EditorGUILayout.IntPopup("çµ‚äº†åœ°ç‚¹", endId, noeIds.Select(id => id.ToString()).ToArray(), noeIds);
+            if (GUILayout.Button("çµŒè·¯æ¢ç´¢"))
             {
                 var root = dijkstra.GetRoot(startId, endId);
                 Debug.LogError(string.Join("->", root));
@@ -59,18 +59,18 @@ public class DijkstraTester : EditorWindow
         }
         using (new EditorGUILayout.HorizontalScope())
         {
-            startPoint = EditorGUILayout.Vector2IntField("ŠJn’n“_", startPoint);
-            endPoint = EditorGUILayout.Vector2IntField("I—¹’n“_", endPoint);
-            if (GUILayout.Button("ƒ`ƒFƒbƒNƒ|ƒCƒ“ƒgƒŠƒXƒgì¬"))
+            startPoint = EditorGUILayout.Vector2IntField("é–‹å§‹åœ°ç‚¹", startPoint);
+            endPoint = EditorGUILayout.Vector2IntField("çµ‚äº†åœ°ç‚¹", endPoint);
+            if (GUILayout.Button("ãƒã‚§ãƒƒã‚¯ãƒã‚¤ãƒ³ãƒˆãƒªã‚¹ãƒˆä½œæˆ"))
                 CreateCheckPointList(startPoint, endPoint);
-            if (GUILayout.Button("ƒ‹[ƒg‚ğ”jŠü")) root.Clear();
+            if (GUILayout.Button("ãƒ«ãƒ¼ãƒˆã‚’ç ´æ£„")) root.Clear();
         }
 
 
         using (new EditorGUILayout.HorizontalScope())
         {
-            drawMap = EditorGUILayout.Toggle("ƒ}ƒbƒv•`‰æ", drawMap);
-            visibleDeleted = EditorGUILayout.Toggle("íœ‚µ‚½Œo˜H‚ğ•\¦", visibleDeleted);
+            drawMap = EditorGUILayout.Toggle("ãƒãƒƒãƒ—æç”»", drawMap);
+            visibleDeleted = EditorGUILayout.Toggle("å‰Šé™¤ã—ãŸçµŒè·¯ã‚’è¡¨ç¤º", visibleDeleted);
         }
 
         try
@@ -89,7 +89,7 @@ public class DijkstraTester : EditorWindow
 
     private void LoadFile()
     {
-        var filePath = EditorUtility.OpenFilePanelWithFilters("ƒtƒƒAî•ñ‘I‘ğ", FloorUtil.SavePath, new string[] { "ƒtƒƒAî•ñ", "flr" });
+        var filePath = EditorUtility.OpenFilePanelWithFilters("ãƒ•ãƒ­ã‚¢æƒ…å ±é¸æŠ", FloorUtil.SavePath, new string[] { "ãƒ•ãƒ­ã‚¢æƒ…å ±", "flr" });
         if (string.IsNullOrEmpty(filePath)) return;
         floorData = FloorUtil.Deserialize(filePath);
         dijkstra = new Dijkstra(floorData);
@@ -121,7 +121,7 @@ public class DijkstraTester : EditorWindow
         {
             foreach (var pair in node.ConnectedCosts)
             {
-                // “¯‚¶ü‚Íˆê“x‚¾‚¯•`‰æ‚·‚é
+                // åŒã˜ç·šã¯ä¸€åº¦ã ã‘æç”»ã™ã‚‹
                 if (pathList.Contains((node.Id, pair.Key)) || pathList.Contains((pair.Key, node.Id))) continue;
                 var toNode = dijkstra.Nodes[pair.Key];
                 var cost = pair.Value;

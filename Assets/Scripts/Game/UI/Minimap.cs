@@ -1,4 +1,4 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -136,7 +136,7 @@ public class Minimap : MonoBehaviour
                     visibleMap[tile.Position.X, tile.Position.Y] = true;
                     changed = true;
                 }
-                // •”‰®‚ÌüˆÍ1ƒ}ƒX‚àŠJ‚­
+                // éƒ¨å±‹ã®å‘¨å›²1ãƒã‚¹ã‚‚é–‹ã
                 foreach (var pos in floorManager.GetAroundTilesAt(tile.Position).Select(x => x.Position).Where(pos => !VisibleTile(pos)))
                 {
                     visibleMap[pos.X, pos.Y] = true;
@@ -231,7 +231,7 @@ public class Minimap : MonoBehaviour
         var playerTile = floorData.Map[player.Position.x, player.Position.y];
         var targetTile = floorData.Map[position.x, position.y];
         var diff = player.Position - position;
-        // —×Ú‚µ‚Ä‚¢‚é‚à‚µ‚­‚Í“¯‚¶•”‰®‚É‘¶İ‚µ‚Ä‚¢‚éƒAƒCƒeƒ€‚â“G‚¾‚¯‚ğƒ~ƒjƒ}ƒbƒv‚É•\¦
+        // éš£æ¥ã—ã¦ã„ã‚‹ã‚‚ã—ãã¯åŒã˜éƒ¨å±‹ã«å­˜åœ¨ã—ã¦ã„ã‚‹ã‚¢ã‚¤ãƒ†ãƒ ã‚„æ•µã ã‘ã‚’ãƒŸãƒ‹ãƒãƒƒãƒ—ã«è¡¨ç¤º
         var visible = Mathf.Abs(diff.x) <= 1 && Mathf.Abs(diff.y) <= 1;
         if (playerTile.IsRoom && targetTile.IsRoom)
             visible = playerTile.Id == targetTile.Id;
