@@ -8,9 +8,9 @@ public class Pitfall : Trap
     private Animator animator;
     public override TrapType Type => TrapType.Pitfall;
 
-    public override async void Execute(Unit executer)
+    public override async UniTask Execute(Unit executer)
     {
-        base.Execute(executer);
+        await base.Execute(executer);
         await animator.PlayAsync(AnimatorHash.Execute);
         await UniTask.Delay(TimeSpan.FromSeconds(1f));
         await animator.PlayAsync(AnimatorHash.Release);

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Cysharp.Threading.Tasks;
+using System.Linq;
 using UnityEngine;
 
 public class HugeMine : Trap
@@ -7,9 +8,9 @@ public class HugeMine : Trap
     private int damage = 10;
     public override TrapType Type => TrapType.HugeMine;
 
-    public override void Execute(Unit executer)
+    public override async UniTask Execute(Unit executer)
     {
-        base.Execute(executer);
+        await base.Execute(executer);
         executer.Damage(damage);
         foreach (var unit in floorManager.GetAroundTilesAt(executer.Position).Select(tile => floorManager.GetUnit(tile.Position)).Where(unit => unit != null))
             unit.Damage(damage);

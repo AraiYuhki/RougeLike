@@ -8,34 +8,36 @@ public abstract class UnitData
 {
     public const int MaxInventorySize = 20;
     public const int MaxAtk = 8;
+    [SerializeField, HideInInspector]
+    private float hp = 15f;
     [SerializeField, CsvColumn("atk")]
     protected int atk = 10;
 
-    public int TotalExp { get; set; } = 0;
+    [SerializeField, HideInInspector]
+    private Encyclopedia<AilmentType, AilmentData> ailments = new();
+
     public virtual int MaxHP { get; protected set; } = 15;
-    public float Hp { get; set; } = 15f;
+    public float Hp { get => hp; set => hp = value; }
     public int Lv { get; set; } = 1;
     public virtual int Atk { get => atk; set => atk = Mathf.Min(value, MaxAtk); }
     public virtual int Def { get; set; } = 0;
 
-    public List<AilmentData> Ailments { get; private set; } = new List<AilmentData>();
+    public Encyclopedia<AilmentType, AilmentData> Ailments => ailments;
 
     public UnitData(int hp) => Hp = MaxHP = hp;
 
     public void AddAilment(AilmentType type, int param, int turn)
     {
-        var duplicateData = Ailments.FirstOrDefault(ailment => ailment.Type == type);
-        if (duplicateData != null && duplicateData.Param > param)
+        if (ailments.TryGetValue(type, out var value))
         {
-            duplicateData.SetTurn(turn);
+            value.SetData(Mathf.Max(value.Param, param), turn);
             return;
         }
-        var newData = new AilmentData(type, param, turn);
-        Ailments.Add(newData);
+        ailments.Add(type, new AilmentData(type, param, turn));
     }
 
     public int GetAilmengEffects(AilmentType type)
     {
-        return Ailments.Where(ailment => ailment.Type == type).Sum(ailment => ailment.Param);
+        return ailments.TryGetValue(type, out var value) ? value.Param : 0;
     }
 }

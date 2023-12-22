@@ -1,7 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
+[Serializable]
 public class PlayerData : UnitData
 {
+    [SerializeField, HideInInspector]
     private float stamina = 100f;
     public float Stamina { get => stamina; set => stamina = Mathf.Clamp(value, 0, MaxStamina); }
     public float MaxStamina { get; set; } = 100f;

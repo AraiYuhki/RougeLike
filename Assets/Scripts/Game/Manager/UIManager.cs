@@ -46,12 +46,9 @@ public class UIManager : MonoBehaviour
     private void Update()
     {
         var builder = new StringBuilder();
-        foreach(var ailment in player.Data.Ailments)
+        foreach(var ailment in player.Data.Ailments.Values)
         {
-            if (ailment.IsInfinit)
-                builder.AppendLine($"{ailment.Type}{ailment.Param}(∞)");
-            else
-                builder.AppendLine($"{ailment.Type}{ailment.Param}({ailment.RemainingTurn})");
+            builder.AppendLine(ailment.ToString());
         }
         ailmentsLabel.text = builder.ToString();
     }

@@ -234,6 +234,15 @@ public class Unit : MonoBehaviour
         SetDestAngle(move);
     }
 
+    public virtual async UniTask MoveAsync(Vector2Int move)
+    {
+        var dest = Position + move;
+        ChargeStack = 0;
+        OnMoved?.Invoke(this, dest);
+        SetDestAngle(move);
+        await SetPositionAsync(dest);
+    }
+
     public virtual void Heal(float value, bool damagePopup = true)
     {
         if (damagePopup) DamagePopupManager.Create(this, Mathf.RoundToInt(value), Color.green);
@@ -296,6 +305,12 @@ public class Unit : MonoBehaviour
             tweenList.Remove(tween);
             onComplete?.Invoke();
         });
+    }
+
+    public virtual async UniTask SetPositionAsync(Vector2Int position)
+    {
+        Position = position;
+        await transform.DOLocalMove(new Vector3(position.x, 0.5f, position.y), 0.2f).SetEase(Ease.OutQuad);
     }
 
     public virtual void SetDestAngle(Vector2Int move)

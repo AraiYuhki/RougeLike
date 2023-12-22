@@ -99,6 +99,17 @@ public class Player : Unit
         ChargeStack = 0;
     }
 
+    public override async UniTask MoveAsync(Vector2Int move)
+    {
+        IsLockInput = true;
+        await base.MoveAsync(move);
+        IsLockInput = false;
+        var flag = floorManager.GetTile(Position).IsRoom;
+        pointLight.SetActive(flag);
+        ChargeStack = 0;
+    }
+
+
     public override void SetPosition(Vector2Int position)
     {
         base.SetPosition(position);
@@ -124,21 +135,21 @@ public class Player : Unit
 
     protected override void ExecuteAilments()
     {
-        var ailments = Data.Ailments.GroupBy(ailment => ailment.Type).ToDictionary(x => x.Key, x => x.Sum(ailment => ailment.Param));
-        if (ailments.TryGetValue(AilmentType.Poison, out var param))
-            Damage(param);
-        if (ailments.TryGetValue(AilmentType.Exhaustion, out param))
-            Data.Stamina -= 0.1f * param;
+        var ailments = Data.Ailments;
+        if (ailments.ContainsKey(AilmentType.Poison))
+            Damage(ailments[AilmentType.Blind].Param);
+        if (ailments.ContainsKey(AilmentType.Exhaustion))
+            Data.Stamina -= 0.1f * ailments[AilmentType.Exhaustion].Param;
 
-        if (ailments.TryGetValue(AilmentType.HandLock, out param))
+        if (ailments.ContainsKey(AilmentType.HandLock))
         {
             cardController.ApplyAilment();
         }
 
-        foreach (var ailment in Data.Ailments.Where(ailment => !ailment.IsInfinit).ToList())
+        foreach ((var type, var ailment) in Data.Ailments.Where(ailment => !ailment.Value.IsInfinit).ToList())
         {
             if (ailment.DecrementTurn())
-                Data.Ailments.Remove(ailment);
+                Data.Ailments.Remove(type);
         }
     }
 

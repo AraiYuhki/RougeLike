@@ -128,6 +128,6 @@ public class DefaultAI : EnemyAI
     {
         var trap = floorInfo.GetTrap(Enemy.Position);
         if (trap == null) return;
-        trap.Execute(Enemy);
+        trap.Execute(Enemy).Forget();
     }
 }

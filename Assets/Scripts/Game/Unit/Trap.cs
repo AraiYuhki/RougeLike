@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 public enum TrapType
 {
@@ -24,9 +25,10 @@ public abstract class Trap : MonoBehaviour
     public abstract TrapType Type { get; }
     public bool IsVisible { get; set; }
 
-    public virtual void Execute(Unit executer)
+    public virtual async UniTask Execute(Unit executer)
     {
         IsVisible = true;
+        await UniTask.CompletedTask;
     }
 
     public void SetPosition(Vector2Int newPosition)

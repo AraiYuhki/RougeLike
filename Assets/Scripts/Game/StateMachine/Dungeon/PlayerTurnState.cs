@@ -1,3 +1,5 @@
+using Cysharp.Threading.Tasks;
+using System;
 using UnityEngine;
 
 public class PlayerTurnState : IState
@@ -31,6 +33,14 @@ public class PlayerTurnState : IState
 
     public void OnEnter()
     {
+        try
+        {
+            Process().Forget();
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
     }
 
     public void OnExit()
@@ -38,36 +48,40 @@ public class PlayerTurnState : IState
         player.TurnEnd();
     }
 
-    public void Update()
+    private async UniTask Process()
     {
-        if (player.IsLockInput) return;
-        if (InputUtility.Menu.IsTriggerd())
+        while (true)
         {
-            stateMachine.Goto(GameState.MainMenu);
-            return;
-        }
-        if (UseCard())
-        {
-            return;
-        }
-        var isExecuteCommand = false;
-        var move = Vector2Int.zero;
-        
-        if (InputUtility.Wait.IsPressed()) isExecuteCommand = true;
-        if (InputUtility.Up.IsPressed()) move.y = 1;
-        else if (InputUtility.Down.IsPressed()) move.y = -1;
-        if (InputUtility.Right.IsPressed()) move.x = 1;
-        else if (InputUtility.Left.IsPressed()) move.x = -1;
-        var isTurnMode = InputUtility.TurnMode.IsPressed();
-
-        if (InputUtility.DiagonalMode.IsPressed())
-        {
-            if (move.x == 0 || move.y == 0)
+            await UniTask.WaitUntil(() => !player.IsLockInput);
+            if(InputUtility.Menu.IsTriggerd())
+            {
+                stateMachine.Goto(GameState.MainMenu);
+                return;
+            }
+            if (UseCard())
+            {
+                await UniTask.Yield();
+                return;
+            }
+            if (InputUtility.Wait.IsPressed())
+            {
+                stateMachine.Goto(GameState.EnemyTurn);
+                return;
+            }
+            var move = Vector2Int.zero;
+            if (InputUtility.Up.IsPressed()) move.y = 1;
+            else if (InputUtility.Down.IsPressed()) move.y = -1;
+            if (InputUtility.Right.IsPressed()) move.x = 1;
+            else if (InputUtility.Left.IsPressed()) move.x = -1;
+            var isTurnMode = InputUtility.TurnMode.IsPressed();
+            if (InputUtility.DiagonalMode.IsPressed() && (move.x == 0 || move.y == 0))
                 move = Vector2Int.zero;
-        }
+            if (move == Vector2Int.zero)
+            {
+                await UniTask.Yield();
+                continue;
+            }
 
-        if (move.x != 0 || move.y != 0)
-        {
             var currentPosition = player.Position;
             var destPosition = currentPosition + move;
             var destTile = floorManager.GetTile(destPosition);
@@ -75,21 +89,22 @@ public class PlayerTurnState : IState
             if (enemy != null || destTile.IsWall || isTurnMode)
             {
                 player.SetDestAngle(move);
+                await UniTask.Yield();
+                continue;
             }
-            else
-            {
-                player.Move(move);
-                TakeItem();
-                CheckTrap();
-                // 移動先が階段か確認する
-                isExecuteCommand = !CheckStair();
-            }
-        }
-        if (isExecuteCommand)
-        {
-            isExecuteCommand = false;
+            stateMachine.Goto(GameState.Wait);
+            player.MoveAsync(move).Forget();
+            TakeItem();
+            await CheckTrapAsync();
+            CheckStair();
             stateMachine.Goto(GameState.EnemyTurn);
+            await UniTask.Yield();
+            break;
         }
+    }
+
+    public void Update()
+    {
     }
 
     private bool UseCard()
@@ -147,20 +162,24 @@ public class PlayerTurnState : IState
     {
         var trap = floorManager.GetTrap(player.Position);
         if (trap == null) return;
-        trap.Execute(player);
+        trap.Execute(player).Forget();
+    }
+
+    private async UniTask CheckTrapAsync()
+    {
+        var trap = floorManager.GetTrap(player.Position);
+        if (trap == null) return;
+        await trap.Execute(player);
     }
 
     private bool CheckStair()
     {
         var stairPosition = floorManager.FloorData.StairPosition;
-        if (stairPosition.X == player.Position.x && stairPosition.Y == player.Position.y)
-        {
-            stateMachine.OpenCommonDialog("確認", "次の階へ進みますか？",
-                ("はい", delegate () { stateMachine.Goto(GameState.Shop); }),
-                ("いいえ", delegate () { stateMachine.Goto(GameState.EnemyTurn); })
-                );
-            return true;
-        }
-        return false;
+        if (stairPosition.X != player.Position.x || stairPosition.Y != player.Position.y) return false;
+        stateMachine.OpenCommonDialog("確認", "次の階へ進みますか？",
+            ("はい", () => stateMachine.Goto(GameState.Shop)),
+            ("いいえ", () => stateMachine.Goto(GameState.EnemyTurn))
+            );
+        return true;
     }
 }

@@ -13,9 +13,9 @@ public class BearTrap : Trap
 
     public override TrapType Type => TrapType.BearTrap;
 
-    public  override async void Execute(Unit executer)
+    public override async UniTask Execute(Unit executer)
     {
-        base.Execute(executer);
+        await base.Execute(executer);
         executer.Damage(damage);
         if (executer is Player player)
         {

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 public class PoisonTrap : Trap
 {
@@ -8,9 +9,9 @@ public class PoisonTrap : Trap
     private int turn = 10;
     public override TrapType Type => TrapType.PoisonTrap;
 
-    public override void Execute(Unit executer)
+    public override async UniTask Execute(Unit executer)
     {
-        base.Execute(executer);
+        await base.Execute(executer);
         if (executer is Player player)
         {
             player.Data.AddAilment(AilmentType.Poison, power, turn);

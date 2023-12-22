@@ -14,22 +14,30 @@ public enum AilmentType
 [Serializable]
 public class AilmentData
 {
-    public AilmentType Type { get; private set; }
-    public int Param { get; private set; }
+    [SerializeField]
+    private AilmentType type;
+    [SerializeField]
+    private int param;
+    [SerializeField]
+    private int remainingTurn;
 
-    public int RemainingTurn { get; private set; }
+    public AilmentType Type => type;
+    public int Param => param;
+
+    public int RemainingTurn => remainingTurn;
     public bool IsInfinit => RemainingTurn <= -1;
 
     public AilmentData(AilmentType type, int param, int turn)
     {
-        Type = type;
-        Param = param;
-        RemainingTurn = turn;
+        this.type = type;
+        this.param = param;
+        remainingTurn = turn;
     }
 
-    public void SetTurn(int turn)
+    public void SetData(int param, int turn)
     {
-        RemainingTurn = Mathf.Max(RemainingTurn, turn);
+        this.param = param;
+        remainingTurn = turn;
     }
 
     /// <summary>
@@ -38,7 +46,14 @@ public class AilmentData
     /// <returns></returns>
     public bool DecrementTurn ()
     {
-        RemainingTurn--;
+        remainingTurn--;
         return RemainingTurn == 0;
+    }
+
+    public override string ToString()
+    {
+        if (IsInfinit)
+            return $"{type}{param}(∞)";
+        return $"{type}{param}{remainingTurn}";
     }
 }
