@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -39,14 +38,16 @@ public class AStar
         }
     }
 
-    private TileData[,] map;
-    public Vector2Int StartPoint { get; set; }
-    public Vector2Int EndPoint { get; set; }
+    private FloorData floorData;
     private Vector2Int size;
+    private IUnitContainer unitContainer;
 
-    private Node[,] nodes;
-
-    private FloorManager floorManager;
+    public AStar() { }
+    public AStar(FloorData floorData, IUnitContainer unitContainer)
+    {
+        this.floorData = floorData;
+        this.unitContainer = unitContainer;
+    }
 
     private static readonly Vector2Int[] OffsetList = new Vector2Int[]{
             Vector2Int.up,
@@ -59,87 +60,65 @@ public class AStar
             Vector2Int.down + Vector2Int.left
             };
 
-    public AStar(TileData[,] map, FloorManager floorManager)
+    public void Setup(FloorData floorData, IUnitContainer unitContainer)
     {
-        this.map = map;
-        this.floorManager = floorManager;
-        size = new Vector2Int(map.GetLength(0), map.GetLength(1));
-        nodes = new Node[size.x, size.y];
-        for (var x = 0; x < size.x; x++)
-            for (var y = 0; y < size.y; y++)
-                nodes[x, y] = new Node(x, y);
+        this.floorData = floorData;
+        this.unitContainer = unitContainer;
+        size = floorData.Size;
     }
 
-    public AStar(TileData[,] map, Vector2Int startPoint, Vector2Int endPoint)
+    public List<Vector2Int> FindRoot(Vector2Int startPoint, Vector2Int endPoint)
     {
-        this.map = map;
-        StartPoint = startPoint;
-        EndPoint = endPoint;
-        size = new Vector2Int(map.GetLength(0), map.GetLength(1));
-        nodes = new Node[size.x, size.y];
+        var nodes = new Node[size.x, size.y];
         for (var x = 0; x < size.x; x++)
-            for (var y = 0; y < size.y; y++)
-                nodes[x, y] = new Node(x, y);
-    }
-
-    public List<Vector2Int> Execute(int limit = -1)
-    {
-        try
         {
-            Clear();
-            nodes[StartPoint.x, StartPoint.y].State = NodeState.Open;
-            var openedNode = new List<Node>{ nodes[StartPoint.x, StartPoint.y] };
-            Node goal = null;
-            var count = 0;
-            while (openedNode.Count > 0)
-            {
-                count++;
-                foreach (var node in openedNode.OrderBy(node => node.Score).ToList())
-                {
-                    goal = OpenAround(node);
-                    if (goal != null)
-                        break;
-                }
-                if (goal != null)
-                    break;
-                openedNode = nodes.ToArray().Where(node => node.State == NodeState.Open).ToList();
-                if (limit > 0 && count >= limit)
-                {
-                    goal = openedNode.OrderBy(node => node.Score).First();
-                    break;
-                }
-            }
-
-            if (goal == null)
-            {
-                Debug.LogWarning($"Way to goal is not found {StartPoint} -> {EndPoint}");
-                return null;
-            }
-            var current = goal;
-            var result = new List<Vector2Int>();
-            while (current != null)
-            {
-                result.Add(current.Position);
-                current = current.Parent;
-            }
-            result.Reverse();
-            return result;
-        }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-            throw e;
-        }
-    }
-
-    public void Clear()
-    {
-        for (var x = 0; x < size.x; x++)
             for (var y = 0; y < size.y; y++)
-                nodes[x, y].Clear();
+            {
+                var node = new Node(x, y);
+                if (unitContainer.ExistsUnit(node.Position))
+                    node.Cost += 100;
+                nodes[x, y] = node;
+            }
+        }
+        var result = new List<Vector2Int>();
+        var openedNode = new List<Node>();
+        FindRoot(endPoint, nodes[startPoint.x, startPoint.y], floorData.Map, nodes, ref result, ref openedNode);
+        return result;
     }
 
-    private Node OpenAround(Node node)
+    private bool FindRoot(Vector2Int endPoint, Node current, TileData[,] map, Node[,] nodes, ref List<Vector2Int> result, ref List<Node> openedNode)
+    {
+        current.State = NodeState.Close;
+        openedNode.Remove(current);
+        var goal = OpenAround(endPoint, nodes, map, current, ref openedNode);
+        if (goal != null)
+        {
+            result = CreateRoot(goal);
+            return true;
+        }
+        while (openedNode.Count > 0)
+        {
+            var next = openedNode.OrderBy(node => node.Score).First();
+            if (FindRoot(endPoint, next, map, nodes, ref result, ref openedNode))
+                return true;
+        }
+        return false;
+    }
+
+    private List<Vector2Int> CreateRoot(Node current)
+    {
+        var tmp = current;
+        var result = new List<Vector2Int>() { current.Position };
+        while (tmp != null)
+        {
+            result.Add(tmp.Position);
+            tmp = tmp.Parent;
+        }
+        result.Reverse();
+        return result;
+    }
+
+    private Node OpenAround(Vector2Int endPoint, Node[,] nodes, TileData[,] map, Node node, ref List<Node> openedNode)
     {
         var position = node.Position;
         node.State = NodeState.Close;
@@ -153,16 +132,17 @@ public class AStar
                 continue;
             if (targetNode.State != NodeState.None)
                 continue;
+            openedNode.Add(targetNode);
             targetNode.State = NodeState.Open;
             targetNode.Parent = node;
             if (offset.x != 0 && offset.y != 0)
                 targetNode.Cost = node.Cost + 1.5f;
             else
                 targetNode.Cost = node.Cost + 1f;
-            if (floorManager != null && floorManager.GetUnit(targetPosition) != null)
+            if (unitContainer != null && unitContainer.ExistsUnit(targetPosition))
                 targetNode.Cost += 100f;
-            targetNode.CalculateEstimatedCost(EndPoint);
-            if (targetNode.Position.X == EndPoint.x && targetNode.Position.Y == EndPoint.y)
+            targetNode.CalculateEstimatedCost(endPoint);
+            if (targetNode.Position.X == endPoint.x && targetNode.Position.Y == endPoint.y)
             {
                 return targetNode;
             }

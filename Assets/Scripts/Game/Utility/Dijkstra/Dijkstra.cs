@@ -150,12 +150,10 @@ public partial class Dijkstra
         points.AddRange(checkPoints);
         points.Add(endPoint);
         var root = new List<Vector2Int>();
-        var aStar = new AStar(floorData.Map, GameObject.FindObjectOfType<FloorManager>());
+        var aStar = new AStar(floorData, null);
         for (var index = 0; index < points.Count - 2; index++)
         {
-            aStar.StartPoint = points[index];
-            aStar.EndPoint = points[index + 1];
-            var positions = aStar.Execute(15);
+            var positions = aStar.FindRoot(points[index], points[index + 1]);
             if (positions != null) root.AddRange(positions);
         }
         return root;

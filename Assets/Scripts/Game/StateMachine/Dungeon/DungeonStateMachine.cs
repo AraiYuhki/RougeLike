@@ -16,7 +16,7 @@ public enum GameState
     Shop,
 }
 
-public class DungeonStateMachine
+public class DungeonStateMachine : IDungeonStateMachine
 {
     private GameState currentState = GameState.Wait;
 
@@ -30,6 +30,7 @@ public class DungeonStateMachine
     {
         current?.OnExit();
         currentState = state;
+        prevState = currentState;
         current?.OnEnter();
     }
 

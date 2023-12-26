@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class FloorManager : MonoBehaviour
+
+public class FloorManager : MonoBehaviour, IUnitContainer
 {
     [SerializeField]
     private GameObject floor;
@@ -54,6 +55,7 @@ public class FloorManager : MonoBehaviour
         return units[x, y];
     }
     public Unit GetUnit(Vector2Int position) => GetUnit(position.x, position.y);
+    public bool ExistsUnit(Vector2Int position) => GetUnit(position.x, position.y) != null;
     public int GetUnitCount() => units.ToArray().Where(unit => unit != null).Count();
 
     public Trap GetTrap(int x, int y) => traps[x, y];
@@ -142,7 +144,7 @@ public class FloorManager : MonoBehaviour
         items = new Item[Size.x, Size.y];
         traps = new Trap[Size.x, Size.y];
         IsTower = dungeonData.IsTower;
-        aStar = new AStar(Map, this);
+        aStar = new AStar(FloorData, this);
         dijkstra = new Dijkstra(FloorData);
         minimap?.Initialize(FloorData);
         return floorInfo;
@@ -233,7 +235,7 @@ public class FloorManager : MonoBehaviour
         CreateCombinedMesh(combinedWall, wall.GetComponent<MeshRenderer>().sharedMaterial, "walls");
         CreateCombinedMesh(combinedFloor, floor.GetComponent<MeshRenderer>().sharedMaterial, "floors");
         this.transform.parent.position = new Vector3(-width * 0.5f, 0f, -height * 0.5f);
-        aStar = new AStar(Map, this);
+        aStar = new AStar(FloorData, this);
         dijkstra = new Dijkstra(FloorData);
         minimap?.Initialize(FloorData);
         wall.transform.localPosition = Vector3.zero;
@@ -289,10 +291,7 @@ public class FloorManager : MonoBehaviour
 
     public List<Vector2Int> GetRoot(Vector2Int startPosition, Vector2Int targetPosition)
     {
-        aStar.StartPoint = startPosition;
-        aStar.EndPoint = targetPosition;
-        aStar.Clear();
-        return aStar.Execute();
+        return aStar.FindRoot(startPosition, targetPosition);
     }
 
     public List<int> GetRootRooms(Vector2Int startPosition, Vector2Int targetPosition)

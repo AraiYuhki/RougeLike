@@ -7,7 +7,6 @@ public class FloorViewer : EditorWindow
 {
     private static FloorData floorData = null;
     private static Vector2 Origin = new Vector2(0, 120f);
-    private static AStar aStar;
     private static List<Vector2Int> root = new List<Vector2Int>();
 
     [MenuItem("Tools/フロアビュアー")]
@@ -20,11 +19,6 @@ public class FloorViewer : EditorWindow
     {
         if (GUILayout.Button("読み込み"))
             ReadFile();
-        if (GUILayout.Button("経路探索A*"))
-        {
-            aStar = new AStar(floorData.Map, floorData.SpawnPoint, floorData.StairPosition);
-            root = aStar.Execute();
-        }
         if (GUILayout.Button("経路探索ダイクストラ"))
         {
             var dijkstra = new Dijkstra(floorData);
