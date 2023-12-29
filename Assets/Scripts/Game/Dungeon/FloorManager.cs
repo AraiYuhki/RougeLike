@@ -28,7 +28,7 @@ public class FloorManager : MonoBehaviour, IUnitContainer
 
     private Unit[,] units;
     private Trap[,] traps;
-    private Item[,] items;
+    private ItemData[,] items;
 
     public void SetMinimap(Minimap minimap)
     {
@@ -61,8 +61,8 @@ public class FloorManager : MonoBehaviour, IUnitContainer
     public Trap GetTrap(int x, int y) => traps[x, y];
     public Trap GetTrap(Vector2Int position) => traps[position.x, position.y];
 
-    public Item GetItem(int x, int y) => items[x, y];
-    public Item GetItem(Vector2Int position) => items[position.x, position.y];
+    public ItemData GetItem(int x, int y) => items[x, y];
+    public ItemData GetItem(Vector2Int position) => items[position.x, position.y];
     public int GetItemCount() => items.ToArray().Where(unit => unit != null).Count();
 
     public List<TileData> GetAroundTilesAt(Vector2Int position)
@@ -122,15 +122,6 @@ public class FloorManager : MonoBehaviour, IUnitContainer
         return (length, startPosition + vector * length, null);
     }
 
-    public void CreateAsync(int width, int height, int maxRoom, bool isTower)
-    {
-        Size = new Vector2Int(width, height);
-        FloorData = DungeonGenerator.GenerateFloor(width, height, maxRoom);
-        this.IsTower = isTower;
-        units = new Unit[Size.x, Size.y];
-        StartCoroutine(Create());
-    }
-
     public FloorInfo Create(DungeonInfo dungeonData, int currentFloor)
     {
         var floorInfo = dungeonData.GetFloor(currentFloor);
@@ -138,19 +129,42 @@ public class FloorManager : MonoBehaviour, IUnitContainer
         floor.GetComponent<Renderer>().sharedMaterial = floorInfo.FloorMaterial;
         Clear();
         FloorInfo = floorInfo;
-        Size = floorInfo.Size;
-        FloorData = DungeonGenerator.GenerateFloor(Size.x, Size.y, floorInfo.MaxRoomCount);
-        units = new Unit[Size.x, Size.y];
-        items = new Item[Size.x, Size.y];
-        traps = new Trap[Size.x, Size.y];
-        IsTower = dungeonData.IsTower;
-        aStar = new AStar(FloorData, this);
-        dijkstra = new Dijkstra(FloorData);
-        minimap?.Initialize(FloorData);
+
+        Initialize(floorInfo.Size, floorInfo.MaxRoomCount, dungeonData.IsTower);
+
         return floorInfo;
     }
 
     public void CreateMesh()
+    {
+        CombineMesh();
+        wall.transform.localPosition = Vector3.zero;
+    }
+
+    public void Create(int width, int height, int maxRoom, bool isTower)
+    {
+        Initialize(new Vector2Int(width, height), maxRoom, isTower);
+
+        CombineMesh();
+
+        wall.transform.localPosition = Vector3.zero;
+    }
+
+    private void Initialize(Vector2Int size, int maxRoom, bool isTower)
+    {
+        Size = size;
+        FloorData = DungeonGenerator.GenerateFloor(Size.x, Size.y, maxRoom);
+        units = new Unit[Size.x, Size.y];
+        items = new ItemData[Size.x, Size.y];
+        traps = new Trap[Size.x, Size.y];
+        IsTower = isTower;
+
+        aStar = new AStar(FloorData, this);
+        dijkstra = new Dijkstra(FloorData);
+        minimap?.Initialize(FloorData);
+    }
+
+    private void CombineMesh()
     {
         var transform = wall.transform;
         var wallMesh = wall.GetComponent<MeshFilter>().sharedMesh;
@@ -187,106 +201,6 @@ public class FloorManager : MonoBehaviour, IUnitContainer
         CreateCombinedMesh(combinedWall, wall.GetComponent<MeshRenderer>().sharedMaterial, "walls");
         CreateCombinedMesh(combinedFloor, floor.GetComponent<MeshRenderer>().sharedMaterial, "floors");
         this.transform.parent.position = new Vector3(-Size.x * 0.5f, 0f, -Size.y * 0.5f);
-        wall.transform.localPosition = Vector3.zero;
-    }
-
-    public void Create(int width, int height, int maxRoom, bool isTower)
-    {
-        Size = new Vector2Int(width, height);
-        FloorData = DungeonGenerator.GenerateFloor(width, height, maxRoom);
-        units = new Unit[Size.x, Size.y];
-        items = new Item[Size.x, Size.y];
-        traps = new Trap[Size.x, Size.y];
-        this.IsTower = isTower;
-
-        var transform = wall.transform;
-        var wallMesh = wall.GetComponent<MeshFilter>().sharedMesh;
-        var floorMesh = floor.GetComponent<MeshFilter>().sharedMesh;
-
-        var combinedWall = new List<CombineInstance>();
-        var combinedFloor = new List<CombineInstance>();
-
-        for (var x = 0; x < Size.x; x++)
-        {
-            for (var z = 0; z < Size.y; z++)
-            {
-                if (FloorData.IsStair(x, z))
-                {
-                    CreateStair(x, z);
-                    continue;
-                }
-                var combine = new CombineInstance();
-                if (Map[x, z].IsWall)
-                {
-                    transform.localPosition = new Vector3(x, 0.5f, z);
-                    combine.transform = transform.localToWorldMatrix;
-                    combine.mesh = wallMesh;
-                    combinedWall.Add(combine);
-                }
-                else
-                {
-                    transform.localPosition = new Vector3(x, -0.5f, z);
-                    combine.transform = transform.localToWorldMatrix;
-                    combine.mesh = floorMesh;
-                    combinedFloor.Add(combine);
-                }
-            }
-        }
-        CreateCombinedMesh(combinedWall, wall.GetComponent<MeshRenderer>().sharedMaterial, "walls");
-        CreateCombinedMesh(combinedFloor, floor.GetComponent<MeshRenderer>().sharedMaterial, "floors");
-        this.transform.parent.position = new Vector3(-width * 0.5f, 0f, -height * 0.5f);
-        aStar = new AStar(FloorData, this);
-        dijkstra = new Dijkstra(FloorData);
-        minimap?.Initialize(FloorData);
-        wall.transform.localPosition = Vector3.zero;
-    }
-
-    private IEnumerator Create()
-    {
-        var transform = wall.transform;
-        var wallMesh = wall.GetComponent<MeshFilter>().sharedMesh;
-        var floorMesh = floor.GetComponent<MeshFilter>().sharedMesh;
-
-        var combinedWall = new List<CombineInstance>();
-        var combinedFloor = new List<CombineInstance>();
-
-        var count = 0;
-        for (var x = 0; x < Size.x; x++)
-        {
-            for (var z = 0; z < Size.y; z++)
-            {
-                if (FloorData.IsStair(x, z))
-                {
-                    CreateStair(x, z);
-                    continue;
-                }
-
-                var combine = new CombineInstance();
-                if (Map[x, z].IsWall)
-                {
-                    transform.localPosition = new Vector3(x, 0.5f, z);
-                    combine.transform = transform.localToWorldMatrix;
-                    combine.mesh = wallMesh;
-                    combinedWall.Add(combine);
-                }
-                else
-                {
-                    transform.localPosition = new Vector3(x, -0.5f, z);
-                    combine.transform = transform.localToWorldMatrix;
-                    combine.mesh = floorMesh;
-                    combinedFloor.Add(combine);
-                }
-                count++;
-                if (count == 50)
-                {
-                    count = 0;
-                    yield return null;
-                }
-            }
-        }
-        CreateCombinedMesh(combinedWall, wall.GetComponent<MeshRenderer>().sharedMaterial, "Walls");
-        CreateCombinedMesh(combinedFloor, floor.GetComponent<MeshRenderer>().sharedMaterial, "Floors");
-        transform.parent.position = new Vector3(-Size.x * 0.5f, 0f, -Size.y * 0.5f);
     }
 
     public List<Vector2Int> GetRoot(Vector2Int startPosition, Vector2Int targetPosition)
@@ -298,6 +212,7 @@ public class FloorManager : MonoBehaviour, IUnitContainer
     {
         var startTile = GetTile(startPosition);
         var targetTile = GetTile(targetPosition);
+        if (startTile == null || targetTile == null) return null;
         if (!startTile.IsRoom || !targetTile.IsRoom) return null;
         return dijkstra.GetRoot(startTile.Id, targetTile.Id);
     }
@@ -339,54 +254,12 @@ public class FloorManager : MonoBehaviour, IUnitContainer
 
     public void SetUnit(Unit unit, Vector2Int position) => units[position.x, position.y] = unit;
     public void RemoveUnit(Vector2Int position) => units[position.x, position.y] = null;
-    public void RemoveUnit(Unit unit)
-    {
-        for (var x = 0; x < Size.x; x++)
-        {
-            for (var y = 0; y < Size.y; y++)
-            {
-                if (units[x, y] == unit)
-                {
-                    units[x, y] = null;
-                    return;
-                }
-            }
-        }
-    }
 
     public void SetTrap(Trap trap, Vector2Int position) => traps[position.x, position.y] = trap;
     public void RemoveTranp(Vector2Int position) => traps[position.x, position.y] = null;
-    public void RemoveTrap(Trap trap)
-    {
-        for (var x = 0;x < Size.x;x++)
-        {
-            for(var y = 0; y < Size.y; y++)
-            {
-                if (traps[x, y] == trap)
-                {
-                    traps[x, y] = null;
-                    return;
-                }
-            }
-        }
-    }
 
-    public void SetItem(Item item, Vector2Int position) => items[position.x, position.y] = item;
+    public void SetItem(ItemData item, Vector2Int position) => items[position.x, position.y] = item;
     public void RemoveItem(Vector2Int position) => items[position.x, position.y] = null;
-    public void RemoveItem(Item item)
-    {
-        for (var x = 0; x < Size.x; x++)
-        {
-            for (var y = 0; y < Size.y; y++)
-            {
-                if (items[x, y] == item)
-                {
-                    items[x, y] = null;
-                    return;
-                }
-            }
-        }
-    }
 
     public void Clear()
     {

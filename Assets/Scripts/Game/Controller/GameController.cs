@@ -140,11 +140,8 @@ public class GameController : MonoBehaviour
     {
         var item = floorManager.GetItem(player.Position);
         if (item == null) return;
-        if (item.IsGem)
-        {
-            player.Data.Gems += item.GemCount;
-            noticeGroup.Add($"ジェムを{item.GemCount}個拾った", Color.cyan);
-        }
+        player.Data.Gems += item.GemCount;
+        noticeGroup.Add($"ジェムを{item.GemCount}個拾った", Color.cyan);
         floorManager.RemoveItem(item.Position);
         itemManager.Despawn(item);
         StartEnemyTurn();

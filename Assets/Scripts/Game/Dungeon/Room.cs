@@ -6,11 +6,18 @@ using UnityEngine;
 [Serializable]
 public class Room
 {
-    public int X { get; private set; }
-    public int Y { get; private set; }
-    public int Width { get; private set; }
-    public int Height { get; private set; }
-    public int Id { get; private set; }
+    [SerializeField]
+    private Vector2Int position;
+    [SerializeField]
+    private Vector2Int size;
+    [SerializeField]
+    private int id;
+
+    public int X => position.x;
+    public int Y => position.y;
+    public int Width => size.x;
+    public int Height => size.y;
+    public int Id => id;
 
     /// <summary>
     /// 接続先番号
@@ -35,11 +42,9 @@ public class Room
 
     public Room(int id, int x, int y, int width, int height)
     {
-        Id = id;
-        X = x;
-        Y = y;
-        Width = width;
-        Height = height;
+        this.id = id;
+        position = new Vector2Int(x, y);
+        size = new Vector2Int(width, height);
     }
 
     /// <summary>

@@ -11,7 +11,7 @@ public class ItemManager : MonoBehaviour
     [SerializeField]
     private Item[] gemTemplates = new Item[0];
 
-    public List<Item> ItemList { get; private set; } = new List<Item>();
+    public List<ItemData> ItemList { get; private set; } = new();
 
 
     public void Initialize(int sumPrice, int minCount = 1, int maxCount = 5)
@@ -30,21 +30,20 @@ public class ItemManager : MonoBehaviour
     public void Clear()
     {
         foreach (var item in ItemList)
-            Destroy(item);
+            Destroy(item.gameObject);
         ItemList.Clear();
     }
 
     public Item Drop(int price, Vector2Int position, bool isAnimation = false)
     {
         var item = Instantiate(gemTemplates.First(), floorManager.transform);
-        item.GemCount = price;
-        item.SetPosition(floorManager.GetTile(position.x, position.y));
+        var itemData = new ItemData(item, position, price);
         if (isAnimation)
         {
             item.JumpTo();
         }
-        ItemList.Add(item);
-        floorManager.SetItem(item, position);
+        ItemList.Add(itemData);
+        floorManager.SetItem(itemData, position);
         return item;
     }
 
@@ -52,13 +51,12 @@ public class ItemManager : MonoBehaviour
     {
         var template = gemTemplates.First();
         var item = Instantiate(template, floorManager.transform);
-        item.GemCount = price;
-        item.SetPosition(tile);
-        floorManager.SetItem(item, tile.Position);
-        ItemList.Add(item);
+        var itemData = new ItemData(item, tile.Position, price);
+        floorManager.SetItem(itemData, tile.Position);
+        ItemList.Add(itemData);
     }
 
-    public void Despawn(Item item)
+    public void Despawn(ItemData item)
     {
         ItemList.Remove(item);
         Destroy(item.gameObject);
