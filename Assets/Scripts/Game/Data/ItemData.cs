@@ -24,6 +24,7 @@ public class ItemData
         this.owner = owner;
         this.position = position;
         this.gemCount = gemCount;
+        owner.transform.localPosition = new Vector3(position.x, 0f, position.y);
     }
 
     public void SetPosition(TileData tile)

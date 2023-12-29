@@ -1,11 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
-using UnityEngine;
 
 public class EnemyTurnState : IState
 {
     private DungeonStateMachine stateMachine;
     private EnemyManager enemyManager;
-    private UniTask task;
 
     public EnemyTurnState(DungeonStateMachine stateMachine, EnemyManager enemyManager)
     {
@@ -15,7 +13,7 @@ public class EnemyTurnState : IState
 
     public void OnEnter()
     {
-        task = enemyManager.Controll();
+        enemyManager.Controll(stateMachine).Forget();
     }
 
     public void OnExit()
@@ -24,9 +22,5 @@ public class EnemyTurnState : IState
 
     public void Update()
     {
-        if (task.Status == UniTaskStatus.Succeeded)
-        {
-            stateMachine.Goto(GameState.PlayerTurn);
-        }
     }
 }

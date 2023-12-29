@@ -3,6 +3,7 @@ using DG.Tweening;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
 
 public class Player : Unit
@@ -99,10 +100,10 @@ public class Player : Unit
         ChargeStack = 0;
     }
 
-    public override async UniTask MoveAsync(Vector2Int move)
+    public override async UniTask MoveAsync(Vector2Int move, CancellationToken token)
     {
         IsLockInput = true;
-        await base.MoveAsync(move);
+        await base.MoveAsync(move, token);
         IsLockInput = false;
         var flag = floorManager.GetTile(Position).IsRoom;
         pointLight.SetActive(flag);

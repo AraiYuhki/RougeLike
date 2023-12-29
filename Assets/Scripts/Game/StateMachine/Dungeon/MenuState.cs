@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class MenuState : IState
+﻿public class MenuState : IState
 {
     private DungeonStateMachine stateMachine;
     private UIManager uiManager;

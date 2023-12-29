@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System;
-using UnityEngine;
+﻿using System;
+using System.Collections;
 
 public enum GameState
 {
@@ -16,30 +14,8 @@ public enum GameState
     Shop,
 }
 
-public class DungeonStateMachine : IDungeonStateMachine
+public class DungeonStateMachine : StateMachine<GameState, IState>, IDungeonStateMachine
 {
-    private GameState currentState = GameState.Wait;
-
-    private GameState prevState = GameState.Wait;
-    private IState current => states.ContainsKey(currentState) ? states[currentState] : null;
-    private Dictionary<GameState, IState> states = new Dictionary<GameState, IState>();
-
-    public void AddState(GameState state, IState instance) => states[state] = instance;
-
-    public void Goto(GameState state)
-    {
-        current?.OnExit();
-        currentState = state;
-        prevState = currentState;
-        current?.OnEnter();
-    }
-
-    public void GotoPrev()
-    {
-        Goto(prevState);
-        prevState = GameState.Wait;
-    }
-
     public void OpenCommonDialog(string title, string message, params (string label, Action onClick)[] data)
     {
         prevState = currentState;

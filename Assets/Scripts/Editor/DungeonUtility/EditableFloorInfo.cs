@@ -90,7 +90,7 @@ public partial class DungeonEditor
             rect.y += height;
             rect.width -= 10f;
             rect.x += 10f;
-            foreach (var info in DB.Instance.MFloorEnemySpawn.GetByGroupId(FloorInfo.EnemySpawnGroupId))
+            foreach(var info in DB.Instance.MFloorEnemySpawn.GetByGroupId(FloorInfo.EnemySpawnGroupId))
             {
                 var enemy = DB.Instance.MEnemy.GetById(info.EnemyId);
                 EditorGUI.LabelField(rect, $"{enemy.Name}: 出現率 {info.Probability}");

@@ -1,26 +1,51 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.Pool;
 
 public class DamagePopupManager : MonoBehaviour
 {
     [SerializeField]
+    private Camera mainCamera;
+    [SerializeField]
+    private Canvas canvas;
+    [SerializeField]
     private DamagePopup original;
 
-    private List<DamagePopup> popupList = new List<DamagePopup>();
+    private ObjectPool<DamagePopup> popups = null;
+
+    private void Awake()
+    {
+        popups = new ObjectPool<DamagePopup>(
+            () =>
+            {
+                var instance = Instantiate(original, transform);
+                instance.SetPool(popups);
+                return instance;
+            },
+            null,
+            target => target.gameObject.SetActive(false),
+            target => Destroy(target.gameObject),
+            true, 10, 30
+            );
+    }
 
     public void Create(Unit target, int value, Color color)
     {
-        var popup = popupList.FirstOrDefault(popup => !popup.gameObject.activeSelf);
-        if (popup == null)
-        {
-            popup = Instantiate(original, transform);
-            popupList.Add(popup);
-        }
-        popup.transform.localPosition = target.transform.localPosition;
-        popup.transform.rotation = Quaternion.identity;
-        popup.transform.localScale = Vector3.one;
+        if (!IsInSight(target))
+            return;
+        var popup = popups.Get();
+        popup.transform.position = WorldToPoint(target);
+        popup.transform.position += new Vector3(Random.Range(-100, 100), Random.Range(-100, 100), 0);
         popup.Initialize(value, color);
+    }
+
+    private bool IsInSight(Unit target)
+    {
+        var viewPortPosition = mainCamera.WorldToViewportPoint(target.transform.position);
+        return 0f <= viewPortPosition.x && viewPortPosition.x <= 1f && 0f <= viewPortPosition.y && viewPortPosition.y <= 1f;
+    }
+
+    private Vector3 WorldToPoint(Unit target)
+    {
+        return mainCamera.WorldToScreenPoint(target.transform.position);
     }
 }

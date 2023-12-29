@@ -31,7 +31,7 @@ public abstract class EnemyAI
         return new UniTask();
     }
 
-    public virtual UniTask Attack()
+    public virtual UniTask AttackAsync()
     {
         return new UniTask();
     }
@@ -77,15 +77,13 @@ public class DefaultAI : EnemyAI
         });
     }
 
-    public override async UniTask Attack()
+    public override async UniTask AttackAsync()
     {
         var diff = player.Position - Enemy.Position;
         Enemy.SetDestAngle(diff);
         await UniTask.WaitUntil(() => Enemy.EndRotation);
-        var endAttackAnimation = false;
         var targetPosition = new Vector3(player.Position.x, 0.5f, player.Position.y);
-        Enemy.Attack(player, Enemy.Data.Atk, () => endAttackAnimation = true);
-        await UniTask.WaitUntil(() => endAttackAnimation);
+        await Enemy.AttackAsync(player, Enemy.Data.Atk);
     }
 
     protected virtual List<Vector2Int> FindRoot()
@@ -128,6 +126,6 @@ public class DefaultAI : EnemyAI
     {
         var trap = floorInfo.GetTrap(Enemy.Position);
         if (trap == null) return;
-        trap.Execute(Enemy).Forget();
+        trap.ExecuteAsync(Enemy).Forget();
     }
 }

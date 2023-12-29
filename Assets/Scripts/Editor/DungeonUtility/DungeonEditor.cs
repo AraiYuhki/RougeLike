@@ -60,7 +60,7 @@ public partial class DungeonEditor : EditorWindow
     private void Create()
     {
         dungeonInfo = new DungeonInfo(DB.Instance.MDungeon.All.Max(info => info.Id) + 1);
-        floorInfoList = new();
+        floorInfoList = new ();
     }
 
     private void Clear()
@@ -72,8 +72,6 @@ public partial class DungeonEditor : EditorWindow
     private void Save()
     {
         var db = DB.Instance;
-        if (db.MDungeon == null) db.Reload();
-
         if (db.MDungeon.All.Any(info => info.Id == dungeonInfo.Id))
             db.MDungeon.GetById(dungeonInfo.Id).Apply(dungeonInfo);
         else

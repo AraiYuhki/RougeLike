@@ -37,11 +37,13 @@ public class DebugController : MonoBehaviour
 #endif
     }
 
+#if DEBUG
     private async void Start()
     {
         DontDestroyOnLoad(gameObject);
         var root = debugSheet.GetOrCreateInitialPage();
         root.AddPageLinkButton<PlayerDebugPage>(nameof(PlayerDebugPage));
+        root.AddPageLinkButton<EnemyDebugPage>(nameof(EnemyDebugPage));
         root.AddPageLinkButton<IngameDebugConsoleDebugPage>("In game debug console", onLoad: OnLoadDebugConsolePage);
         root.AddPageLinkButton<GraphyDebugPage>("Graphy", onLoad: OnLoadGraphy);
 
@@ -72,4 +74,5 @@ public class DebugController : MonoBehaviour
     {
         x.page.Setup(graphyManager);
     }
+#endif
 }

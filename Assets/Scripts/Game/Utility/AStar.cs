@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class AStar
 {
@@ -40,14 +42,8 @@ public class AStar
 
     private FloorData floorData;
     private Vector2Int size;
-    private IUnitContainer unitContainer;
 
-    public AStar() { }
-    public AStar(FloorData floorData, IUnitContainer unitContainer)
-    {
-        this.floorData = floorData;
-        this.unitContainer = unitContainer;
-    }
+    private IUnitContainer unitContainer;
 
     private static readonly Vector2Int[] OffsetList = new Vector2Int[]{
             Vector2Int.up,
@@ -59,6 +55,17 @@ public class AStar
             Vector2Int.up + Vector2Int.left,
             Vector2Int.down + Vector2Int.left
             };
+
+    public AStar()
+    {
+    }
+
+    public AStar(FloorData floorData, IUnitContainer container)
+    {
+        this.floorData = floorData;
+        this.unitContainer = container;
+        size = floorData.Size;
+    }
 
     public void Setup(FloorData floorData, IUnitContainer unitContainer)
     {
@@ -75,31 +82,31 @@ public class AStar
             for (var y = 0; y < size.y; y++)
             {
                 var node = new Node(x, y);
-                if (unitContainer.ExistsUnit(node.Position))
+                if (unitContainer != null && unitContainer.ExistsUnit(node.Position))
                     node.Cost += 100;
                 nodes[x, y] = node;
             }
         }
         var result = new List<Vector2Int>();
         var openedNode = new List<Node>();
-        FindRoot(endPoint, nodes[startPoint.x, startPoint.y], floorData.Map, nodes, ref result, ref openedNode);
+        FindRoot(endPoint, nodes[startPoint.x, startPoint.y], nodes, ref result, ref openedNode);
         return result;
     }
 
-    private bool FindRoot(Vector2Int endPoint, Node current, TileData[,] map, Node[,] nodes, ref List<Vector2Int> result, ref List<Node> openedNode)
+    private bool FindRoot(Vector2Int endPoint, Node current, Node[,] nodes, ref List<Vector2Int> result, ref List<Node> openedNode)
     {
         current.State = NodeState.Close;
         openedNode.Remove(current);
-        var goal = OpenAround(endPoint, nodes, map, current, ref openedNode);
+        var goal = OpenAround(endPoint, nodes, current, ref openedNode);
         if (goal != null)
         {
             result = CreateRoot(goal);
             return true;
         }
-        while (openedNode.Count > 0)
+        while(openedNode.Count > 0)
         {
             var next = openedNode.OrderBy(node => node.Score).First();
-            if (FindRoot(endPoint, next, map, nodes, ref result, ref openedNode))
+            if (FindRoot(endPoint, next, nodes, ref result, ref openedNode))
                 return true;
         }
         return false;
@@ -118,7 +125,7 @@ public class AStar
         return result;
     }
 
-    private Node OpenAround(Vector2Int endPoint, Node[,] nodes, TileData[,] map, Node node, ref List<Node> openedNode)
+    private Node OpenAround(Vector2Int endPoint, Node[,] nodes, Node node, ref List<Node> openedNode)
     {
         var position = node.Position;
         node.State = NodeState.Close;
@@ -128,7 +135,7 @@ public class AStar
             if (targetPosition.X < 0 || targetPosition.X >= size.x || targetPosition.Y < 0 || targetPosition.Y >= size.y)
                 continue;
             var targetNode = nodes[targetPosition.X, targetPosition.Y];
-            if (map[targetPosition.X, targetPosition.Y].IsWall)
+            if (floorData.Map[targetPosition.X, targetPosition.Y].IsWall)
                 continue;
             if (targetNode.State != NodeState.None)
                 continue;

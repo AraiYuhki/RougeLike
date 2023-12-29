@@ -1,4 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
+using System;
+using System.Threading;
 using UnityEngine;
 
 public enum TrapType
@@ -25,10 +27,21 @@ public abstract class Trap : MonoBehaviour
     public abstract TrapType Type { get; }
     public bool IsVisible { get; set; }
 
-    public virtual async UniTask Execute(Unit executer)
+    protected CancellationToken CreateLinkedToken(CancellationToken playerToken)
+    {
+        return CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy(), playerToken).Token;
+    }
+
+    public virtual UniTask ExecuteAsync(Unit executer, CancellationToken token = default)
     {
         IsVisible = true;
-        await UniTask.CompletedTask;
+        return UniTask.CompletedTask;
+    }
+
+    public virtual void Execute(Unit executer, Action onComplete)
+    {
+        IsVisible = true;
+        onComplete?.Invoke();
     }
 
     public void SetPosition(Vector2Int newPosition)

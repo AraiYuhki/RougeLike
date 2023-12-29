@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,11 +26,15 @@ public class GridScrollMenu : MenuBase
         get => columnCount * selectedIndex.y + selectedIndex.x;
         set
         {
+            selectedIndex.x += value % columnCount;
+            selectedIndex.y = Mathf.FloorToInt(value / columnCount);
+            FixIndex();
         }
     }
 
     public Action<SelectableItem> OnSubmit { get; set; }
     public T GetSelectedItem<T>() where T : SelectableItem => Items[SelectedIndex] as T;
+
     public void Initialize()
     {
         selectedIndex = Vector2Int.zero;
@@ -59,16 +61,18 @@ public class GridScrollMenu : MenuBase
 
     public override void AddItem<T>(T item)
     {
-        base.AddItem(item);
+        Items.Add(item);
+        item.transform.parent = container.transform;
+        item.transform.localScale = Vector3.one;
 
-        item.Initialize((Action)(() =>
+        item.Initialize(() =>
         {
-            Items[(int)this.SelectedIndex].Select(false);
+            Items[SelectedIndex].Select(false);
             var index = Items.IndexOf(item);
-            this.selectedIndex.x = index % columnCount;
-            this.selectedIndex.y = index / columnCount;
-            Items[(int)this.SelectedIndex].Select(true);
-        }),
+            selectedIndex.x = index % columnCount;
+            selectedIndex.y = index / columnCount;
+            Items[SelectedIndex].Select(true);
+        },
         () =>
         {
             if (!Enable) return;
@@ -84,7 +88,8 @@ public class GridScrollMenu : MenuBase
 
     public override void RemoveItem<T>(T item)
     {
-        base.RemoveItem(item);
+        Items.Remove(item);
+        Destroy(item.gameObject);
         if (Items.Count > 0)
         {
             rowCount = Mathf.CeilToInt(Items.Count / columnCount);

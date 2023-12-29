@@ -68,7 +68,7 @@ public class EnemyManager : MonoBehaviour
         enemies.Add(ai);
     }
 
-    public async UniTask Controll()
+    public async UniTask Controll(DungeonStateMachine stateMachine)
     {
         if (floorSetting.SpawnEnemyIntervalTurn < spawnedCount)
         {
@@ -88,7 +88,8 @@ public class EnemyManager : MonoBehaviour
                 await enemy.Move(() => completedCount++);
             while (moveEnemies.Count > completedCount) await UniTask.Yield();
             foreach (var enemy in attackEnemies)
-                await enemy.Attack();
+                await enemy.AttackAsync();
+            stateMachine.Goto(GameState.PlayerTurn);
         }
         catch (Exception e)
         {

@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Threading;
 using UnityEngine;
 
 public class PlayerTurnState : IState
@@ -35,7 +36,7 @@ public class PlayerTurnState : IState
     {
         try
         {
-            Process().Forget();
+            Process(player.GetCancellationTokenOnDestroy()).Forget();
         }
         catch (Exception e)
         {
@@ -48,7 +49,7 @@ public class PlayerTurnState : IState
         player.TurnEnd();
     }
 
-    private async UniTask Process()
+    private async UniTask Process(CancellationToken token)
     {
         while (true)
         {
@@ -60,7 +61,7 @@ public class PlayerTurnState : IState
             }
             if (UseCard())
             {
-                await UniTask.Yield();
+                await UniTask.Yield(token);
                 return;
             }
             if (InputUtility.Wait.IsPressed())
@@ -78,7 +79,7 @@ public class PlayerTurnState : IState
                 move = Vector2Int.zero;
             if (move == Vector2Int.zero)
             {
-                await UniTask.Yield();
+                await UniTask.Yield(token);
                 continue;
             }
 
@@ -89,16 +90,18 @@ public class PlayerTurnState : IState
             if (enemy != null || destTile.IsWall || isTurnMode)
             {
                 player.SetDestAngle(move);
-                await UniTask.Yield();
+                await UniTask.Yield(token);
                 continue;
             }
             stateMachine.Goto(GameState.Wait);
-            player.MoveAsync(move).Forget();
+            player.MoveAsync(move, token).Forget();
             TakeItem();
             await CheckTrapAsync();
-            CheckStair();
-            stateMachine.Goto(GameState.EnemyTurn);
-            await UniTask.Yield();
+            if (!CheckStair())
+            {
+                stateMachine.Goto(GameState.EnemyTurn);
+            }
+            await UniTask.Yield(token);
             break;
         }
     }
@@ -159,20 +162,21 @@ public class PlayerTurnState : IState
     {
         var trap = floorManager.GetTrap(player.Position);
         if (trap == null) return;
-        trap.Execute(player).Forget();
+        trap.ExecuteAsync(player).Forget();
     }
 
     private async UniTask CheckTrapAsync()
     {
         var trap = floorManager.GetTrap(player.Position);
         if (trap == null) return;
-        await trap.Execute(player);
+        await trap.ExecuteAsync(player);
     }
 
     private bool CheckStair()
     {
         var stairPosition = floorManager.FloorData.StairPosition;
         if (stairPosition.X != player.Position.x || stairPosition.Y != player.Position.y) return false;
+        stateMachine.Goto(GameState.Wait);
         stateMachine.OpenCommonDialog("確認", "次の階へ進みますか？",
             ("はい", () => stateMachine.Goto(GameState.Shop)),
             ("いいえ", () => stateMachine.Goto(GameState.EnemyTurn))

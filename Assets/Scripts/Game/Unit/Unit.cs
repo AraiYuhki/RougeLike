@@ -5,6 +5,7 @@ using UnityEditor;
 using System.Linq;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using System.Threading;
 
 public class Unit : MonoBehaviour
 {
@@ -113,23 +114,16 @@ public class Unit : MonoBehaviour
     public void Move(int x, int z) => Move(new Vector2Int(x, z));
     public virtual void Move(Vector2Int move) => Move(move, null);
 
-    public virtual void Attack(Unit target, int damage, Action onComplete = null, bool isResourceAttack = false)
+    public async UniTask AttackAsync(Player target, int damage, CancellationToken token = default)
     {
         var currentPosition = transform.localPosition;
-        var sequence = DOTween.Sequence();
-        tweenList.Add(sequence);
-        sequence.Append(unit.transform.DOLocalMove(Vector3.forward * 2f, 0.2f).SetEase(Ease.InCubic));
-        sequence.Append(unit.transform.DOLocalMove(Vector3.zero, 0.2f).SetEase(Ease.OutCubic));
-        sequence.OnComplete(() =>
-        {
-            tweenList.Remove(sequence);
-            OnAttack?.Invoke(this, target);
-            target.Damage(damage, this);
-            onComplete?.Invoke();
-        });
-        sequence.SetAutoKill(true);
-        sequence.Play();
-        ChargeStack = 0;
+        await DOTween.Sequence()
+            .Append(unit.transform.DOLocalMove(Vector3.forward * 2f, 0.2f).SetEase(Ease.InCubic))
+            .Append(unit.transform.DOLocalMove(Vector3.zero, 0.2f).SetEase(Ease.OutCubic))
+            .SetAutoKill(true)
+            .ToUniTask(cancellationToken: token);
+        OnAttack?.Invoke(this, target);
+        target.Damage(damage, target);
     }
 
     public virtual void Attack(int damage, AttackAreaInfo attackArea, Action onComplete = null)
@@ -216,13 +210,24 @@ public class Unit : MonoBehaviour
         ChargeStack = 0;
     }
 
+    /// <summary>
+    /// 座標を指定して、その位置に移動する
+    /// </summary>
+    /// <param name="destPosition"></param>
+    /// <param name="onComplete"></param>
     public void MoveTo(Vector2Int destPosition, TweenCallback onComplete = null)
     {
         var diff = destPosition - Position;
         ChargeStack = 0;
+        Move(diff, onComplete);
+    }
+
+    public async UniTask MoveToAsync(Vector2Int destPosition, CancellationToken token)
+    {
+        var diff = destPosition - Position;
         OnMoved?.Invoke(this, destPosition);
-        SetPosition(destPosition, onComplete);
         SetDestAngle(diff);
+        await SetPositionAsync(destPosition, token);
     }
 
     public void Move(Vector2Int move, TweenCallback onComplete = null)
@@ -230,17 +235,17 @@ public class Unit : MonoBehaviour
         var dest = Position + move;
         ChargeStack = 0;
         OnMoved?.Invoke(this, dest);
-        SetPosition(dest, onComplete);
         SetDestAngle(move);
+        SetPosition(dest, onComplete);
     }
 
-    public virtual async UniTask MoveAsync(Vector2Int move)
+    public virtual async UniTask MoveAsync(Vector2Int move, CancellationToken token)
     {
         var dest = Position + move;
         ChargeStack = 0;
         OnMoved?.Invoke(this, dest);
         SetDestAngle(move);
-        await SetPositionAsync(dest);
+        await SetPositionAsync(dest, token);
     }
 
     public virtual void Heal(float value, bool damagePopup = true)
@@ -253,7 +258,10 @@ public class Unit : MonoBehaviour
     public virtual void Damage(int damage, Unit attacker, bool damagePopup = true)
     {
         if (damagePopup) DamagePopupManager.Create(this, damage, Color.red);
-        notice.Add($"{attacker.Name}は{Name}に{damage}ダメージ与えた", Color.red);
+        if (attacker == null)
+            notice.Add($"{Name}は{damage}ダメージ受けた", Color.red);
+        else
+            notice.Add($"{attacker.Name}は{Name}に{damage}ダメージ与えた", Color.red);
         Hp -= damage;
         OnDamage?.Invoke(attacker, damage);
         if (Hp <= 0)
@@ -298,7 +306,7 @@ public class Unit : MonoBehaviour
     public virtual void SetPosition(Vector2Int position, TweenCallback onComplete)
     {
         Position = position;
-        var tween = transform.DOLocalMove(new Vector3(position.x, 0.5f, position.y), 0.2f).SetEase(Ease.OutQuad);
+        var tween = transform.DOLocalMove(new Vector3(position.x, 0.5f, position.y), 0.2f).SetEase(Ease.OutCubic);
         tweenList.Add(tween);
         tween.OnComplete(() =>
         {
@@ -307,18 +315,31 @@ public class Unit : MonoBehaviour
         });
     }
 
-    public virtual async UniTask SetPositionAsync(Vector2Int position)
+    public virtual async UniTask SetPositionAsync(Vector2Int position, CancellationToken token)
     {
         Position = position;
-        await transform.DOLocalMove(new Vector3(position.x, 0.5f, position.y), 0.2f).SetEase(Ease.OutQuad);
+        await transform
+            .DOLocalMove(new Vector3(position.x, 0.5f, position.y), 0.2f)
+            .SetEase(Ease.OutQuad)
+            .ToUniTask(cancellationToken: token);
     }
 
     public virtual void SetDestAngle(Vector2Int move)
     {
         Angle = move;
         var destAngle = Vector3.SignedAngle(Vector3.forward, new Vector3(move.x, 0f, move.y), Vector3.up);
-        var tween = transform.DORotate(new Vector3(0f, destAngle, 0f), 0.1f).SetEase(Ease.OutCubic);
+        var tween = transform.DORotate(new Vector3(0f, destAngle, 0f), 0.1f).SetEase(Ease.OutQuad);
         tweenList.Add(tween);
         tween.OnComplete(() => tweenList.Remove(tween));
+    }
+
+    public virtual async UniTask RotateAsync(Vector2Int move, CancellationToken token)
+    {
+        Angle = move;
+        var destAngle = Vector3.SignedAngle(Vector3.forward, new Vector3(move.x, 0f, move.y), Vector3.up);
+        await transform
+            .DORotate(new Vector3(0f, destAngle, 0f), 0.1f)
+            .SetEase(Ease.OutQuad)
+            .ToUniTask(cancellationToken: token);
     }
 }

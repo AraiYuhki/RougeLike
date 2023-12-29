@@ -70,7 +70,7 @@ public class PlayerDebugPage : DefaultDebugPageBase
     private void Update()
     {
         if (player == null) return;
-        hpSlider.MaxValue = player.MaxHp;
+        hpSlider.MaxValue = player.Data.MaxHP;
         RefreshDataAt(hpSliderIndex);
     }
 

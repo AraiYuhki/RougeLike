@@ -37,7 +37,12 @@ public class CommonDialog : DialogBase
             var instance = Instantiate(original, itemContainer);
             instance.gameObject.SetActive(true);
             instance.Label = label;
-            instance.Initialize(null, onClick);
+            instance.Initialize(() => 
+            {
+                foreach (var item in items)
+                    item.Select(item == instance);
+                currentSelected = items.IndexOf(instance);
+            }, onClick);
             items.Add(instance);
         }
         original.gameObject.SetActive(false);
