@@ -138,7 +138,7 @@ public class Player : Unit
     {
         var ailments = Data.Ailments;
         if (ailments.ContainsKey(AilmentType.Poison))
-            Damage(ailments[AilmentType.Blind].Param);
+            Damage(ailments[AilmentType.Poison].Param);
         if (ailments.ContainsKey(AilmentType.Exhaustion))
             Data.Stamina -= 0.1f * ailments[AilmentType.Exhaustion].Param;
 

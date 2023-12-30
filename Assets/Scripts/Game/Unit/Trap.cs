@@ -34,6 +34,7 @@ public abstract class Trap : MonoBehaviour
 
     public virtual UniTask ExecuteAsync(Unit executer, CancellationToken token = default)
     {
+        gameObject.SetActive(true);
         return UniTask.CompletedTask;
     }
 

@@ -34,14 +34,6 @@ public class PlayerTurnState : IState
 
     public void OnEnter()
     {
-        try
-        {
-            Process(player.GetCancellationTokenOnDestroy()).Forget();
-        }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-        }
     }
 
     public void OnExit()
@@ -49,65 +41,52 @@ public class PlayerTurnState : IState
         player.TurnEnd();
     }
 
-    private async UniTask Process(CancellationToken token)
+    public async void Update()
     {
-        while (true)
+        if (player.IsLockInput) return;
+        if (InputUtility.Menu.IsTriggerd())
         {
-            await UniTask.WaitUntil(() => !player.IsLockInput);
-            if(InputUtility.Menu.IsTriggerd())
-            {
-                stateMachine.Goto(GameState.MainMenu);
-                return;
-            }
-            if (UseCard())
-            {
-                await UniTask.Yield(token);
-                return;
-            }
-            if (InputUtility.Wait.IsPressed())
-            {
-                stateMachine.Goto(GameState.EnemyTurn);
-                return;
-            }
-            var move = Vector2Int.zero;
-            if (InputUtility.Up.IsPressed()) move.y = 1;
-            else if (InputUtility.Down.IsPressed()) move.y = -1;
-            if (InputUtility.Right.IsPressed()) move.x = 1;
-            else if (InputUtility.Left.IsPressed()) move.x = -1;
-            var isTurnMode = InputUtility.TurnMode.IsPressed();
-            if (InputUtility.DiagonalMode.IsPressed() && (move.x == 0 || move.y == 0))
-                move = Vector2Int.zero;
-            if (move == Vector2Int.zero)
-            {
-                await UniTask.Yield(token);
-                continue;
-            }
-
-            var currentPosition = player.Position;
-            var destPosition = currentPosition + move;
-            var destTile = floorManager.GetTile(destPosition);
-            var enemy = floorManager.GetUnit(destPosition);
-            if (enemy != null || destTile.IsWall || isTurnMode)
-            {
-                player.SetDestAngle(move);
-                await UniTask.Yield(token);
-                continue;
-            }
-            stateMachine.Goto(GameState.Wait);
-            player.MoveAsync(move, token).Forget();
-            TakeItem();
-            await CheckTrapAsync();
-            if (!CheckStair())
-            {
-                stateMachine.Goto(GameState.EnemyTurn);
-            }
-            await UniTask.Yield(token);
-            break;
+            stateMachine.Goto(GameState.MainMenu);
+            return;
         }
-    }
 
-    public void Update()
-    {
+        if (UseCard())
+        {
+            return;
+        }
+        if (InputUtility.Wait.IsPressed())
+        {
+            stateMachine.Goto(GameState.EnemyTurn);
+            return;
+        }
+        var move = Vector2Int.zero;
+        if (InputUtility.Up.IsPressed()) move.y = 1;
+        else if (InputUtility.Down.IsPressed()) move.y = -1;
+        if (InputUtility.Right.IsPressed()) move.x = 1;
+        else if (InputUtility.Left.IsPressed()) move.x = -1;
+        var isTurnMode = InputUtility.TurnMode.IsPressed();
+        if (InputUtility.DiagonalMode.IsPressed() && (move.x == 0 || move.y == 0))
+            move = Vector2Int.zero;
+        if (move == Vector2Int.zero) return;
+
+        var currentPosition = player.Position;
+        var destPosition = currentPosition + move;
+        var destTile = floorManager.GetTile(destPosition);
+        var enemy = floorManager.GetUnit(destPosition);
+        if (enemy != null || destTile.IsWall || isTurnMode)
+        {
+            player.SetDestAngle(move);
+            return;
+        }
+        stateMachine.Goto(GameState.Wait);
+        player.MoveAsync(move, player.GetCancellationTokenOnDestroy()).Forget();
+        TakeItem();
+        await CheckTrapAsync();
+        if (!CheckStair())
+        {
+            stateMachine.Goto(GameState.EnemyTurn);
+        }
+
     }
 
     private bool UseCard()
@@ -158,25 +137,23 @@ public class PlayerTurnState : IState
         stateMachine.Goto(GameState.EnemyTurn);
     }
 
-    private void CheckTrap()
-    {
-        var trap = floorManager.GetTrap(player.Position);
-        if (trap == null) return;
-        trap.ExecuteAsync(player).Forget();
-    }
-
     private async UniTask CheckTrapAsync()
     {
         var trap = floorManager.GetTrap(player.Position);
-        if (trap == null) return;
+        if (trap == null)
+        {
+            await UniTask.Yield();
+            return;
+        }
+        stateMachine.Goto(GameState.Wait);
         await trap.ExecuteAsync(player);
+        await UniTask.Yield();
     }
 
     private bool CheckStair()
     {
         var stairPosition = floorManager.FloorData.StairPosition;
         if (stairPosition.X != player.Position.x || stairPosition.Y != player.Position.y) return false;
-        stateMachine.Goto(GameState.Wait);
         stateMachine.OpenCommonDialog("確認", "次の階へ進みますか？",
             ("はい", () => stateMachine.Goto(GameState.Shop)),
             ("いいえ", () => stateMachine.Goto(GameState.EnemyTurn))

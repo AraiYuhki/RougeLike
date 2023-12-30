@@ -89,6 +89,7 @@ public class EnemyManager : MonoBehaviour
             while (moveEnemies.Count > completedCount) await UniTask.Yield();
             foreach (var enemy in attackEnemies)
                 await enemy.AttackAsync();
+            await UniTask.Yield();
             stateMachine.Goto(GameState.PlayerTurn);
         }
         catch (Exception e)

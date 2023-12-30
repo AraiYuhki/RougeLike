@@ -34,7 +34,7 @@ public class DamagePopupManager : MonoBehaviour
             return;
         var popup = popups.Get();
         popup.transform.position = WorldToPoint(target);
-        popup.transform.position += new Vector3(Random.Range(-100, 100), Random.Range(-100, 100), 0);
+        popup.transform.position += new Vector3(Random.Range(-50, 50), Random.Range(-50, 50), 0);
         popup.Initialize(value, color);
     }
 
