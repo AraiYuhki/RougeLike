@@ -21,6 +21,10 @@ public class FloorInfo
     [SerializeField, Range(5, 9999), CsvColumn("spawnEnemyIntervalTurn")]
     private int spawnEnemyIntervalTurn = 30;
     [SerializeField]
+    private int installTrapMinCount = 3;
+    [SerializeField]
+    private int installTrapMaxCount = 3;
+    [SerializeField]
     private Material floorMaterial;
     [SerializeField]
     private Material wallMaterial;
@@ -28,6 +32,8 @@ public class FloorInfo
     private int enemySpawnGroupId;
     [SerializeField, CsvColumn("shopId")]
     private int shopId;
+    [SerializeField]
+    private int trapSettingGroupId;
 
     public int DungeonId => dungeonId;
     public int SameSettingCount => sameSettingCount;
@@ -35,9 +41,12 @@ public class FloorInfo
     public int MaxRoomCount => maxRoomCount;
     public float DeletePathProbability => deletePathProbability;
     public int EnemySpawnGroupId => enemySpawnGroupId;
+    public int TrapSettingGroupId => trapSettingGroupId;
     public int InitialSpawnEnemyCount => initialSpawnEnemyCount;
     public int SpawnEnemyIntervalTurn => spawnEnemyIntervalTurn;
     public int ShopId => shopId;
+    public int InstallTrapMinNum => installTrapMinCount;
+    public int InstallTrapMaxNum => installTrapMaxCount;
 
     public Material FloorMaterial => floorMaterial;
     public Material WallMaterial => wallMaterial;
@@ -57,7 +66,11 @@ public class FloorInfo
             wallMaterial = wallMaterial,
             floorMaterial = floorMaterial,
             deletePathProbability = deletePathProbability,
+            initialSpawnEnemyCount = initialSpawnEnemyCount,
+            spawnEnemyIntervalTurn = spawnEnemyIntervalTurn,
+            installTrapMaxCount = installTrapMaxCount,
             enemySpawnGroupId = enemySpawnGroupId,
+            trapSettingGroupId = trapSettingGroupId
         };
     }
 
@@ -77,7 +90,10 @@ public class FloorInfo
     public void SetDeletePathProbability(float probability) => deletePathProbability = probability;
     public void SetInitialSpawnEnemyCount(int count) => initialSpawnEnemyCount = count;
     public void SetSpawnEnemyIntervalTurn(int turn) => spawnEnemyIntervalTurn = turn;
+    public void SetInstallTrapMinCount(int count) => installTrapMinCount = count;
+    public void SetInstallTrapMaxCount(int count) => installTrapMaxCount = count;
     public void SetEnemySpawnGroupId(int groupId) => enemySpawnGroupId = groupId;
+    public void SetTrapSettingGroupId(int groupId) => trapSettingGroupId = groupId;
     public void SetFloorMaterial(Material material) => floorMaterial = material;
     public void SetWallMaterial(Material material) => wallMaterial = material;
 #endif

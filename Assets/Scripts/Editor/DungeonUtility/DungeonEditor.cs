@@ -17,6 +17,7 @@ public partial class DungeonEditor : EditorWindow
     private List<EditableFloorInfo> floorInfoList;
 
     private List<int> enemySpawnGroupIdList = new();
+    private List<int> trapSettingGroupIdList = new();
 
     private ReorderableList floorListView = null;
 
@@ -36,8 +37,9 @@ public partial class DungeonEditor : EditorWindow
 
     private void Load(DungeonInfo target)
     {
+        var db = DB.Instance;
         dungeonInfo = target.Clone();
-        floorInfoList = DB.Instance.MFloor.GetByDungeonId(dungeonInfo.Id).Select(info => new EditableFloorInfo(info.Clone())).ToList();
+        floorInfoList = db.MFloor.GetByDungeonId(dungeonInfo.Id).Select(info => new EditableFloorInfo(info.Clone())).ToList();
         floorListView = new ReorderableList(floorInfoList, typeof(EditableFloorInfo));
         floorListView.onAddCallback = view =>
         {
@@ -54,7 +56,8 @@ public partial class DungeonEditor : EditorWindow
         floorListView.drawElementCallback = DrawFloorEditor;
         floorListView.elementHeightCallback = index => floorInfoList[index].GetContentHeight();
 
-        enemySpawnGroupIdList = DB.Instance.MFloorEnemySpawn.All.GroupBy(info => info.GroupId).Select(group => group.Key).ToList();
+        enemySpawnGroupIdList = db.MFloorEnemySpawn.All.GroupBy(info => info.GroupId).Select(group => group.Key).ToList();
+        trapSettingGroupIdList = db.MFloorTrap.All.GroupBy(info => info.GroupId).Select(group => group.Key).ToList();
     }
 
     private void Create()
@@ -173,7 +176,7 @@ public partial class DungeonEditor : EditorWindow
         for (var count = 0; count < index; count++)
             startIndex += floorInfoList[count].FloorInfo.SameSettingCount + 1;
         var label = CreateFloorLabel(startIndex, floor.SameSettingCount, dungeonInfo.IsTower);
-        floorInfoList[index].DrawFloorEditor(rect, label, enemySpawnGroupIdList);
+        floorInfoList[index].DrawFloorEditor(rect, label, enemySpawnGroupIdList, trapSettingGroupIdList);
     }
 
     /// <summary>

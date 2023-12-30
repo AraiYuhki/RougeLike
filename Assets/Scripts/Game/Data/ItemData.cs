@@ -1,6 +1,6 @@
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
@@ -31,5 +31,13 @@ public class ItemData
     {
         position = tile.Position;
         owner.transform.localPosition = new Vector3(tile.Position.X, 0f, tile.Position.Y);
+    }
+
+    public void JumpTo()
+    {
+        var token = owner.GetCancellationTokenOnDestroy();
+        owner.transform
+            .DOLocalJump(owner.transform.localPosition, 1, 1, 0.4f)
+            .ToUniTask(cancellationToken: token).Forget();
     }
 }

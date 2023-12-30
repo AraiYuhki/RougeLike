@@ -9,10 +9,22 @@ public class Pitfall : Trap
     private Animator animator;
     public override TrapType Type => TrapType.Pitfall;
 
+    protected override void Awake()
+    {
+    }
+
+    public override void SetMaterials(Material wallMaterial, Material floorMaterial)
+    {
+        base.SetMaterials(wallMaterial, floorMaterial);
+        var renderer = GetComponentInChildren<Renderer>();
+        renderer.sharedMaterial = floorMaterial;
+    }
+
     public override async UniTask ExecuteAsync(Unit executer, CancellationToken token)
     {
+        var renderer = GetComponentInChildren<Renderer>();
+        renderer.sharedMaterial = wallMaterial;
         var cancellationToken = CreateLinkedToken(token);
-        IsVisible = true;
         await animator.PlayAsync(AnimatorHash.Execute, token: cancellationToken);
         await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: cancellationToken);
         await animator.PlayAsync(AnimatorHash.Release, token: cancellationToken);
@@ -26,24 +38,5 @@ public class Pitfall : Trap
             player.Damage(10);
             noticeGroup.Add("プレイヤーは落とし穴に落ちた");
         }
-    }
-
-    public override async void Execute(Unit executer, Action onComplete)
-    {
-        IsVisible = true;
-        await animator.PlayAsync(AnimatorHash.Execute);
-        await UniTask.Delay(TimeSpan.FromSeconds(1f));
-        await animator.PlayAsync(AnimatorHash.Release);
-        if (executer is Enemy enemy)
-        {
-            enemy.Dead(null);
-            noticeGroup.Add($"{enemy.Data.Name}は落とし穴に落ちた");
-        }
-        else if (executer is Player player)
-        {
-            player.Damage(10);
-            noticeGroup.Add("プレイヤーは落とし穴に落ちた");
-        }
-        onComplete?.Invoke();
     }
 }

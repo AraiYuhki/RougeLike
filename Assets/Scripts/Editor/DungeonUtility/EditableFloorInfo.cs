@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -26,12 +27,12 @@ public partial class DungeonEditor
         {
             if (!foldout) return EditorGUIUtility.singleLineHeight;
             var height = EditorGUIUtility.singleLineHeight + 5f;
-            var result = height * 9f;
+            var result = height * 11f;
             if (!foldoutEnemyInfo) return result;
             return result + height * DB.Instance.MFloorEnemySpawn.GetByGroupId(FloorInfo.EnemySpawnGroupId).Count;
         }
 
-        public void DrawFloorEditor(Rect rect, string floorLabel, List<int> enemySpawnGroupIdList)
+        public void DrawFloorEditor(Rect rect, string floorLabel, List<int> enemySpawnGroupIdList, List<int> trapSettingGroupIdList)
         {
             rect.height = EditorGUIUtility.singleLineHeight;
             foldout = EditorGUI.Foldout(rect, foldout, floorLabel);
@@ -66,6 +67,13 @@ public partial class DungeonEditor
             rect.x = originalX;
             rect.y += height;
 
+            FloorInfo.SetInstallTrapMinCount(EditorGUI.IntSlider(rect, "最小罠設置数", FloorInfo.InstallTrapMinNum, 0, FloorInfo.InstallTrapMaxNum));
+            rect.x += rect.width + 10f;
+
+            FloorInfo.SetInstallTrapMaxCount(EditorGUI.IntSlider(rect, "最大罠設置数", FloorInfo.InstallTrapMaxNum, FloorInfo.InstallTrapMinNum, 100));
+            rect.y += height;
+            rect.x = originalX;
+
             EditorGUIUtility.labelWidth = 150f;
 
             FloorInfo.SetFloorMaterial(EditorGUI.ObjectField(rect, "床素材", FloorInfo.FloorMaterial, typeof(Material), false) as Material);
@@ -77,11 +85,17 @@ public partial class DungeonEditor
             rect.y += height;
 
             EditorGUI.BeginChangeCheck();
-            var selectIndex = enemySpawnGroupIdList.IndexOf(FloorInfo.EnemySpawnGroupId);
-            selectIndex = EditorGUI.Popup(rect, "敵出現パターン", selectIndex, enemySpawnGroupIdList.Select(group => $"ID:{group}").ToArray());
+            var enemySpawnGroupIndex = DrawPopup(rect, "敵出現パターン", FloorInfo.EnemySpawnGroupId, enemySpawnGroupIdList);
             if (EditorGUI.EndChangeCheck())
-                FloorInfo.SetEnemySpawnGroupId(enemySpawnGroupIdList[selectIndex]);
+                FloorInfo.SetEnemySpawnGroupId(enemySpawnGroupIndex);
             rect.y += height;
+
+            EditorGUI.BeginChangeCheck();
+            var trapSettingGroupIndex = DrawPopup(rect, "罠出現パターン", FloorInfo.TrapSettingGroupId, trapSettingGroupIdList);
+            if (EditorGUI.EndChangeCheck())
+                FloorInfo.SetTrapSettingGroupId(trapSettingGroupIndex);
+            rect.y += height;
+
             FloorInfo.SetSameSettingCount(EditorGUI.IntField(rect, "同じ設定が続く階数", FloorInfo.SameSettingCount));
 
             rect.y += height;
@@ -95,6 +109,20 @@ public partial class DungeonEditor
                 var enemy = DB.Instance.MEnemy.GetById(info.EnemyId);
                 EditorGUI.LabelField(rect, $"{enemy.Name}: 出現率 {info.Probability}");
                 rect.y += height;
+            }
+        }
+
+        private int DrawPopup(Rect rect, string label, int current, List<int> array)
+        {
+            try
+            {
+                var currentIndex = array.IndexOf(current);
+                var newIndex = EditorGUI.Popup(rect, label, currentIndex, array.Select(group => $"ID:{group}").ToArray());
+                return array[newIndex];
+            }
+            catch
+            {
+                return -1;
             }
         }
     }

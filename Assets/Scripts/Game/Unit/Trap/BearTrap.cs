@@ -16,8 +16,8 @@ public class BearTrap : Trap
 
     public override async UniTask ExecuteAsync(Unit executer, CancellationToken token = default)
     {
+        await base.ExecuteAsync(executer, token);
         var cancellationToken = CreateLinkedToken(token);
-        IsVisible = true;
         executer.Damage(damage);
         if (executer is Player player)
         {
@@ -27,20 +27,5 @@ public class BearTrap : Trap
         await animator.PlayAsync(AnimatorHash.Execute, token: cancellationToken);
         await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: cancellationToken);
         animator.PlayAsync(AnimatorHash.Release, token: cancellationToken).Forget();
-    }
-
-    public  override async void Execute(Unit executer, Action onComplete)
-    {
-        IsVisible = true;
-        executer.Damage(damage);
-        if (executer is Player player)
-        {
-            player.Data.AddAilment(AilmentType.Bind, damage, turn);
-            noticeGroup.Add("プレイヤーはトラバサミを踏んだ", Color.red);
-        }
-        await animator.PlayAsync(AnimatorHash.Execute);
-        await UniTask.Delay(TimeSpan.FromSeconds(1f));
-        onComplete?.Invoke();
-        await animator.PlayAsync(AnimatorHash.Release);
     }
 }

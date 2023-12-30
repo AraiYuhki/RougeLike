@@ -81,7 +81,7 @@ public class FloorData
         var retryCount = 0;
         while (true)
         {
-            closedRooms = Dijkstra.FindClosedPath(rooms, paths);
+            closedRooms = BackTracking.FindIsolatedRoom(rooms, paths);
             if (closedRooms == null) break;
             foreach (var room in closedRooms)
             {

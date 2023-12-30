@@ -1,5 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-using System;
 using System.Threading;
 using UnityEngine;
 
@@ -15,12 +14,5 @@ public class Mine : Trap
         executer.Damage(damage);
         noticeGroup.Add("地雷が炸裂した", Color.red);
         await UniTask.Yield(cancellationToken: token);
-    }
-
-    public override void Execute(Unit executer, Action onComplete)
-    {
-        base.Execute(executer, onComplete);
-        executer.Damage(damage);
-        noticeGroup.Add("地雷が炸裂した", Color.red);
     }
 }

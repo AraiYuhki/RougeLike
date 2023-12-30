@@ -40,7 +40,7 @@ public class ItemManager : MonoBehaviour
         var itemData = new ItemData(item, position, price);
         if (isAnimation)
         {
-            item.JumpTo();
+            itemData.JumpTo();
         }
         ItemList.Add(itemData);
         floorManager.SetItem(itemData, position);
