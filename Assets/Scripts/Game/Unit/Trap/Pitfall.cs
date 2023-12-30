@@ -7,6 +7,8 @@ public class Pitfall : Trap
 {
     [SerializeField]
     private Animator animator;
+    [SerializeField]
+    private Renderer[] renderers = new Renderer[0];
     public override TrapType Type => TrapType.Pitfall;
 
     protected override void Awake()
@@ -16,8 +18,8 @@ public class Pitfall : Trap
     public override void SetMaterials(Material wallMaterial, Material floorMaterial)
     {
         base.SetMaterials(wallMaterial, floorMaterial);
-        var renderer = GetComponentInChildren<Renderer>();
-        renderer.sharedMaterial = floorMaterial;
+        foreach (var renderer in renderers)
+            renderer.sharedMaterial = floorMaterial;
     }
 
     public override async UniTask ExecuteAsync(Unit executer, CancellationToken token)
