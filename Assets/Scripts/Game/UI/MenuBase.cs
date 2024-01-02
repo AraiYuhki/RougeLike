@@ -18,6 +18,7 @@ public abstract class MenuBase : MonoBehaviour
     public virtual void Submit()
     {
         if (!Enable) return;
+        if (!Items[SelectedIndex].Enable) return;
         Items[SelectedIndex].Submit();
     }
 

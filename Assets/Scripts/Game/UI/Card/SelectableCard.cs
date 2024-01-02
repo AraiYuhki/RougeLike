@@ -18,12 +18,4 @@ public class SelectableCard : SelectableItem
         Label = label;
         this.type = type;
     }
-    public void SetType(ShopCardType type) => this.type = type;
-
-    public Action OnClick { get; set; }
-    public bool Enable
-    {
-        get => button.interactable;
-        set => button.interactable = value;
-    }
 }

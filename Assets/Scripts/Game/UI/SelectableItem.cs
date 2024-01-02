@@ -29,6 +29,12 @@ public class SelectableItem : MonoBehaviour
         set => label.text = value;
     }
 
+    public bool Enable
+    {
+        get => button.interactable;
+        set => button.interactable = value;
+    }
+
     private void OnEnable()
     {
         button.image.color = isSelected ? selectedColor : normalColor;

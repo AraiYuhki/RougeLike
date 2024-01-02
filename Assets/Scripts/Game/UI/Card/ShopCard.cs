@@ -17,12 +17,6 @@ public class ShopCard : SelectableItem
     public Card Card { get; private set; }
     public int Price => Data.Price;
 
-    public bool Enable
-    {
-        get => button.interactable;
-        set => button.interactable = value;
-    }
-
     public void SetData(CardInfo data, Card card, bool isRemove)
     {
         Card = card;
