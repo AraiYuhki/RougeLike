@@ -12,4 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b4772395836285f48bbf4ba0d37b1ede, type: 3}
   m_Name: MFloorTrap
   m_EditorClassIdentifier: 
-  data: []
+  data:
+  - groupId: 1
+    trapId: 1
+    probability: 10
+  - groupId: 1
+    trapId: 2
+    probability: 5
+  - groupId: 1
+    trapId: 3
+    probability: 10
+  - groupId: 1
+    trapId: 4
+    probability: 10
+  - groupId: 1
+    trapId: 5
+    probability: 5

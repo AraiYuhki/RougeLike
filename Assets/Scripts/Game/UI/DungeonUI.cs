@@ -14,7 +14,7 @@ public class DungeonUI : MonoBehaviour
     [SerializeField]
     private Minimap minimap;
 
-    private PlayerData Data => player.Data;
+    private PlayerData Data => player.PlayerData;
 
     public Minimap Minimap => minimap;
 

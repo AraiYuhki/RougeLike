@@ -7,10 +7,6 @@ public class BearTrap : Trap
 {
     [SerializeField]
     private Animator animator;
-    [SerializeField]
-    private int damage = 5;
-    [SerializeField]
-    private int turn = 5;
 
     public override TrapType Type => TrapType.BearTrap;
 
@@ -18,12 +14,8 @@ public class BearTrap : Trap
     {
         await base.ExecuteAsync(executer, token);
         var cancellationToken = CreateLinkedToken(token);
-        executer.Damage(damage);
-        if (executer is Player player)
-        {
-            player.Data.AddAilment(AilmentType.Bind, damage, turn);
-            noticeGroup.Add("プレイヤーはトラバサミを踏んだ", Color.red);
-        }
+        DamageToExecuter(executer);
+        noticeGroup.Add("プレイヤーはトラバサミを踏んだ", Color.red);
         await animator.PlayAsync(AnimatorHash.Execute, token: cancellationToken);
         await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: cancellationToken);
         animator.PlayAsync(AnimatorHash.Release, token: cancellationToken).Forget();

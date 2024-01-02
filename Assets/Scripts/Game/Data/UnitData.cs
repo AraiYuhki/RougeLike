@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 [Serializable]
@@ -8,14 +6,17 @@ public abstract class UnitData
 {
     public const int MaxInventorySize = 20;
     public const int MaxAtk = 8;
+    [SerializeField, CsvColumn("name")]
+    protected string name;
     [SerializeField, HideInInspector]
-    private float hp = 15f;
+    protected float hp = 15f;
     [SerializeField, CsvColumn("atk")]
     protected int atk = 10;
 
     [SerializeField, HideInInspector]
     private Encyclopedia<AilmentType, AilmentData> ailments = new();
 
+    public virtual string Name => name;
     public virtual int MaxHP { get; protected set; } = 15;
     public float Hp { get => hp; set => hp = value; }
     public int Lv { get; set; } = 1;

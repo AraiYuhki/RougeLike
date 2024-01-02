@@ -30,6 +30,11 @@ public class Pitfall : Trap
         await animator.PlayAsync(AnimatorHash.Execute, token: cancellationToken);
         await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: cancellationToken);
         await animator.PlayAsync(AnimatorHash.Release, token: cancellationToken);
+        DamageToExecuter(executer);
+    }
+
+    protected override void DamageToExecuter(Unit executer)
+    {
         if (executer is Enemy enemy)
         {
             enemy.Dead(null);

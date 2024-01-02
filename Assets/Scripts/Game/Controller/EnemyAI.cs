@@ -126,6 +126,6 @@ public class DefaultAI : EnemyAI
     {
         var trap = floorInfo.GetTrap(Enemy.Position);
         if (trap == null) return;
-        trap.ExecuteAsync(Enemy).Forget();
+        trap.ExecuteAsync(Enemy, Enemy.GetCancellationTokenOnDestroy()).Forget();
     }
 }

@@ -168,7 +168,7 @@ public class ShopWindow : MonoBehaviour
         {
             var card = Instantiate(originalCard);
             card.SetData(data, null, false);
-            card.Enable = player.Data.Gems >= data.Price;
+            card.Enable = player.PlayerData.Gems >= data.Price;
             shopMenu.AddItem(card);
         }
         shopMenu.Initialize();
@@ -177,7 +177,7 @@ public class ShopWindow : MonoBehaviour
     public void InitializeDeck()
     {
         deckMenu.Clear();
-        var canRemove = player.Data.Gems >= 200;
+        var canRemove = player.PlayerData.Gems >= 200;
         deckMenu.AddItem(gotoShop);
         foreach (var card in cardController.AllCards.OrderBy(card => card.Data.Id))
         {
@@ -192,14 +192,14 @@ public class ShopWindow : MonoBehaviour
     private void BuyCard(CardInfo data)
     {
         cardController.Add(data);
-        player.Data.Gems -= data.Price;
+        player.PlayerData.Gems -= data.Price;
         UpdateDeck();
         UpdateShop();
     }
 
     private void RemoveCard(ShopCard shopCard, SelectableItem item)
     {
-        player.Data.Gems -= 200;
+        player.PlayerData.Gems -= 200;
         cardController.Remove(shopCard.Card);
         deckMenu.RemoveItem(item);
         UpdateDeck();
@@ -209,12 +209,12 @@ public class ShopWindow : MonoBehaviour
     private void UpdateShop()
     {
         foreach (var card in shopMenu.Items.Select(item => item as ShopCard))
-            card.Enable = card.Price <= player.Data.Gems;
+            card.Enable = card.Price <= player.PlayerData.Gems;
     }
 
     private void UpdateDeck()
     {
-        var canRemove = player.Data.Gems >= 200;
+        var canRemove = player.PlayerData.Gems >= 200;
         foreach (var card in deckMenu.Items.Select(item => item as ShopCard))
             card.Enable = canRemove;
         deckMenu.ReselectCurrentItem(true);

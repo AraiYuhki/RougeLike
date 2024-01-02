@@ -12,4 +12,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5c45ac985dcf3b43892dc63c6fbf7b4, type: 3}
   m_Name: MTrap
   m_EditorClassIdentifier: 
-  data: []
+  data:
+  - id: 1
+    name: "\u5730\u96F7"
+    type: 0
+    enableAilment: 0
+    ailmentData:
+      type: 0
+      param: 0
+      remainingTurn: 0
+    enableDamage: 1
+    damage: 10
+    prefab: {fileID: 8401487307703880393, guid: 7ce35e3580bad2f45a90ad95875b8fa6, type: 3}
+  - id: 2
+    name: "\u5927\u304D\u306A\u5730\u96F7"
+    type: 1
+    enableAilment: 0
+    ailmentData:
+      type: 0
+      param: 0
+      remainingTurn: 0
+    enableDamage: 1
+    damage: 10
+    prefab: {fileID: 3995481014250413112, guid: 50ec99678fd196846bdc266d3481cc1f, type: 3}
+  - id: 3
+    name: "\u6BD2\u83F1"
+    type: 2
+    enableAilment: 1
+    ailmentData:
+      type: 1
+      param: 1
+      remainingTurn: 10
+    enableDamage: 0
+    damage: 0
+    prefab: {fileID: 4478655744530192001, guid: 0d13087bd463353438a904b7952d746b, type: 3}
+  - id: 4
+    name: "\u30C8\u30E9\u30D0\u30B5\u30DF"
+    type: 3
+    enableAilment: 1
+    ailmentData:
+      type: 3
+      param: 0
+      remainingTurn: 4
+    enableDamage: 1
+    damage: 5
+    prefab: {fileID: 4591363561603068429, guid: 4bcc2f472c8201e47b84f6db8b9aed3e, type: 3}
+  - id: 5
+    name: "\u843D\u3068\u3057\u7A74"
+    type: 3
+    enableAilment: 1
+    ailmentData:
+      type: 3
+      param: 0
+      remainingTurn: 4
+    enableDamage: 1
+    damage: 5
+    prefab: {fileID: 7649530433197738457, guid: 7e7e3e7ed63938f4bafd6ead6a97a737, type: 3}

@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Enemy : Unit
 {
-    public EnemyInfo Data { get; private set; } = new EnemyInfo(10);
+    private EnemyInfo data = new EnemyInfo(10);
+    public override UnitData Data => data;
     public override int Hp { get => Mathf.FloorToInt(Data.Hp); set => Data.Hp = value; }
     public override int MaxHp { get => Data.MaxHP; }
     public override string Name => Data.Name;
@@ -25,12 +26,12 @@ public class Enemy : Unit
 
     public void Initialize(EnemyInfo data)
     {
-        Data = data.Clone();
+        data = data.Clone();
     }
 
     public void Initialize(int lv, int hp, int atk, int def)
     {
-        Data = new EnemyInfo(hp)
+        data = new EnemyInfo(hp)
         {
             Lv = lv,
             Atk = atk,

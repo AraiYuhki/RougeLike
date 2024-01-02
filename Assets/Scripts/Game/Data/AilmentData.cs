@@ -56,4 +56,9 @@ public class AilmentData
             return $"{type}{param}(∞)";
         return $"{type}{param}{remainingTurn}";
     }
+
+    public AilmentData Clone()
+    {
+        return new AilmentData(type, param, remainingTurn);
+    }
 }

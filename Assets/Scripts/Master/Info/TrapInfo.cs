@@ -25,7 +25,7 @@ public class TrapInfo
     [SerializeField]
     private bool enableAilment;
     [SerializeField]
-    private AilmentType ailmentType;
+    private AilmentData ailmentData;
     [SerializeField]
     private bool enableDamage;
     [SerializeField]
@@ -37,7 +37,8 @@ public class TrapInfo
     public int Id => id;
     public string Name => name;
     public TrapType Type => type;
-    public AilmentType AilmentType => ailmentType;
+    public bool EnableAilment => enableAilment;
+    public AilmentData Ailment => ailmentData;
     public int Damage => damage;
     public Trap Prefab => prefab;
 
@@ -53,7 +54,7 @@ public class TrapInfo
             id = id,
             name = name,
             type = type,
-            ailmentType = ailmentType,
+            ailmentData = ailmentData.Clone(),
             damage = damage,
             prefab = prefab,
         };

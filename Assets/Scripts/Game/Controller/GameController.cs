@@ -92,7 +92,7 @@ public class GameController : MonoBehaviour
 
         enemyManager.Initialize(player, floorInfo);
         itemManager.Initialize(150, 1, 5);
-        trapManager.Initialize(4);
+        trapManager.Initialize(floorInfo);
         floorManager.CreateMesh();
         Fade.Instance.FadeIn(() => stateMachine.Goto(GameState.PlayerTurn));
     }
@@ -114,7 +114,7 @@ public class GameController : MonoBehaviour
         player.SetPosition(floorManager.FloorData.SpawnPoint);
         enemyManager.SetFloorData(floorInfo);
         itemManager.Initialize(150, 1, 5);
-        trapManager.Initialize(4);
+        trapManager.Initialize(floorInfo);
         for (var count = 0; count < floorInfo.InitialSpawnEnemyCount; count++)
             enemyManager.Spawn();
         floorManager.CreateMesh();
@@ -140,7 +140,7 @@ public class GameController : MonoBehaviour
     {
         var item = floorManager.GetItem(player.Position);
         if (item == null) return;
-        player.Data.Gems += item.GemCount;
+        player.PlayerData.Gems += item.GemCount;
         noticeGroup.Add($"ジェムを{item.GemCount}個拾った", Color.cyan);
         floorManager.RemoveItem(item.Position);
         itemManager.Despawn(item);

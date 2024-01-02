@@ -18,6 +18,7 @@ public class TrapData
     public Trap Owner => owner;
     public bool IsVisible => isVisible;
 
+    public TrapType Type => master.Type;
     public Vector2Int Position => position;
     public GameObject gameObject => owner.gameObject;
     public TrapInfo Master => master;
@@ -27,12 +28,12 @@ public class TrapData
     {
         this.owner = owner;
         this.position = tile.Position;
-        this.master = master;
-        owner.Setup(floorManager, notice);
+        this.master = master.Clone();
+        owner.Setup(this.master, floorManager, notice);
         owner.SetPosition(position);
     }
 
-    public async UniTask ExecuteAsync(Player executer, CancellationToken token)
+    public async UniTask ExecuteAsync(Unit executer, CancellationToken token)
     {
         isVisible = true;
         gameObject.SetActive(true);

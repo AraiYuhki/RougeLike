@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 
-public class Unit : MonoBehaviour
+public abstract class Unit : MonoBehaviour
 {
     [SerializeField]
     protected GameController gameController;
@@ -31,10 +31,12 @@ public class Unit : MonoBehaviour
 
     protected List<Tween> tweenList = new List<Tween>();
 
-    public Action<Unit, Vector2Int> OnMoved{get;set;}
-    public Action<Unit, Unit> OnAttack{get;set;}
-    public Action<Unit, int> OnDamage{get;set;}
+    public Action<Unit, Vector2Int> OnMoved { get; set; }
+    public Action<Unit, Unit> OnAttack { get; set; }
+    public Action<Unit, int> OnDamage { get; set; }
     public Action OnDead { get; set; }
+
+    public abstract UnitData Data { get; }
 
     public virtual int Hp { get; set; }
     public virtual int MaxHp { get; set; }

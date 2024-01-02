@@ -28,7 +28,7 @@ public class PlayerDebugPage : DefaultDebugPageBase
 
     protected override void Start()
     {
-        player = FindObjectOfType<Player>();
+        player = FindAnyObjectByType<Player>();
         base.Start();
     }
 
@@ -38,16 +38,19 @@ public class PlayerDebugPage : DefaultDebugPageBase
         hpSlider.ValueTextFormat = "F1";
         hpSlider.CellTexts.Text = "HP";
         hpSliderIndex = AddSlider(hpSlider);
-        AddButton("HP変更", clicked: () => player.Data.Hp = hpSlider.Value);
+
+        var playerData = player.PlayerData;
+
+        AddButton("HP変更", clicked: () => playerData.Hp = hpSlider.Value);
         AddSlider(staminaValue, 0f, 100f, "満腹度", valueChanged: value => staminaValue = value, valueTextFormat: "F1");
-        AddButton("変更", clicked: () => player.Data.Stamina = staminaValue);
+        AddButton("変更", clicked: () => playerData.Stamina = staminaValue);
         AddInputField("ジェム", value: gemCount.ToString(), contentType: UnityEngine.UI.InputField.ContentType.IntegerNumber, valueChanged: value => { if (int.TryParse(value, out var newValue)) gemCount = newValue; });
-        AddButton("追加", clicked: () => player.Data.Gems += gemCount);
+        AddButton("追加", clicked: () => playerData.Gems += gemCount);
         AddPicker(DB.Instance.MCard.All.Select(data => data.Name), selectedCardIndex, "カード", activeOptionChanged: index => selectedCardIndex = index);
         AddButton("追加", clicked: AddCard);
         AddButton("全てデッキに戻してシャッフル", clicked: () =>
         {
-            var cardController = FindObjectOfType<CardController>();
+            var cardController = FindAnyObjectByType<CardController>();
             cardController.Shuffle(true);
         });
 
@@ -60,8 +63,8 @@ public class PlayerDebugPage : DefaultDebugPageBase
         AddSlider(ailmentTurn, -1, 100, "継続ターン数", valueTextFormat: "{0}", valueChanged: newValue => ailmentTurn = (int)newValue);
         AddButton("状態異常追加", clicked: () =>
         {
-            player.Data.AddAilment(ailmentType, ailmentParam, ailmentTurn);
-            var cardController = FindObjectOfType<CardController>();
+            playerData.AddAilment(ailmentType, ailmentParam, ailmentTurn);
+            var cardController = FindAnyObjectByType<CardController>();
             cardController.ApplyAilment();
         });
         yield break;
@@ -76,7 +79,7 @@ public class PlayerDebugPage : DefaultDebugPageBase
 
     private void AddCard()
     {
-        var cardController = FindObjectOfType<CardController>();
+        var cardController = FindAnyObjectByType<CardController>();
         cardController.AddToDeck(DB.Instance.MCard.All[selectedCardIndex]);
     }
 }

@@ -27,7 +27,7 @@ public class FloorManager : MonoBehaviour, IUnitContainer
     public int[] RoomIds => FloorData.Map.Cast<TileData>().Where(tile => tile.IsRoom).Select(tile => tile.Id).Distinct().ToArray();
 
     private Unit[,] units;
-    private Trap[,] traps;
+    private TrapData[,] traps;
     private ItemData[,] items;
 
     public void SetMinimap(Minimap minimap)
@@ -58,8 +58,8 @@ public class FloorManager : MonoBehaviour, IUnitContainer
     public bool ExistsUnit(Vector2Int position) => GetUnit(position.x, position.y) != null;
     public int GetUnitCount() => units.ToArray().Where(unit => unit != null).Count();
 
-    public Trap GetTrap(int x, int y) => traps[x, y];
-    public Trap GetTrap(Vector2Int position) => traps[position.x, position.y];
+    public TrapData GetTrap(int x, int y) => traps[x, y];
+    public TrapData GetTrap(Vector2Int position) => traps[position.x, position.y];
 
     public ItemData GetItem(int x, int y) => items[x, y];
     public ItemData GetItem(Vector2Int position) => items[position.x, position.y];
@@ -156,7 +156,7 @@ public class FloorManager : MonoBehaviour, IUnitContainer
         FloorData = DungeonGenerator.GenerateFloor(Size.x, Size.y, maxRoom);
         units = new Unit[Size.x, Size.y];
         items = new ItemData[Size.x, Size.y];
-        traps = new Trap[Size.x, Size.y];
+        traps = new TrapData[Size.x, Size.y];
         IsTower = isTower;
 
         aStar = new AStar(FloorData, this);
@@ -255,7 +255,7 @@ public class FloorManager : MonoBehaviour, IUnitContainer
     public void SetUnit(Unit unit, Vector2Int position) => units[position.x, position.y] = unit;
     public void RemoveUnit(Vector2Int position) => units[position.x, position.y] = null;
 
-    public void SetTrap(Trap trap, Vector2Int position) => traps[position.x, position.y] = trap;
+    public void SetTrap(TrapData trap, Vector2Int position) => traps[position.x, position.y] = trap;
     public void RemoveTranp(Vector2Int position) => traps[position.x, position.y] = null;
 
     public void SetItem(ItemData item, Vector2Int position) => items[position.x, position.y] = item;

@@ -15,11 +15,14 @@ public class Player : Unit
     [SerializeField]
     private DamagePopupManager damagePopupManager;
 
-    public PlayerData Data { get; private set; } = new PlayerData(10);
+    private PlayerData data = new PlayerData(10);
+
+    public override UnitData Data => data;
+    public PlayerData PlayerData => data;
     public override int Hp { get => Mathf.FloorToInt(Data.Hp); set => Data.Hp = value; }
     public override int MaxHp => cardController.AllCardsCount * 5;
     public override string Name => "Player";
-    public override void RecoveryStamina(float value) => Data.Stamina += value;
+    public override void RecoveryStamina(float value) => data.Stamina += value;
     public override void PowerUp(int value, Action onComplete = null) => Data.Atk += value;
     public override DamagePopupManager DamagePopupManager 
     {
@@ -32,7 +35,7 @@ public class Player : Unit
 
     public void Initialize(int lv, int hp, int atk, int def)
     {
-        Data = new PlayerData(hp)
+        data = new PlayerData(hp)
         {
             Lv = lv,
             Atk = atk,
@@ -124,8 +127,8 @@ public class Player : Unit
             .Where(effect => effect.EffectType == PassiveEffectType.Satiated)
             .Sum(effect => effect.Param1 * 0.01f);
 
-        Data.Stamina -= 0.1f * Mathf.Max(rate, 0f);
-        if (Data.Stamina <= 0)
+        data.Stamina -= 0.1f * Mathf.Max(rate, 0f);
+        if (data.Stamina <= 0)
             Damage(1, null, damagePopup: false);
         else if (HealInterval > 0)
             HealInterval--;
@@ -140,7 +143,7 @@ public class Player : Unit
         if (ailments.ContainsKey(AilmentType.Poison))
             Damage(ailments[AilmentType.Poison].Param);
         if (ailments.ContainsKey(AilmentType.Exhaustion))
-            Data.Stamina -= 0.1f * ailments[AilmentType.Exhaustion].Param;
+            data.Stamina -= 0.1f * ailments[AilmentType.Exhaustion].Param;
 
         if (ailments.ContainsKey(AilmentType.HandLock))
         {

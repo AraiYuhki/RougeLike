@@ -130,7 +130,7 @@ public class PlayerTurnState : IState
     {
         var item = floorManager.GetItem(player.Position);
         if (item == null) return;
-        player.Data.Gems += item.GemCount;
+        player.PlayerData.Gems += item.GemCount;
         notice.Add($"ジェムを{item.GemCount}個拾った", Color.cyan);
         floorManager.RemoveItem(item.Position);
         itemManager.Despawn(item);
@@ -146,7 +146,7 @@ public class PlayerTurnState : IState
             return;
         }
         stateMachine.Goto(GameState.Wait);
-        await trap.ExecuteAsync(player);
+        await trap.ExecuteAsync(player, player.GetCancellationTokenOnDestroy());
         await UniTask.Yield();
     }
 

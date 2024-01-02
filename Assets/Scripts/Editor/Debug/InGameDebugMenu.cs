@@ -43,10 +43,10 @@ public class InGameDebugMenu : EditorWindow
 
     private void AlwaysMenu()
     {
-        var player = FindObjectOfType<Player>();
+        var player = FindAnyObjectByType<Player>();
         if (GUILayout.Button("敵全滅"))
         {
-            foreach (var e in FindObjectsOfType<Enemy>())
+            foreach (var e in FindObjectsByType<Enemy>(FindObjectsSortMode.InstanceID))
                 e.Dead(player);
         }
     }
@@ -55,16 +55,17 @@ public class InGameDebugMenu : EditorWindow
     {
         if (target is Player player)
         {
+            var playerData = player.PlayerData;
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button("満腹度変更")) player.Data.Stamina = changeStamina;
-                changeStamina = EditorGUILayout.Slider(changeStamina, 0f, player.Data.MaxStamina);
+                if (GUILayout.Button("満腹度変更")) playerData.Stamina = changeStamina;
+                changeStamina = EditorGUILayout.Slider(changeStamina, 0f, playerData.MaxStamina);
             }
             using (new EditorGUILayout.HorizontalScope())
             {
                 if (GUILayout.Button("所持金追加"))
                 {
-                    player.Data.Gems += addGems;
+                    playerData.Gems += addGems;
                     Debug.Log($"所持金を{addGems}増やした");
                 }
                 addGems = EditorGUILayout.IntField(addGems);
@@ -76,7 +77,7 @@ public class InGameDebugMenu : EditorWindow
     {
         if (target is Enemy enemy)
         {
-            var player = FindObjectOfType<Player>();
+            var player = FindAnyObjectByType<Player>();
             if (GUILayout.Button("撃破"))
             {
                 enemy.Dead(player);
