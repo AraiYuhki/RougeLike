@@ -184,6 +184,7 @@ public class ShopWindow : MonoBehaviour
         {
             var product = Instantiate(originalCard);
             product.gameObject.SetActive(true);
+            product.Enable = playerData.Gems >= cardInfo.Price;
             shopMenu.AddItem(product);
             product.SetData(cardInfo, null, false);
         }
