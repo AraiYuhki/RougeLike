@@ -38,6 +38,9 @@ public class GridScrollMenu : MenuBase
     public void Initialize()
     {
         selectedIndex = Vector2Int.zero;
+        columnCount = Mathf.FloorToInt(rectTransform.rect.width / grid.cellSize.x);
+        rowCountInPage = Mathf.FloorToInt(rectTransform.rect.height / grid.cellSize.y) - 1;
+        bottomRowIndex = rowCountInPage;
         ReselectCurrentItem();
     }
 

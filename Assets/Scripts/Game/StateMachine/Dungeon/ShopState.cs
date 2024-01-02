@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
 
 public class ShopState : IState
 {
@@ -13,30 +11,35 @@ public class ShopState : IState
         this.stateMachine = stateMachine;
         this.floorManager = floorManager;
         this.window = window;
-        this.window.StateMachine = stateMachine;
-        this.window.OnClose = () => stateMachine.Goto(GameState.NextFloorLoad);
+        this.window.Initialize(stateMachine);
     } 
 
     public void OnEnter()
     {
         var shopSetting = DB.Instance.MFloorShop.GetById(floorManager.FloorInfo.ShopId);
-        window.Open(shopSetting);
+        if (!window.IsOpen)
+        {
+            window.InitializeShop(shopSetting);
+            window.InitializeDeck();
+            window.Open().Forget();
+        }
     }
 
     public void OnExit()
     {
-        window.Close();
     }
 
     public void Update()
     {
-        if (InputUtility.RightTrigger.IsTriggerd()) window.RightTrigger();
-        else if (InputUtility.LeftTrigger.IsTriggerd()) window.LeftTrigger();
-        else if (InputUtility.Right.IsTriggerd()) window.Right();
+        if (InputUtility.Right.IsTriggerd()) window.Right();
         else if (InputUtility.Left.IsTriggerd()) window.Left();
         else if (InputUtility.Up.IsTriggerd()) window.Up();
         else if (InputUtility.Down.IsTriggerd()) window.Down();
         else if (InputUtility.Submit.IsTriggerd()) window.Submit();
-        else if (InputUtility.Cancel.IsTriggerd()) window.Close();
+        else if (InputUtility.Cancel.IsTriggerd())
+        {
+            stateMachine.Goto(GameState.Wait);
+            window.Close();
+        }
     }
 }

@@ -22,10 +22,11 @@ public class DialogBase : MonoBehaviour, IControllable
     public virtual DialogType Type => throw new NotImplementedException();
 
     protected int currentSelected = 0;
-
-    public Action OnDestroyed { get; set; }
     protected bool lockInput = true;
     protected Sequence tween;
+
+    public Action OnDestroyed { get; set; }
+
     public string Title
     {
         get => title.text;

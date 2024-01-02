@@ -1,185 +1,207 @@
+﻿using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ShopWindow : MonoBehaviour
 {
-    private enum TabType
+    private enum Mode
     {
-        Shop = 0,
-        Deck = 1,
+        Shop,
+        Deck
     }
-
-    [SerializeField]
-    private CardController cardController;
-    [SerializeField]
-    private Player player;
-    [SerializeField]
-    private Image window;
-    [SerializeField]
-    private TabGroups tabGroups;
     [SerializeField]
     private CanvasGroup canvasGroup;
-    [SerializeField]
-    private ShopCard originalCard;
 
+    [Header("ショップ関係")]
     [SerializeField]
-    private SelectableItem gotoDeck;
-    [SerializeField]
-    private SelectableItem gotoShop;
-
+    private CanvasGroup shopWindow;
     [SerializeField]
     private HorizontalMenu shopMenu;
+
+    [Header("デッキ関係")]
+    [SerializeField]
+    private CanvasGroup deckWindow;
     [SerializeField]
     private GridScrollMenu deckMenu;
 
-    private Sequence tween;
+    [Header("その他")]
+    [SerializeField]
+    private ShopCard originalCard;
+    [SerializeField]
+    private SelectableCard originalSelectableCard;
+    [SerializeField]
+    private Player player;
+    [SerializeField]
+    private CardController cardController;
 
-    private MenuBase currentMenu
+    private Mode mode = Mode.Shop;
+    private IDungeonStateMachine stateMachine;
+    private PlayerData playerData;
+
+    private MenuBase current => mode == Mode.Shop ? shopMenu : deckMenu;
+
+    public bool IsOpen { get; private set; }
+
+    public void Initialize(IDungeonStateMachine stateMachine)
     {
-        get
-        {
-            if (tabGroups.SelectIndex == (int)TabType.Shop)
-                return shopMenu;
-            return deckMenu;
-        }
+        this.stateMachine = stateMachine;
+        if (player != null)
+            playerData = player.PlayerData;
+        shopMenu.OnSubmit = BuyCard;
+        deckMenu.OnSubmit = RemoveCard;
     }
 
-    public DungeonStateMachine StateMachine { get; set; }
-
-    public Action OnClose { get; set; }
-    public bool IsOpened { get; private set; }
-
-    private void Start()
+    public async UniTask Open()
     {
-        shopMenu.OnSubmit = selectedItem =>
-        {
-            if (selectedItem is ShopCard card)
-            {
-                shopMenu.Enable = false;
-                var data = card.Data;
-                StateMachine.OpenCommonDialog("確認", $"{data.Name}を{data.Price}Gで購入しますか？",
-                    ("はい", () => {
-                        BuyCard(data);
-                        shopMenu.Enable = true;
-                        StateMachine.Goto(GameState.Shop);
-                    }
-                ),
-                    ("いいえ", () => {
-                        // ショップステートに戻す
-                        shopMenu.Enable = true;
-                        StateMachine.Goto(GameState.Shop);
-                    }
-                )
-                    );
-            }
-        };
-
-        deckMenu.OnSubmit = selectedItem =>
-        {
-            if (selectedItem is ShopCard card)
-            {
-                deckMenu.Enable = false;
-                var data = card.Data;
-                StateMachine.OpenCommonDialog("確認", $"{card.Data.Name}を200Gで破棄しますか？",
-                    ("はい", () =>
-                    {
-                        deckMenu.RemoveItem(selectedItem);
-                        RemoveCard(card, selectedItem);
-                        deckMenu.Enable = true;
-                        StateMachine.Goto(GameState.Shop);
-                    }
-                ),
-                    ("いいえ", () =>
-                    {
-                        // ショップステートに戻す
-                        deckMenu.Enable = true;
-                        StateMachine.Goto(GameState.Shop);
-                    }
-                ));
-            }
-        };
-    }
-
-    public void Open(FloorShopInfo shopSetting, Action onComplete = null)
-    {
-        if (IsOpened) return;
-        IsOpened = true;
-        tween?.Kill();
-
-        tabGroups.SelectIndex = (int)TabType.Shop;
-        shopMenu.Enable = true;
+        IsOpen = true;
         gameObject.SetActive(true);
-        tween = DOTween.Sequence();
-        tween.Append(canvasGroup.DOFade(1f, 0.2f));
-        tween.Join(window.rectTransform.DOScale(1f, 0.2f));
-        tween.OnComplete(() =>
-        {
-            tween = null;
-            onComplete?.Invoke();
-        });
-        InitializeShop(shopSetting);
-        tabGroups.OnChangeTab = () =>
-        {
-            deckMenu.Enable = tabGroups.SelectIndex == (int)TabType.Deck;
-            shopMenu.Enable = tabGroups.SelectIndex == (int)TabType.Shop;
-            if (tabGroups.SelectIndex != (int)TabType.Deck) return;
-            InitializeDeck();
-        };
+        shopWindow.gameObject.SetActive(true);
+        deckWindow.gameObject.SetActive(false);
+
+        deckWindow.alpha = canvasGroup.alpha = 0;
+        shopWindow.alpha = 1f;
+
+        mode = Mode.Shop;
+        await canvasGroup.DOFade(1f, 0.2f);
+
+        shopMenu.Enable = true;
+        deckMenu.Enable = false;
+        shopMenu.ReselectCurrentItem();
     }
 
     public void Close()
     {
-        if (!IsOpened) return;
-        IsOpened = false;
-        tween?.Kill();
-        tween = DOTween.Sequence();
-        tween.Append(canvasGroup.DOFade(0f, 0.2f));
-        tween.Append(window.rectTransform.DOScale(0.5f, 0.2f));
-        tween.OnComplete(() =>
+        canvasGroup.DOFade(0f, 0.2f).OnComplete(() =>
         {
-            tween = null;
-            OnClose?.Invoke();
+            shopMenu.Enable = false;
+            deckMenu.Enable = false;
             gameObject.SetActive(false);
+            shopWindow.gameObject.SetActive(false);
+            deckWindow.gameObject.SetActive(false);
+            stateMachine.Goto(GameState.NextFloorLoad);
+            IsOpen = false;
         });
     }
 
-    public void Right() => currentMenu.Right();
-    public void Left() => currentMenu.Left();
-    public void Up() => currentMenu.Up();
-    public void Down() => currentMenu.Down();
-    public void RightTrigger() => tabGroups.SelectIndex++;
-    public void LeftTrigger() => tabGroups.SelectIndex--;
-    public void Submit() => currentMenu.Submit();
+#if UNITY_EDITOR
+    public void SetPlayerData(PlayerData playerData)
+    {
+        this.playerData = playerData;
+    }
+#endif
+
+    private void BuyCard(SelectableItem selectedItem)
+    {
+        if (selectedItem is SelectableCard item)
+        {
+            if (item.Type == ShopCardType.GotoOther)
+                SwitchMenu().Forget();
+            else if (item.Type == ShopCardType.Exit)
+                Close();
+            return;
+        }
+        if (selectedItem is not ShopCard card) return;
+
+        shopMenu.Enable = false;
+        var data = card.Data;
+        stateMachine.OpenCommonDialog("確認", $"{data.Name}を{data.Price}Gで購入しますか？",
+            ("はい", () =>
+            {
+                shopMenu.Enable = true;
+                BuyCard(data);
+                stateMachine.Goto(GameState.Shop);
+            }
+        ),
+            ("いいえ", () =>
+            {
+                shopMenu.Enable = true;
+                stateMachine.Goto(GameState.Shop);
+            }
+        ));
+    }
+
+
+    private void BuyCard(CardInfo card)
+    {
+        cardController.Add(card);
+        playerData.Gems -= card.Price;
+        UpdateDeck();
+        UpdateShop();
+    }
+
+    private void RemoveCard(SelectableItem selectedItem)
+    {
+        if (selectedItem is SelectableCard item)
+        {
+            if (item.Type == ShopCardType.GotoOther)
+                SwitchMenu().Forget();
+            else if (item.Type == ShopCardType.Exit)
+                Close();
+            return;
+        }
+        if (selectedItem is not ShopCard card) return;
+
+        deckMenu.Enable = false;
+        var data = card.Data;
+        stateMachine.OpenCommonDialog("確認", $"{card.Data.Name}を200Gで破棄しますか？",
+            ("はい", () =>
+            {
+                deckMenu.RemoveItem(selectedItem);
+                RemoveCard(card, selectedItem);
+                deckMenu.Enable = true;
+                stateMachine.Goto(GameState.Shop);
+            }
+        ),
+            ("いいえ", () =>
+            {
+                deckMenu.Enable = true;
+                stateMachine.Goto(GameState.Shop);
+            }
+        ));
+    }
+
+    private void RemoveCard(ShopCard shopCard, SelectableItem item)
+    {
+        playerData.Gems -= 200;
+        cardController.Remove(shopCard.Card);
+        deckMenu.RemoveItem(item);
+        UpdateDeck();
+        UpdateShop();
+    }
 
     public void InitializeShop(FloorShopInfo shopSetting)
     {
-        shopMenu.Clear();
         var cards = new List<CardInfo>();
+        var master = DB.Instance.MCard.All;
         if (shopSetting.isSellAll)
-            cards = DB.Instance.MCard.All.Randmize().Take(3).ToList();
+            cards = master.Randmize().Take(3).ToList();
         else
-            cards = DB.Instance.MCard.All.Where(card => shopSetting.Cards.Contains(card.Id)).Randmize().Take(3).ToList();
-        shopMenu.AddItem(gotoDeck);
-        foreach (var data in cards)
+            cards = master.Where(card => shopSetting.Cards.Contains(card.Id)).Randmize().Take(3).ToList();
+        shopMenu.Clear();
+        foreach (var cardInfo in cards)
         {
-            var card = Instantiate(originalCard);
-            card.SetData(data, null, false);
-            card.Enable = player.PlayerData.Gems >= data.Price;
-            shopMenu.AddItem(card);
+            var product = Instantiate(originalCard);
+            product.gameObject.SetActive(true);
+            shopMenu.AddItem(product);
+            product.SetData(cardInfo, null, false);
         }
+        shopMenu.AddItem(CreateSelectable("破棄", ShopCardType.GotoOther));
+        shopMenu.AddItem(CreateSelectable("店から出る", ShopCardType.Exit));
         shopMenu.Initialize();
     }
 
-    public void InitializeDeck()
+    public void InitializeDeck() => InitializeDeck(cardController.AllCards);
+
+    public void InitializeDeck(List<Card> deck)
     {
         deckMenu.Clear();
+        deckMenu.Initialize();
         var canRemove = player.PlayerData.Gems >= 200;
-        deckMenu.AddItem(gotoShop);
-        foreach (var card in cardController.AllCards.OrderBy(card => card.Data.Id))
+        deckMenu.AddItem(CreateSelectable("購入", ShopCardType.GotoOther));
+        deckMenu.AddItem(CreateSelectable("店から出る", ShopCardType.Exit));
+        foreach (var card in deck.OrderBy(card => card.Data.Id))
         {
             var obj = Instantiate(originalCard);
             obj.SetData(card.Data, card, true);
@@ -189,40 +211,65 @@ public class ShopWindow : MonoBehaviour
         deckMenu.Initialize();
     }
 
-    private void BuyCard(CardInfo data)
+    private SelectableCard CreateSelectable(string label, ShopCardType type)
     {
-        cardController.Add(data);
-        player.PlayerData.Gems -= data.Price;
-        UpdateDeck();
-        UpdateShop();
-    }
-
-    private void RemoveCard(ShopCard shopCard, SelectableItem item)
-    {
-        player.PlayerData.Gems -= 200;
-        cardController.Remove(shopCard.Card);
-        deckMenu.RemoveItem(item);
-        UpdateDeck();
-        UpdateShop();
+        var card = Instantiate(originalSelectableCard);
+        card.Setup(label, type);
+        return card;
     }
 
     private void UpdateShop()
     {
-        foreach (var card in shopMenu.Items.Select(item => item as ShopCard))
+        foreach (var card in shopMenu.Items.Select(item => item as ShopCard).Where(item => item != null))
             card.Enable = card.Price <= player.PlayerData.Gems;
     }
 
     private void UpdateDeck()
     {
         var canRemove = player.PlayerData.Gems >= 200;
-        foreach (var card in deckMenu.Items.Select(item => item as ShopCard))
+        foreach (var card in deckMenu.Items.Select(item => item as ShopCard).Where(item => item != null))
             card.Enable = canRemove;
-        deckMenu.ReselectCurrentItem(true);
+        deckMenu.ReselectCurrentItem();
     }
 
-    private void OnDestroy()
+    private async UniTask SwitchMenu()
     {
-        tween?.Kill();
-        tween = null;
+        if (mode == Mode.Shop)
+        {
+            mode = Mode.Deck;
+            deckWindow.gameObject.SetActive(true);
+            shopMenu.Enable = false;
+
+            await DOTween.Sequence()
+                .Append(shopWindow.transform.DOScale(0.8f, 0.2f))
+                .Join(shopWindow.DOFade(0f, 0.2f))
+                .Join(deckWindow.transform.DOScale(1f, 0.2f))
+                .Join(deckWindow.DOFade(1f, 0.2f));
+
+            deckMenu.Enable = true;
+            shopWindow.gameObject.SetActive(false);
+        }
+        else
+        {
+            mode = Mode.Shop;
+            shopWindow.gameObject.SetActive(true);
+            deckMenu.Enable = false;
+
+            await DOTween.Sequence()
+                .Append(deckWindow.transform.DOScale(0.8f, 0.2f))
+                .Join(deckWindow.DOFade(0f, 0.2f))
+                .Join(shopWindow.transform.DOScale(1f, 0.2f))
+                .Join(shopWindow.DOFade(1f, 0.2f));
+
+            shopMenu.Enable = true;
+            deckWindow.gameObject.SetActive(false);
+        }
+
     }
+
+    public void Right() => current.Right();
+    public void Left() => current.Left();
+    public void Up() => current.Up();
+    public void Down() => current.Down();
+    public void Submit() => current.Submit();
 }

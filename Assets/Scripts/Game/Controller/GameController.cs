@@ -148,4 +148,8 @@ public class GameController : MonoBehaviour
     }
 
     public void ForceUpdateMinimap() => uiManager.ForceUpdateMinimap();
+
+#if DEBUG
+    public void Goto(GameState state) => stateMachine.Goto(state);
+#endif
 }

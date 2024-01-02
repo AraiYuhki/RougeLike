@@ -1,9 +1,15 @@
 fileFormatVersion: 2
-guid: 3dbb15f3c836b764db71b16dce7aad77
+guid: 2fd0f8c72fe3b9d49a76df55ce3fd5cf
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - shopWindow: {instanceID: 0}
+  - deckWindow: {instanceID: 0}
+  - shopMenu: {instanceID: 0}
+  - deckMenu: {instanceID: 0}
+  - original: {fileID: 5142963862002980627, guid: 068a5aae76fc82842883c6e4340417e3, type: 3}
+  - player: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

@@ -38,7 +38,10 @@ public class PlayerDebugPage : DefaultDebugPageBase
         hpSlider.ValueTextFormat = "F1";
         hpSlider.CellTexts.Text = "HP";
         hpSliderIndex = AddSlider(hpSlider);
-
+        if (player == null)
+        {
+            player = FindAnyObjectByType<Player>();
+        }
         var playerData = player.PlayerData;
 
         AddButton("HP変更", clicked: () => playerData.Hp = hpSlider.Value);
@@ -66,6 +69,11 @@ public class PlayerDebugPage : DefaultDebugPageBase
             playerData.AddAilment(ailmentType, ailmentParam, ailmentTurn);
             var cardController = FindAnyObjectByType<CardController>();
             cardController.ApplyAilment();
+        });
+        AddButton("店を開く", clicked: () =>
+        {
+            var gameController = FindAnyObjectByType<GameController>();
+            gameController.Goto(GameState.Shop);
         });
         yield break;
     }
