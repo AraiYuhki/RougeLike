@@ -108,6 +108,7 @@ public class GameController : MonoBehaviour
         enemyManager.Clear();
         itemManager.Clear();
         trapManager.Clear();
+        uiManager.ClearMinimap();
         floorManager.Clear();
 
         var floorInfo = floorManager.Create(dungeonData, CurrentFloor);

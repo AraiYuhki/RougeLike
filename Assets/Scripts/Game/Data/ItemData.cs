@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 
 [Serializable]
-public class ItemData
+public class ItemData : IPositionable
 {
     [SerializeField]
     private Vector2Int position;

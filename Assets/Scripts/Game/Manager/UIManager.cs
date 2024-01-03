@@ -149,6 +149,7 @@ public class UIManager : MonoBehaviour
     }
 
     public void ForceUpdateMinimap() => minimap.SetVisibleMap(player.Position);
+    public void ClearMinimap() => minimap.Clear();
 
     private void CheckStep()
     {

@@ -9,6 +9,8 @@ public class ItemManager : MonoBehaviour
     [SerializeField]
     private FloorManager floorManager;
     [SerializeField]
+    private Minimap minimap;
+    [SerializeField]
     private Item[] gemTemplates = new Item[0];
 
     public List<ItemData> ItemList { get; private set; } = new();
@@ -43,6 +45,7 @@ public class ItemManager : MonoBehaviour
             itemData.JumpTo();
         }
         ItemList.Add(itemData);
+        minimap.AddItem(itemData);
         floorManager.SetItem(itemData, position);
         return item;
     }
@@ -54,11 +57,13 @@ public class ItemManager : MonoBehaviour
         var itemData = new ItemData(item, tile.Position, price);
         floorManager.SetItem(itemData, tile.Position);
         ItemList.Add(itemData);
+        minimap.AddItem(itemData);
     }
 
     public void Despawn(ItemData item)
     {
         ItemList.Remove(item);
+        minimap.RemoveSymbol(item);
         Destroy(item.gameObject);
     }
 

@@ -60,7 +60,7 @@ MonoBehaviour:
   - id: 5
     name: "\u843D\u3068\u3057\u7A74"
     type: 3
-    enableAilment: 1
+    enableAilment: 0
     ailmentData:
       type: 3
       param: 0

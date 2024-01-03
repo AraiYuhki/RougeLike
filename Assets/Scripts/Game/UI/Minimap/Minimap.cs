@@ -1,8 +1,10 @@
 ﻿using DG.Tweening;
 using System.Collections.Generic;
+using System.Diagnostics.SymbolStore;
+using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Pool;
 using UnityEngine.UI;
 
 public enum MinimapMode
@@ -28,6 +30,8 @@ public class Minimap : MonoBehaviour
     [SerializeField]
     private float tileSize = 30f;
     [SerializeField]
+    private MinimapSymbol originalSymbol;
+    [SerializeField]
     private Image tileLayer;
     [SerializeField]
     private Sprite playerSprite;
@@ -50,9 +54,9 @@ public class Minimap : MonoBehaviour
     private RectTransform rectTransform = null;
     private Texture2D texture;
 
-    private List<Image> enemies = new ();
-    private List<Image> items = new ();
-    private List<Image> traps = new();
+    private ObjectPool<MinimapSymbol> symbolPool = null;
+    private Dictionary<IPositionable, MinimapSymbol> activeSymbols = new();
+
     private Image stair = null;
 
     private FloorData floorData;
@@ -69,6 +73,49 @@ public class Minimap : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
     }
 
+    private void OnEnable()
+    {
+        symbolPool = new ObjectPool<MinimapSymbol>(CreateSymbol,
+            target => target.gameObject.SetActive(true),
+            target => target.gameObject.SetActive(false),
+            target => Destroy(target.gameObject),
+            maxSize: 50);
+        MinimapSymbol.TileSize = tileSize;
+    }
+
+    private MinimapSymbol CreateSymbol()
+    {
+        var instance = Instantiate(originalSymbol, tileLayer.transform);
+        instance.gameObject.SetActive(false);
+        return instance;
+    }
+
+    private void AddSymbol(IPositionable target, Sprite sprite, Color color)
+    {
+        var symbol = symbolPool.Get();
+        symbol.Setup(target, sprite, color);
+        activeSymbols.Add(target, symbol);
+    }
+
+    public void AddItem(ItemData itemData) => AddSymbol(itemData, itemSprite, Color.green);
+    public void AddTrap(TrapData trapData) => AddSymbol(trapData, trapSprite, Color.red);
+    public void AddEnemy(Enemy enemy) => AddSymbol(enemy, itemSprite, Color.red);
+    public void RemoveSymbol(IPositionable target)
+    {
+        if (activeSymbols.TryGetValue(target, out var symbol))
+        {
+            activeSymbols.Remove(target);
+            symbolPool.Release(symbol);
+        }
+    }
+
+    public void Clear()
+    {
+        foreach(var symbol in activeSymbols.Values) symbolPool.Release(symbol);
+        symbolPool.Clear();
+        activeSymbols.Clear();
+    }
+
     public void Initialize(FloorData data)
     {
         floorData = data;
@@ -77,12 +124,7 @@ public class Minimap : MonoBehaviour
         originalPosition = -halfTileSize * size + Vector2.one * halfTileSize;
         playerIcon.rectTransform.sizeDelta = Vector2.one * tileSize;
 
-        foreach (var enemy in enemies) Destroy(enemy.gameObject);
-        enemies.Clear();
-        foreach (var item in items) Destroy(item.gameObject);
-        items.Clear();
-        foreach (var trap in traps) Destroy(trap.gameObject);
-        traps.Clear();
+        Clear();
 
         if (texture != null) Destroy(texture);
         tileLayer.rectTransform.sizeDelta = size * tileSize;
@@ -114,13 +156,16 @@ public class Minimap : MonoBehaviour
 
             stair.gameObject.SetActive(visibleMap[floorData.StairPosition.X, floorData.StairPosition.Y]);
 
+            foreach ((var owner, var symbol) in activeSymbols)
+            {
+                symbol.UpdatePosition(originalPosition);
+                symbol.SetVisible(CheckVisible(owner.Position));
+            }
+
             prevPlayerPosition = player.Position;
         }
         tileLayer.transform.localPosition = position;
         playerIcon.transform.rotation = Quaternion.Euler(0f, 0f, -player.transform.localEulerAngles.y);
-        UpdateEnemies();
-        UpdateItems();
-        UpdateTraps();
     }
 
     public void SetVisibleMap(Point position)
@@ -168,64 +213,6 @@ public class Minimap : MonoBehaviour
 
     private bool VisibleTile(Point point) => visibleMap[point.X, point.Y];
 
-    private void UpdateEnemies()
-    {
-        var enemies = enemyManager.Enemies;
-        while (this.enemies.Count < enemies.Count)
-            this.enemies.Add(CreateImage(tileLayer.transform, Color.red, unitSprite));
-
-        foreach (var image in this.enemies)
-            image.gameObject.SetActive(false);
-
-        foreach ((var enemy, var index) in enemies.Select((enemy, index) => (enemy, index)))
-        {
-            var enemyTile = floorData.Map[enemy.Position.x, enemy.Position.y];
-            var position = this.enemies[index].transform.localPosition;
-            position.x = enemy.Position.x * tileSize + originalPosition.x;
-            position.y = enemy.Position.y * tileSize + originalPosition.y;
-            this.enemies[index].transform.localPosition = position;
-            this.enemies[index].gameObject.SetActive(CheckVisible(enemy.Position));
-        }
-    }
-
-    private void UpdateItems()
-    {
-        var items = itemManager.ItemList;
-        while(this.items.Count < items.Count)
-            this.items.Add(CreateImage(tileLayer.transform, Color.green, unitSprite));
-
-        foreach (var image in this.items)
-            image.gameObject.SetActive(false);
-
-        foreach ((var item, var index) in items.Select((item, index) => (item, index)))
-        {
-            var itemTile = floorData.Map[item.Position.x, item.Position.y];
-            var position = this.items[index].transform.localPosition;
-            position.x = item.Position.x * tileSize + originalPosition.x;
-            position.y = item.Position.y * tileSize + originalPosition.y;
-            this.items[index].transform.localPosition = position;
-            this.items[index].gameObject.SetActive(CheckVisible(item.Position));
-        }
-    }
-
-    private void UpdateTraps()
-    {
-        var traps = trapManager.TrapList;
-        while (this.traps.Count < traps.Count)
-            this.traps.Add(CreateImage(tileLayer.transform, Color.red, trapSprite));
-        foreach (var trap in this.traps)
-            trap.gameObject.SetActive(false);
-
-        foreach ((var trap, var index) in traps.Select((trap, index) => (trap, index)))
-        {
-            var trapTile = floorData.Map[trap.Position.x, trap.Position.y];
-            var position = this.traps[index].transform.localPosition;
-            position.x = trap.Position.x * tileSize + originalPosition.x;
-            position.y = trap.Position.y * tileSize + originalPosition.y;
-            this.traps[index].transform.localPosition = position;
-            this.traps[index].gameObject.SetActive(CheckVisible(trap.Position));
-        }
-    }
     private bool CheckVisible(Vector2Int position)
     {
         var playerTile = floorData.Map[player.Position.x, player.Position.y];

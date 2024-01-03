@@ -4,7 +4,7 @@ using System.Threading;
 using UnityEngine;
 
 [Serializable]
-public class TrapData
+public class TrapData : IPositionable
 {
     [SerializeField]
     private Vector2Int position;

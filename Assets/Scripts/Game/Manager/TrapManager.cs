@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Net.WebSockets;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class TrapManager : MonoBehaviour
@@ -9,6 +7,8 @@ public class TrapManager : MonoBehaviour
     private Player player;
     [SerializeField]
     private FloorManager floorManager;
+    [SerializeField]
+    private Minimap minimap;
     [SerializeField]
     private NoticeGroup noticeGroup;
     [SerializeField]
@@ -35,6 +35,8 @@ public class TrapManager : MonoBehaviour
             var trap = master.Instantiate(floorManager.transform);
             var tile = floorManager.GetEmptyRoomTiles().Random();
             var data = new TrapData(trap, tile, master, floorManager, noticeGroup);
+            TrapList.Add(data);
+            minimap.AddTrap(data);
             floorManager.SetTrap(data, tile.Position);
         }
     }

@@ -13,6 +13,8 @@ public class EnemyManager : MonoBehaviour
     [SerializeField]
     private ItemManager itemManager;
     [SerializeField]
+    private Minimap minimap;
+    [SerializeField]
     private NoticeGroup notice;
     [SerializeField]
     private DamagePopupManager damagePopupManager;
@@ -63,9 +65,11 @@ public class EnemyManager : MonoBehaviour
         {
             enemies.Remove(ai);
             floorManager.RemoveUnit(instance.Position);
+            minimap.RemoveSymbol(instance);
             Destroy(instance.gameObject);
         };
         enemies.Add(ai);
+        minimap.AddEnemy(instance);
     }
 
     public async UniTask Controll(DungeonStateMachine stateMachine)

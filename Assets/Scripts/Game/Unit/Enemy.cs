@@ -2,7 +2,7 @@
 using System;
 using UnityEngine;
 
-public class Enemy : Unit
+public class Enemy : Unit, IPositionable
 {
     private EnemyInfo data = new EnemyInfo(10);
     public override UnitData Data => data;
