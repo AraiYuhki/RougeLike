@@ -59,7 +59,7 @@ MonoBehaviour:
     prefab: {fileID: 4591363561603068429, guid: 4bcc2f472c8201e47b84f6db8b9aed3e, type: 3}
   - id: 5
     name: "\u843D\u3068\u3057\u7A74"
-    type: 3
+    type: 4
     enableAilment: 0
     ailmentData:
       type: 3

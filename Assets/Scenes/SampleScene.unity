@@ -5032,6 +5032,7 @@ MonoBehaviour:
   itemManager: {fileID: 1009754816}
   trapManager: {fileID: 1009754818}
   dialogManager: {fileID: 89703661}
+  minimap: {fileID: 1128604652}
   uiManager: {fileID: 1009754817}
   noticeGroup: {fileID: 370729898}
   cardController: {fileID: 536134747}

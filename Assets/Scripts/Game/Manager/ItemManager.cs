@@ -45,7 +45,7 @@ public class ItemManager : MonoBehaviour
             itemData.JumpTo();
         }
         ItemList.Add(itemData);
-        minimap.AddItem(itemData);
+        minimap.AddSymbol(itemData);
         floorManager.SetItem(itemData, position);
         return item;
     }
@@ -57,7 +57,7 @@ public class ItemManager : MonoBehaviour
         var itemData = new ItemData(item, tile.Position, price);
         floorManager.SetItem(itemData, tile.Position);
         ItemList.Add(itemData);
-        minimap.AddItem(itemData);
+        minimap.AddSymbol(itemData);
     }
 
     public void Despawn(ItemData item)

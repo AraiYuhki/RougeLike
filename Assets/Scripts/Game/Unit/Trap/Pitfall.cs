@@ -24,8 +24,8 @@ public class Pitfall : Trap
 
     public override async UniTask ExecuteAsync(Unit executer, CancellationToken token)
     {
-        var renderer = GetComponentInChildren<Renderer>();
-        renderer.sharedMaterial = wallMaterial;
+        foreach (var renderer in renderers)
+            renderer.sharedMaterial = wallMaterial;
         var cancellationToken = CreateLinkedToken(token);
         await animator.PlayAsync(AnimatorHash.Execute, token: cancellationToken);
         await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: cancellationToken);

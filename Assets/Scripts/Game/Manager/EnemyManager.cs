@@ -69,7 +69,7 @@ public class EnemyManager : MonoBehaviour
             Destroy(instance.gameObject);
         };
         enemies.Add(ai);
-        minimap.AddEnemy(instance);
+        minimap.AddSymbol(instance);
     }
 
     public async UniTask Controll(DungeonStateMachine stateMachine)

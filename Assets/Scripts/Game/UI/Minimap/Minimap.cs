@@ -97,9 +97,9 @@ public class Minimap : MonoBehaviour
         activeSymbols.Add(target, symbol);
     }
 
-    public void AddItem(ItemData itemData) => AddSymbol(itemData, itemSprite, Color.green);
-    public void AddTrap(TrapData trapData) => AddSymbol(trapData, trapSprite, Color.red);
-    public void AddEnemy(Enemy enemy) => AddSymbol(enemy, itemSprite, Color.red);
+    public void AddSymbol(ItemData itemData) => AddSymbol(itemData, itemSprite, Color.green);
+    public void AddSymbol(TrapData trapData) => AddSymbol(trapData, trapSprite, Color.red);
+    public void AddSymbol(Enemy enemy) => AddSymbol(enemy, itemSprite, Color.red);
     public void RemoveSymbol(IPositionable target)
     {
         if (activeSymbols.TryGetValue(target, out var symbol))
@@ -109,7 +109,7 @@ public class Minimap : MonoBehaviour
         }
     }
 
-    public void Clear()
+    private void Clear()
     {
         foreach(var symbol in activeSymbols.Values) symbolPool.Release(symbol);
         symbolPool.Clear();
@@ -166,6 +166,19 @@ public class Minimap : MonoBehaviour
         }
         tileLayer.transform.localPosition = position;
         playerIcon.transform.rotation = Quaternion.Euler(0f, 0f, -player.transform.localEulerAngles.y);
+    }
+
+    public void UpdateView()
+    {
+        SetVisibleMap(player.Position);
+
+        stair.gameObject.SetActive(visibleMap[floorData.StairPosition.X, floorData.StairPosition.Y]);
+
+        foreach ((var owner, var symbol) in activeSymbols)
+        {
+            symbol.UpdatePosition(originalPosition);
+            symbol.SetVisible(CheckVisible(owner.Position));
+        }
     }
 
     public void SetVisibleMap(Point position)

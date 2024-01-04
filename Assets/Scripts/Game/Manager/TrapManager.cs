@@ -35,8 +35,9 @@ public class TrapManager : MonoBehaviour
             var trap = master.Instantiate(floorManager.transform);
             var tile = floorManager.GetEmptyRoomTiles().Random();
             var data = new TrapData(trap, tile, master, floorManager, noticeGroup);
+            trap.SetMaterials(floorInfo.WallMaterial, floorInfo.FloorMaterial);
             TrapList.Add(data);
-            minimap.AddTrap(data);
+            minimap.AddSymbol(data);
             floorManager.SetTrap(data, tile.Position);
         }
     }

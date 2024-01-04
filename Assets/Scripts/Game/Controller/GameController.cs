@@ -24,6 +24,8 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private DialogManager dialogManager;
     [SerializeField]
+    private Minimap minimap;
+    [SerializeField]
     private UIManager uiManager;
     [SerializeField]
     private NoticeGroup noticeGroup = null;
@@ -81,19 +83,15 @@ public class GameController : MonoBehaviour
         dungeonData = DB.Instance.MDungeon.GetById(1);
         CurrentFloor = 1;
 
-        var floorInfo = floorManager.Create(dungeonData, CurrentFloor);
         player.Initialize();
-        player.SetPosition(floorManager.FloorData.SpawnPoint);
         player.OnMoved += floorManager.OnMoveUnit;
         cardController.Player = player;
         cardController.Initialize();
 
         turnControll = StartCoroutine(stateMachine.Update());
 
-        enemyManager.Initialize(player, floorInfo);
-        itemManager.Initialize(150, 1, 5);
-        trapManager.Initialize(floorInfo);
-        floorManager.CreateMesh();
+        var floorInfo = floorManager.Create(dungeonData, CurrentFloor);
+        InitializeFloor(floorInfo);
         Fade.Instance.FadeIn(() => stateMachine.Goto(GameState.PlayerTurn));
     }
 
@@ -108,18 +106,20 @@ public class GameController : MonoBehaviour
         enemyManager.Clear();
         itemManager.Clear();
         trapManager.Clear();
-        uiManager.ClearMinimap();
         floorManager.Clear();
 
         var floorInfo = floorManager.Create(dungeonData, CurrentFloor);
+        InitializeFloor(floorInfo);
+    }
+
+    private void InitializeFloor(FloorInfo floorInfo)
+    {
         player.SetPosition(floorManager.FloorData.SpawnPoint);
-        enemyManager.SetFloorData(floorInfo);
+        enemyManager.Initialize(player, floorInfo);
         itemManager.Initialize(150, 1, 5);
         trapManager.Initialize(floorInfo);
-        for (var count = 0; count < floorInfo.InitialSpawnEnemyCount; count++)
-            enemyManager.Spawn();
         floorManager.CreateMesh();
-        ForceUpdateMinimap();
+        minimap.UpdateView();
     }
 
     public void StartEnemyTurn() => stateMachine.Goto(GameState.EnemyTurn);
