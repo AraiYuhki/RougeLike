@@ -50,7 +50,6 @@ public class Minimap : MonoBehaviour
     [SerializeField]
     private Vector2 originalPosition = Vector2.zero;
 
-    private Point prevPlayerPosition = new Point();
     private RectTransform rectTransform = null;
     private Texture2D texture;
 
@@ -136,7 +135,6 @@ public class Minimap : MonoBehaviour
                 texture.SetPixel(x, y, Color.clear);
         texture.Apply();
         tileLayer.sprite = Sprite.Create(texture, new Rect(0, 0, size.X, size.Y), Vector2.zero);
-        prevPlayerPosition = player.Position;
         if (stair == null)
             stair = CreateImage(tileLayer.transform, Color.green, stairSprite);
         var position = originalPosition;
@@ -150,20 +148,6 @@ public class Minimap : MonoBehaviour
     {
         var position = -tileSize * player.Position.ToVector3();
         position -= originalPosition.ToVector3();
-        if (player.Position != (Vector2Int)prevPlayerPosition)
-        {
-            SetVisibleMap(player.Position);
-
-            stair.gameObject.SetActive(visibleMap[floorData.StairPosition.X, floorData.StairPosition.Y]);
-
-            foreach ((var owner, var symbol) in activeSymbols)
-            {
-                symbol.UpdatePosition(originalPosition);
-                symbol.SetVisible(CheckVisible(owner.Position));
-            }
-
-            prevPlayerPosition = player.Position;
-        }
         tileLayer.transform.localPosition = position;
         playerIcon.transform.rotation = Quaternion.Euler(0f, 0f, -player.transform.localEulerAngles.y);
     }

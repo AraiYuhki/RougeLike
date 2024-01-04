@@ -70,7 +70,7 @@ public class GameController : MonoBehaviour
         Application.targetFrameRate = 60;
         stateMachine = new DungeonStateMachine();
         stateMachine.AddState(GameState.Wait, new WaitState());
-        stateMachine.AddState(GameState.PlayerTurn, new PlayerTurnState(stateMachine, floorManager, itemManager, dialogManager, noticeGroup, player, cardController));
+        stateMachine.AddState(GameState.PlayerTurn, new PlayerTurnState(stateMachine, floorManager, itemManager, dialogManager, minimap, noticeGroup, player, cardController));
         stateMachine.AddState(GameState.EnemyTurn, new EnemyTurnState(stateMachine, enemyManager));
         stateMachine.AddState(GameState.MainMenu, new MenuState(stateMachine, uiManager));
         stateMachine.AddState(GameState.NextFloorLoad, new LoadFloorState(player, stateMachine, this, floorManager, floorMoveView));
@@ -147,8 +147,6 @@ public class GameController : MonoBehaviour
         itemManager.Despawn(item);
         StartEnemyTurn();
     }
-
-    public void ForceUpdateMinimap() => uiManager.ForceUpdateMinimap();
 
 #if DEBUG
     public void Goto(GameState state) => stateMachine.Goto(state);

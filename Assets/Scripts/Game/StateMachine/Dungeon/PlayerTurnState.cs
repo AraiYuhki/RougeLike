@@ -10,6 +10,7 @@ public class PlayerTurnState : IState
     private FloorManager floorManager;
     private ItemManager itemManager;
     private DialogManager dialogManager;
+    private Minimap minimap;
     private NoticeGroup notice;
     private CardController cardController;
 
@@ -18,6 +19,7 @@ public class PlayerTurnState : IState
         FloorManager floorManager,
         ItemManager itemManager,
         DialogManager dialogManager,
+        Minimap minimap,
         NoticeGroup notice,
         Player player,
         CardController cardController)
@@ -26,6 +28,7 @@ public class PlayerTurnState : IState
         this.floorManager = floorManager;
         this.itemManager = itemManager;
         this.dialogManager = dialogManager;
+        this.minimap = minimap;
         this.notice = notice;
         this.player = player;
         this.cardController = cardController;
@@ -34,6 +37,7 @@ public class PlayerTurnState : IState
 
     public void OnEnter()
     {
+        minimap.UpdateView();
     }
 
     public void OnExit()
@@ -52,6 +56,7 @@ public class PlayerTurnState : IState
 
         if (UseCard())
         {
+            minimap.UpdateView();
             return;
         }
         if (InputUtility.Wait.IsPressed())
@@ -86,7 +91,7 @@ public class PlayerTurnState : IState
         {
             stateMachine.Goto(GameState.EnemyTurn);
         }
-
+        minimap.UpdateView();
     }
 
     private bool UseCard()

@@ -148,8 +148,6 @@ public class UIManager : MonoBehaviour
             CloseCurrent();
     }
 
-    public void ForceUpdateMinimap() => minimap.SetVisibleMap(player.Position);
-
     private void CheckStep()
     {
     }
