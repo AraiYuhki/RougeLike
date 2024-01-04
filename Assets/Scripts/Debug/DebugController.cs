@@ -47,6 +47,12 @@ public class DebugController : MonoBehaviour
         root.AddPageLinkButton<IngameDebugConsoleDebugPage>("In game debug console", onLoad: OnLoadDebugConsolePage);
         root.AddPageLinkButton<GraphyDebugPage>("Graphy", onLoad: OnLoadGraphy);
 
+        root.AddButton("セーブ", clicked: () =>
+        {
+            var gameController = FindAnyObjectByType<GameController>();
+            gameController.Save();
+        });
+
         var cancellationToken = this.GetCancellationTokenOnDestroy();
         await UniTask.RunOnThreadPool(async () =>
         {

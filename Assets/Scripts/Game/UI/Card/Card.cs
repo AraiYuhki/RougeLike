@@ -178,7 +178,7 @@ public class Card : MonoBehaviour
                 return Owner.Hp < Owner.MaxHp;
             case CardType.StaminaHeal:
                 if (Owner is Player player)
-                    return player.PlayerData.Stamina < player.PlayerData.MaxStamina;
+                    return player.Data.Stamina < player.Data.MaxStamina;
                 return false;
             case CardType.Charge:
             case CardType.Passive:

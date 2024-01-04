@@ -42,7 +42,7 @@ public class PlayerDebugPage : DefaultDebugPageBase
         {
             player = FindAnyObjectByType<Player>();
         }
-        var playerData = player.PlayerData;
+        var playerData = player.Data;
 
         AddButton("HP変更", clicked: () => playerData.Hp = hpSlider.Value);
         AddSlider(staminaValue, 0f, 100f, "満腹度", valueChanged: value => staminaValue = value, valueTextFormat: "F1");

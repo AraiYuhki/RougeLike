@@ -21,13 +21,15 @@ public abstract class Unit : MonoBehaviour
     protected NoticeGroup notice;
     [SerializeField]
     protected GameObject unit;
+    [SerializeField]
+    protected DamagePopupManager damagePopupManager;
+
 
     public const float MaxChargeStack = 4f;
-    public Vector2Int Position { get; set; }
-    public float DestAngle { get; set; }
+    public abstract Vector2Int Position { get; set; }
+    public abstract Vector2Int Angle { get; protected set; }
 
     public bool EndRotation { get; protected set; }
-    public Vector2Int Angle { get; protected set; } = Vector2Int.up;
 
     protected List<Tween> tweenList = new List<Tween>();
 
@@ -36,15 +38,12 @@ public abstract class Unit : MonoBehaviour
     public Action<Unit, int> OnDamage { get; set; }
     public Action OnDead { get; set; }
 
-    public abstract UnitData Data { get; }
-
-    public virtual int Hp { get; set; }
-    public virtual int MaxHp { get; set; }
+    public abstract int Hp { get; set; }
+    public abstract int MaxHp { get; }
     public virtual string Name => "No Name";
-    public virtual float ChargeStack { get; set; }
+    public abstract float ChargeStack { get; protected set; }
     public virtual void AddExp(int exp) { }
     public virtual void RecoveryStamina(float value) { }
-    public virtual void PowerUp(int value, Action onComplete = null) { }
     public virtual void Charge(float value, Action onComplete = null)
     {
         transform.DOPunchScale(Vector3.one * 0.5f, 0.5f).OnComplete(() =>
@@ -81,7 +80,6 @@ public abstract class Unit : MonoBehaviour
     /// <param name="count"></param>
     public virtual void ContinouseUse(int count, Action onComplete) { }
 
-    public virtual DamagePopupManager DamagePopupManager { protected get; set; }
     
 
     public void Awake()
@@ -93,13 +91,20 @@ public abstract class Unit : MonoBehaviour
     {
     }
 
-    public void SetManagers(GameController gameController, FloorManager floorManager, EnemyManager enemyManager, ItemManager itemManager, NoticeGroup noticeGroup)
+    public void SetManagers(
+        GameController gameController,
+        FloorManager floorManager,
+        EnemyManager enemyManager,
+        ItemManager itemManager,
+        NoticeGroup noticeGroup,
+        DamagePopupManager damagePopupManager)
     {
         this.gameController = gameController;
         this.floorManager = floorManager;
         this.enemyManager = enemyManager;
         this.itemManager = itemManager;
         this.notice = noticeGroup;
+        this.damagePopupManager = damagePopupManager;
     }
 
     public virtual void Update()
@@ -252,14 +257,14 @@ public abstract class Unit : MonoBehaviour
 
     public virtual void Heal(float value, bool damagePopup = true)
     {
-        if (damagePopup) DamagePopupManager.Create(this, Mathf.RoundToInt(value), Color.green);
+        if (damagePopup) damagePopupManager.Create(this, Mathf.RoundToInt(value), Color.green);
         Hp += (int)value;
         Hp = Mathf.Min(Hp, MaxHp);
     }
 
     public virtual void Damage(int damage, Unit attacker, bool damagePopup = true)
     {
-        if (damagePopup) DamagePopupManager.Create(this, damage, Color.red);
+        if (damagePopup) damagePopupManager.Create(this, damage, Color.red);
         if (attacker == null)
             notice.Add($"{Name}は{damage}ダメージ受けた", Color.red);
         else
@@ -272,7 +277,7 @@ public abstract class Unit : MonoBehaviour
 
     public virtual void Damage(int damage)
     {
-        DamagePopupManager.Create(this, damage, Color.magenta);
+        damagePopupManager.Create(this, damage, Color.magenta);
         notice.Add($"{Name}は{damage}ダメージ受けた", Color.red);
         Hp -= damage;
         OnDamage?.Invoke(null, damage);

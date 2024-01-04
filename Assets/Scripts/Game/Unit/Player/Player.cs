@@ -12,34 +12,25 @@ public class Player : Unit
     private CardController cardController;
     [SerializeField]
     private GameObject pointLight;
-    [SerializeField]
-    private DamagePopupManager damagePopupManager;
 
     private PlayerData data = new PlayerData(10);
 
-    public override UnitData Data => data;
-    public PlayerData PlayerData => data;
-    public override int Hp { get => Mathf.FloorToInt(Data.Hp); set => Data.Hp = value; }
+    public PlayerData Data => data;
+    public override int Hp { get => (int)Data.Hp; set => Data.Hp = value; }
     public override int MaxHp => cardController.AllCardsCount * 5;
-    public override string Name => "Player";
+    public override Vector2Int Position { get => data.Position; set => data.Position = value; }
+    public override Vector2Int Angle { get => data.Angle; protected set => data.Angle = value; }
+    public override float ChargeStack { get => data.ChargeStack; protected set => data.ChargeStack = value; }
+    public override string Name => Data.Name;
     public override void RecoveryStamina(float value) => data.Stamina += value;
-    public override void PowerUp(int value, Action onComplete = null) => Data.Atk += value;
-    public override DamagePopupManager DamagePopupManager 
-    {
-        protected get => damagePopupManager;
-        set => damagePopupManager = value;
-    }
 
     public bool IsLockInput { get; set; }
-    public int HealInterval { get; set; } = 0;
 
-    public void Initialize(int lv, int hp, int atk, int def)
+    public void Initialize(int hp, int atk)
     {
         data = new PlayerData(hp)
         {
-            Lv = lv,
             Atk = atk,
-            Def = def,
             Gems = 0,
         };
     }
@@ -78,12 +69,12 @@ public class Player : Unit
                 attacker.Damage(counterDamage, this);
             }
         }
-        HealInterval = 10;
+        data.HealInterval = 10;
     }
 
     public override void Initialize()
     {
-        Initialize(1, MaxHp, 1, 1);
+        Initialize(MaxHp, 1);
     }
 
     public override void Update()
@@ -130,8 +121,8 @@ public class Player : Unit
         data.Stamina -= 0.1f * Mathf.Max(rate, 0f);
         if (data.Stamina <= 0)
             Damage(1, null, damagePopup: false);
-        else if (HealInterval > 0)
-            HealInterval--;
+        else if (data.HealInterval > 0)
+            data.HealInterval--;
         else
             Heal(1f, false);
         base.TurnEnd();

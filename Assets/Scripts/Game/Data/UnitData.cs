@@ -6,26 +6,27 @@ public abstract class UnitData
 {
     public const int MaxInventorySize = 20;
     public const int MaxAtk = 8;
-    [SerializeField, CsvColumn("name")]
-    protected string name;
-    [SerializeField, HideInInspector]
-    protected float hp = 15f;
-    [SerializeField, CsvColumn("atk")]
+    [SerializeField]
+    protected Vector2Int position;
+    [SerializeField]
+    protected Vector2Int angle;
+    [SerializeField]
     protected int atk = 10;
 
     [SerializeField, HideInInspector]
     private Encyclopedia<AilmentType, AilmentData> ailments = new();
 
-    public virtual string Name => name;
-    public virtual int MaxHP { get; protected set; } = 15;
-    public float Hp { get => hp; set => hp = value; }
-    public int Lv { get; set; } = 1;
+    public Vector2Int Position { get => position; set => position = value; }
+    public Vector2Int Angle { get => angle; set => angle = value; }
+    public abstract string Name { get; }
+    public abstract int MaxHP { get; }
+    public abstract float Hp { get; set; }
+    public abstract int Def { get; }
     public virtual int Atk { get => atk; set => atk = Mathf.Min(value, MaxAtk); }
-    public virtual int Def { get; set; } = 0;
 
     public Encyclopedia<AilmentType, AilmentData> Ailments => ailments;
 
-    public UnitData(int hp) => Hp = MaxHP = hp;
+    public UnitData() { }
 
     public void AddAilment(AilmentType type, int param, int turn)
     {

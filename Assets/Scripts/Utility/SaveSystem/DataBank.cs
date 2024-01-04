@@ -11,7 +11,8 @@ public class DataBank
 
     private const string path = "SaveData";
     private const string extension = "dat";
-    private static readonly string fullPath = $"{Application.persistentDataPath}/{path}";
+    private static readonly string fullPath = Path.Combine(Application.dataPath, "../", path);
+    public static bool IsEncript { get; set; }
 
     public string SavePath => fullPath;
 
@@ -42,15 +43,21 @@ public class DataBank
         if (!ExistsKey(key)) return false;
 
         var filePath = $"{fullPath}/{key}.{extension}";
+        if (!Directory.Exists(fullPath))
+            Directory.CreateDirectory(fullPath);
 
         var json = JsonUtility.ToJson(bank[key]);
+        if (!IsEncript)
+        {
+            using (var streamWrite = new StreamWriter(filePath))
+                streamWrite.WriteLine(json);
+            return true;
+        }
 
         var data = Encoding.UTF8.GetBytes(json);
         data = Compressor.Compress(data);
         data = Cryptor.Encrypt(data);
 
-        if (!Directory.Exists(fullPath))
-            Directory.CreateDirectory(fullPath);
 
         using (var fileStream = File.Create(filePath))
             fileStream.Write(data, 0, data.Length);

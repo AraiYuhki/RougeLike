@@ -13,7 +13,7 @@ public class InventoryUI : ScrollMenu
     private UIManager uiManager;
     private NoticeGroup notice;
     private Player player;
-    private PlayerData data => player.PlayerData;
+    private PlayerData data => player.Data;
     public CanvasGroup Group => group;
 
     public override void Open(Action onComplete = null)

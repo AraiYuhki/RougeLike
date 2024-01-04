@@ -27,6 +27,7 @@ public class EnemyManager : MonoBehaviour
     private int spawnedCount = 0;
 
     public List<Enemy> Enemies => enemies.Select(enemy => enemy.Enemy).ToList();
+    public List<EnemyData> DataList => Enemies.Select(enemy => enemy.Data).ToList();
 
     public void Initialize(Player player, FloorInfo floorSetting)
     {
@@ -50,15 +51,19 @@ public class EnemyManager : MonoBehaviour
 
     public void Spawn()
     {
-        var instance = Instantiate(prefabs.First(), floorManager.transform);
         var enemyId = floorSetting.Enemies.Random();
-        instance.Initialize(DB.Instance.MEnemy.GetById(enemyId));
-        var ai = new DefaultAI(floorManager, instance, player);
+        var instance = Instantiate(prefabs.First(), floorManager.transform);
         var playerTile = floorManager.GetTile(player.Position);
         var tiles = floorManager.GetEmptyRoomTiles(playerTile.Id);
-        instance.DamagePopupManager = damagePopupManager;
-        instance.SetManagers(gameController, floorManager, this, itemManager, notice);
-        instance.SetPosition(tiles.Random().Position);
+
+        instance.Initialize(
+            enemyId, tiles.Random().Position,
+            gameController, floorManager,
+            this, itemManager,
+            notice, damagePopupManager);
+
+        var ai = new DefaultAI(floorManager, instance, player);
+        
         floorManager.SetUnit(instance, instance.Position);
         instance.OnMoved += floorManager.OnMoveUnit;
         instance.OnDead += () =>
@@ -89,7 +94,7 @@ public class EnemyManager : MonoBehaviour
             var attackEnemies = enemies.Where(e => e.CanAttack()).ToList();
             var completedCount = 0;
             foreach (var enemy in moveEnemies)
-                await enemy.Move(() => completedCount++);
+                await enemy.MoveAsync(() => completedCount++);
             minimap.UpdateView();
             while (moveEnemies.Count > completedCount) await UniTask.Yield();
             foreach (var enemy in attackEnemies)

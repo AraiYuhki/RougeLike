@@ -1,3 +1,6 @@
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -92,6 +95,7 @@ public class GameController : MonoBehaviour
 
         var floorInfo = floorManager.Create(dungeonData, CurrentFloor);
         InitializeFloor(floorInfo);
+
         Fade.Instance.FadeIn(() => stateMachine.Goto(GameState.PlayerTurn));
     }
 
@@ -120,6 +124,23 @@ public class GameController : MonoBehaviour
         trapManager.Initialize(floorInfo);
         floorManager.CreateMesh();
         minimap.UpdateView();
+
+        Save();
+    }
+
+    public void Save()
+    {
+        var saveData = new SaveData(
+            player.Data,
+            itemManager.ItemList,
+            trapManager.TrapList,
+            enemyManager.DataList,
+            floorManager.FloorData,
+            cardController
+            );
+        DataBank.IsEncript = false;
+        DataBank.Instance.Store("save", saveData);
+        DataBank.Instance.SaveAll();
     }
 
     public void StartEnemyTurn() => stateMachine.Goto(GameState.EnemyTurn);
@@ -141,7 +162,7 @@ public class GameController : MonoBehaviour
     {
         var item = floorManager.GetItem(player.Position);
         if (item == null) return;
-        player.PlayerData.Gems += item.GemCount;
+        player.Data.Gems += item.GemCount;
         noticeGroup.Add($"ジェムを{item.GemCount}個拾った", Color.cyan);
         floorManager.RemoveItem(item.Position);
         itemManager.Despawn(item);
@@ -151,4 +172,41 @@ public class GameController : MonoBehaviour
 #if DEBUG
     public void Goto(GameState state) => stateMachine.Goto(state);
 #endif
+
+    [Serializable]
+    private class SaveData
+    {
+        [SerializeField]
+        private PlayerData playerData;
+        [SerializeField]
+        private List<ItemData> items;
+        [SerializeField]
+        private List<TrapData> traps;
+        [SerializeField]
+        private List<EnemyData> enemies;
+        [SerializeField]
+        private FloorData floorData;
+        [SerializeField]
+        private List<int> deck;
+        [SerializeField]
+        private List<int> hands;
+        [SerializeField]
+        private List<int> cemetary;
+
+        public SaveData(
+            PlayerData playerData,
+            List<ItemData> items,
+            List<TrapData> traps,
+            List<EnemyData> enemies,
+            FloorData floorData,
+            CardController cardController)
+        {
+            this.playerData = playerData;
+            this.items = items;
+            this.traps = traps;
+            this.enemies = enemies;
+            this.floorData = floorData;
+            (deck, hands, cemetary) = cardController.GetSerializableData();
+        }
+    }
 }

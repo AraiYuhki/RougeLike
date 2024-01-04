@@ -47,6 +47,15 @@ public class CardController : MonoBehaviour
 
     public Card GetHandCard(int handIndex) => hands[handIndex];
 
+    public (List<int> deck, List<int> hands, List<int> cemetary) GetSerializableData()
+    {
+        return (
+            deck.Select(card => card.Data.Id).ToList(),
+            hands.Select(card => card == null ? -1 : card.Data.Id).ToList(),
+            cemetary.Select(card => card.Data.Id).ToList()
+            );
+    }
+
     private int EnableHandCount
     {
         get

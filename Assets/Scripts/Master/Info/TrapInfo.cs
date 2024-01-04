@@ -54,7 +54,9 @@ public class TrapInfo
             id = id,
             name = name,
             type = type,
+            enableAilment = enableAilment,
             ailmentData = ailmentData.Clone(),
+            enableDamage = enableDamage,
             damage = damage,
             prefab = prefab,
         };

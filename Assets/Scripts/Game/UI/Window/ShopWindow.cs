@@ -48,7 +48,7 @@ public class ShopWindow : MonoBehaviour
     {
         this.stateMachine = stateMachine;
         if (player != null)
-            playerData = player.PlayerData;
+            playerData = player.Data;
         shopMenu.OnSubmit = BuyCard;
         deckMenu.OnSubmit = RemoveCard;
     }
@@ -199,7 +199,7 @@ public class ShopWindow : MonoBehaviour
     {
         deckMenu.Clear();
         deckMenu.Initialize();
-        var canRemove = player.PlayerData.Gems >= 200;
+        var canRemove = player.Data.Gems >= 200;
         deckMenu.AddItem(CreateSelectable("購入", ShopCardType.GotoOther));
         deckMenu.AddItem(CreateSelectable("店から出る", ShopCardType.Exit));
         foreach (var card in deck.OrderBy(card => card.Data.Id))
@@ -222,12 +222,12 @@ public class ShopWindow : MonoBehaviour
     private void UpdateShop()
     {
         foreach (var card in shopMenu.Items.Select(item => item as ShopCard).Where(item => item != null))
-            card.Enable = card.Price <= player.PlayerData.Gems;
+            card.Enable = card.Price <= player.Data.Gems;
     }
 
     private void UpdateDeck()
     {
-        var canRemove = player.PlayerData.Gems >= 200;
+        var canRemove = player.Data.Gems >= 200;
         foreach (var card in deckMenu.Items.Select(item => item as ShopCard).Where(item => item != null))
             card.Enable = canRemove;
         deckMenu.ReselectCurrentItem();

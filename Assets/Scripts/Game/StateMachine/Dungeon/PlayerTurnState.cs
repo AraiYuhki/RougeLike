@@ -135,7 +135,7 @@ public class PlayerTurnState : IState
     {
         var item = floorManager.GetItem(player.Position);
         if (item == null) return;
-        player.PlayerData.Gems += item.GemCount;
+        player.Data.Gems += item.GemCount;
         notice.Add($"ジェムを{item.GemCount}個拾った", Color.cyan);
         floorManager.RemoveItem(item.Position);
         itemManager.Despawn(item);

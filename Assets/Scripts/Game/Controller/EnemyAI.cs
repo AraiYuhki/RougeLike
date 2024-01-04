@@ -1,9 +1,7 @@
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public abstract class EnemyAI
@@ -25,7 +23,7 @@ public abstract class EnemyAI
         return Mathf.Abs(diff.x) <= 1 && Mathf.Abs(diff.y) <= 1;
     }
 
-    public virtual UniTask Move(TweenCallback onComplete = null)
+    public virtual UniTask MoveAsync(TweenCallback onComplete = null)
     {
         onComplete?.Invoke();
         return new UniTask();
@@ -43,7 +41,7 @@ public class DefaultAI : EnemyAI
     protected List<int> rootRooms = new List<int>();
     public DefaultAI(FloorManager floorInfo, Enemy enemy, Player player) : base(floorInfo, enemy, player) { }
 
-    public override async UniTask Move(TweenCallback onComplete = null)
+    public override async UniTask MoveAsync(TweenCallback onComplete = null)
     {
         if (!Enemy.IsEncounted)
         {
@@ -56,7 +54,7 @@ public class DefaultAI : EnemyAI
         // ルートが見つからないもしくは現在地点から動けない場合は何もしない
         if(root == null || root.Count < 2)
         {
-            await base.Move(onComplete);
+            await base.MoveAsync(onComplete);
             cantMoveTurns++;
             return;
         }
@@ -65,7 +63,7 @@ public class DefaultAI : EnemyAI
         if (floorInfo.GetUnit(nextTile) != null)
         {
             // 移動できなかった
-            await base.Move(onComplete);
+            await base.MoveAsync(onComplete);
             cantMoveTurns++;
             return;
         }
@@ -80,9 +78,7 @@ public class DefaultAI : EnemyAI
     public override async UniTask AttackAsync()
     {
         var diff = player.Position - Enemy.Position;
-        Enemy.SetDestAngle(diff);
-        await UniTask.WaitUntil(() => Enemy.EndRotation);
-        var targetPosition = new Vector3(player.Position.x, 0.5f, player.Position.y);
+        await Enemy.RotateAsync(diff, default);
         await Enemy.AttackAsync(player, Enemy.Data.Atk);
     }
 
