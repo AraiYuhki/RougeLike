@@ -1,7 +1,6 @@
-﻿using DG.Tweening;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,44 +11,45 @@ public class Fade : MonoSingleton<Fade>
     [SerializeField]
     private Image panel;
 
-    private Tween tween = null;
+    private CancellationTokenSource cts;
 
     protected override void Awake()
     {
         base.Awake();
-        panel.gameObject.SetActive(false);
+        canvas.enabled = false;
     }
 
-    public void FadeIn(Action onComplete, float duration = 0.5f)
+    public async UniTask FadeInAsync(float duration = 0.5f)
     {
-        canvas.enabled = true;
-        tween?.Kill();
-        panel.color = new Color(0f, 0f, 0f, 1f);
-        tween = panel.DOFade(0f, duration);
-        tween.OnComplete(() =>
+        cts?.Cancel();
+        cts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);
+        try
         {
-            tween = null;
-            panel.gameObject.SetActive(false);
-            onComplete?.Invoke();
-        });
-    }
-
-    public void FadeOut(Action onComplete, float duration = 0.5f)
-    {
-        tween?.Kill();
-        panel.color = new Color(0f, 0f, 0f, 0f);
-        tween = panel.DOFade(1f, duration);
-        tween.OnComplete(() =>
-        {
-            tween = null;
-            onComplete?.Invoke();
+            canvas.enabled = true;
+            panel.color = Color.black;
+            await panel.DOFade(0f, duration).ToUniTask(cancellationToken: cts.Token);
             canvas.enabled = false;
-        });
+        }
+        finally
+        {
+            cts = null;
+        }
     }
 
-    private void OnDestroy()
+    public async UniTask FadeOutAsync(float duration = 0.5f)
     {
-        tween?.Kill();
-        tween = null;
+        cts?.Cancel();
+        cts = CancellationTokenSource.CreateLinkedTokenSource(destroyCancellationToken);
+        try
+        {
+            canvas.enabled = true;
+            panel.color = Color.clear;
+            await panel.DOFade(1f, duration).ToUniTask(cancellationToken: cts.Token);
+            canvas.enabled = false;
+        }
+        finally
+        {
+            cts = null;
+        }
     }
 }

@@ -53,6 +53,14 @@ public class DebugController : MonoBehaviour
             gameController.Save();
         });
 
+        root.AddButton("ロード", clicked: async () =>
+        {
+            var gameController = FindAnyObjectByType<GameController>();
+            await Fade.Instance.FadeOutAsync();
+            gameController.Load();
+            await Fade.Instance.FadeInAsync();
+        });
+
         var cancellationToken = this.GetCancellationTokenOnDestroy();
         await UniTask.RunOnThreadPool(async () =>
         {

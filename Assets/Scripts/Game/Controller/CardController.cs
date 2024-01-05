@@ -101,6 +101,39 @@ public class CardController : MonoBehaviour
         Player.Hp = Player.MaxHp;
     }
 
+    public void LoadFromJson(SaveData saveData)
+    {
+        foreach (var card in AllCards)
+            Destroy(card.gameObject);
+        var master = DB.Instance.MCard;
+        deck.Clear();
+        foreach (var id in saveData.Deck)
+            AddToDeck(master.GetById(id));
+
+        var hands = saveData.Hands;
+
+        for (var index = 0; index < hands.Count; index++)
+        {
+            var id = hands[index];
+            if (id < 0)
+            {
+                this.hands[index] = null;
+                return;
+            }
+            var card = CreateCard(master.GetById(hands[index]), Vector3.zero, handContainers[index]);
+            card.OpenAsync().Forget();
+            this.hands[index] = card;
+        }
+
+        cemetary.Clear();
+        foreach (var id in saveData.Cemetary)
+        {
+            var card = CreateCard(master.GetById(id), Vector3.zero, cemetaryContainer);
+            card.OpenAsync().Forget();
+            cemetary.Add(card);
+        }
+    }
+
     public void Add(CardInfo data)
     {
         var card = CreateCard(data, new Vector3(0f, -500f, 0f), transform);

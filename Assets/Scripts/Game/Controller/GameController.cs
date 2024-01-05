@@ -81,7 +81,7 @@ public class GameController : MonoBehaviour
         stateMachine.AddState(GameState.Shop, new ShopState(stateMachine, shopWindow, floorManager));
     }
 
-    private void Start()
+    private async void Start()
     {
         dungeonData = DB.Instance.MDungeon.GetById(1);
         CurrentFloor = 1;
@@ -95,8 +95,8 @@ public class GameController : MonoBehaviour
 
         var floorInfo = floorManager.Create(dungeonData, CurrentFloor);
         InitializeFloor(floorInfo);
-
-        Fade.Instance.FadeIn(() => stateMachine.Goto(GameState.PlayerTurn));
+        await Fade.Instance.FadeInAsync();
+        stateMachine.Goto(GameState.PlayerTurn);
     }
 
     private void OnDestroy()
@@ -107,10 +107,7 @@ public class GameController : MonoBehaviour
     public void LoadNextFloor()
     {
         CurrentFloor++;
-        enemyManager.Clear();
-        itemManager.Clear();
-        trapManager.Clear();
-        floorManager.Clear();
+        Clear();
 
         var floorInfo = floorManager.Create(dungeonData, CurrentFloor);
         InitializeFloor(floorInfo);
@@ -128,9 +125,19 @@ public class GameController : MonoBehaviour
         Save();
     }
 
+    private void Clear()
+    {
+        enemyManager.Clear();
+        itemManager.Clear();
+        trapManager.Clear();
+        floorManager.Clear();
+    }
+
     public void Save()
     {
         var saveData = new SaveData(
+            dungeonData.Id,
+            CurrentFloor,
             player.Data,
             itemManager.ItemList,
             trapManager.TrapList,
@@ -138,9 +145,32 @@ public class GameController : MonoBehaviour
             floorManager.FloorData,
             cardController
             );
-        DataBank.IsEncript = false;
+        DataBank.IsEncrypt = false;
         DataBank.Instance.Store("save", saveData);
         DataBank.Instance.SaveAll();
+    }
+
+    public void Load()
+    {
+        DataBank.IsEncrypt = false;
+        if (!DataBank.Instance.Load<SaveData>("save"))
+            throw new Exception("セーブデータのロードに失敗しました");
+
+        Clear();
+        var saveData = DataBank.Instance.Get<SaveData>("save");
+        cardController.LoadFromJson(saveData);
+        player.LoadFromJson(saveData.PlayerData);
+
+        dungeonData = DB.Instance.MDungeon.GetById(saveData.DungeonId);
+        CurrentFloor = saveData.CurrentFloor;
+
+        floorManager.LoadFromJson(dungeonData.GetFloor(CurrentFloor), saveData.FloorData, dungeonData.IsTower);
+
+        itemManager.LoadFromJson(saveData.Items);
+        trapManager.LoadFromJson(saveData.Traps, floorManager.FloorInfo);
+        enemyManager.LoadFromJson(saveData.Enemies);
+
+        floorManager.CreateMesh();
     }
 
     public void StartEnemyTurn() => stateMachine.Goto(GameState.EnemyTurn);
@@ -172,41 +202,4 @@ public class GameController : MonoBehaviour
 #if DEBUG
     public void Goto(GameState state) => stateMachine.Goto(state);
 #endif
-
-    [Serializable]
-    private class SaveData
-    {
-        [SerializeField]
-        private PlayerData playerData;
-        [SerializeField]
-        private List<ItemData> items;
-        [SerializeField]
-        private List<TrapData> traps;
-        [SerializeField]
-        private List<EnemyData> enemies;
-        [SerializeField]
-        private FloorData floorData;
-        [SerializeField]
-        private List<int> deck;
-        [SerializeField]
-        private List<int> hands;
-        [SerializeField]
-        private List<int> cemetary;
-
-        public SaveData(
-            PlayerData playerData,
-            List<ItemData> items,
-            List<TrapData> traps,
-            List<EnemyData> enemies,
-            FloorData floorData,
-            CardController cardController)
-        {
-            this.playerData = playerData;
-            this.items = items;
-            this.traps = traps;
-            this.enemies = enemies;
-            this.floorData = floorData;
-            (deck, hands, cemetary) = cardController.GetSerializableData();
-        }
-    }
 }

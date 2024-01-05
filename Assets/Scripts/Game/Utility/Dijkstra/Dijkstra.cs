@@ -114,7 +114,7 @@ public partial class Dijkstra
                 if (!currentNode.IsPathNode)
                 {
                     var nextNode = nodes[nodeList[index + 1]];
-                    checkPoints.Add(currentNode.Room.ConnectedPoint[nextNode.Id]);
+                    checkPoints.Add(currentNode.Room.ConnectedPoints[nextNode.Id]);
                 }
                 continue;
             }
@@ -125,7 +125,7 @@ public partial class Dijkstra
                 prevRoomId = prevNode.Path.ToRoomId == currentNode.Id ? prevNode.Path.FromRoomId : prevNode.Path.ToRoomId;
             else
                 prevRoomId = prevNode.Id;
-            checkPoints.Add(currentNode.Room.ConnectedPoint[prevRoomId]);
+            checkPoints.Add(currentNode.Room.ConnectedPoints[prevRoomId]);
 
             // 最後のノードなら目的地を追加
             if (index == nodeList.Count - 1)
@@ -138,7 +138,7 @@ public partial class Dijkstra
                     nextRoomId = nextNode.Path.ToRoomId == currentNode.Id ? nextNode.Path.FromRoomId : nextNode.Path.ToRoomId;
                 else
                     nextRoomId = nextNode.Id;
-                checkPoints.Add(currentNode.Room.ConnectedPoint[nextRoomId]);
+                checkPoints.Add(currentNode.Room.ConnectedPoints[nextRoomId]);
             }
         }
         return checkPoints;

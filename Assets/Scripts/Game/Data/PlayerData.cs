@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using System;
 using UnityEngine;
 
 [Serializable]
@@ -25,8 +26,28 @@ public class PlayerData : UnitData
     public int HealInterval { get => healInterval; set => healInterval = value; }
     public override int Def => 0;
 
+    public PlayerData() { }
+
     public PlayerData(float hp)
     {
         this.hp = hp;
+    }
+
+    public PlayerData Clone()
+    {
+        var newData = new PlayerData(hp)
+        {
+            position = position,
+            angle = angle,
+            stamina = new LimitedParam(stamina, stamina.Max),
+            gems = gems,
+            atk = atk,
+            chargeStack = chargeStack,
+            healInterval = healInterval
+        };
+        foreach (var pair in ailments)
+            newData.ailments[pair.Key] = pair.Value.Clone();
+
+        return newData;
     }
 }

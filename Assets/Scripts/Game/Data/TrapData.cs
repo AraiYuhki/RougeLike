@@ -36,7 +36,12 @@ public class TrapData : IPositionable
     public async UniTask ExecuteAsync(Unit executer, CancellationToken token)
     {
         isVisible = true;
-        gameObject.SetActive(true);
         await owner.ExecuteAsync(executer, token);
+    }
+
+    public void SetVisible(bool visible)
+    {
+        isVisible = visible;
+        owner.SetVisible(visible);
     }
 }

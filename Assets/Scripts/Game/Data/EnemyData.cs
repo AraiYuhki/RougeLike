@@ -17,13 +17,23 @@ public class EnemyData : UnitData
 
     private EnemyInfo master;
 
-    public override string Name => master.Name;
+    public int Id => masterId;
+    public override string Name => Master.Name;
     public override float Hp { get => hp; set => hp.Value = value; }
     public override int MaxHP => (int)hp.Max;
     public override int Atk => atk;
     public override int Def => def;
     public bool IsEncouted { get => isEncouted; set => isEncouted = value; }
     public float ChargeStack { get => chargeStack; set => chargeStack = value; }
+    public EnemyInfo Master
+    {
+        get
+        {
+            if (master == null)
+                master = DB.Instance.MEnemy.GetById(masterId);
+            return master;
+        }
+    }
 
     public EnemyData(float hp)
     {
@@ -32,9 +42,16 @@ public class EnemyData : UnitData
     public EnemyData(int masterId)
     {
         this.masterId = masterId;
-        master = DB.Instance.MEnemy.GetById(masterId);
-        hp = new LimitedParam(master.Hp);
-        atk = master.Atk;
-        def = master.Def;
+        hp = new LimitedParam(Master.Hp);
+        atk = Master.Atk;
+        def = Master.Def;
+    }
+
+    public EnemyData Clone()
+    {
+        var newData = new EnemyData(masterId);
+        foreach (var pair in ailments)
+            newData.ailments[pair.Key] = pair.Value.Clone();
+        return newData;
     }
 }

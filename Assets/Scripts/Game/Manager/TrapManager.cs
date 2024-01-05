@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class TrapManager : MonoBehaviour
 {
@@ -26,19 +27,34 @@ public class TrapManager : MonoBehaviour
     public void Initialize(FloorInfo floorInfo)
     {
         var trapInfo = DB.Instance.MFloorTrap.GetByGroupId(floorInfo.TrapSettingGroupId);
-        var mTrap = DB.Instance.MTrap;
         var count = Random.Range(floorInfo.InstallTrapMinNum, floorInfo.InstallTrapMaxNum);
         for(var i = 0; i < count; i++)
         {
             var trapId = Lottery.Get(trapInfo).TrapId;
-            var master = mTrap.GetById(trapId);
-            var trap = master.Instantiate(floorManager.transform);
             var tile = floorManager.GetEmptyRoomTiles().Random();
-            var data = new TrapData(trap, tile, master, floorManager, noticeGroup);
-            trap.SetMaterials(floorInfo.WallMaterial, floorInfo.FloorMaterial);
-            TrapList.Add(data);
-            minimap.AddSymbol(data);
-            floorManager.SetTrap(data, tile.Position);
+            Create(trapId, floorInfo, tile);
         }
+    }
+
+    public void LoadFromJson(List<TrapData> traps, FloorInfo floorInfo)
+    {
+        foreach (var trap in traps)
+        {
+            var data = Create(trap.Master.Id, floorInfo, floorManager.GetTile(trap.Position));
+            data.SetVisible(trap.IsVisible);
+        }
+    }
+
+    private TrapData Create(int trapId, FloorInfo floorInfo, TileData tile)
+    {
+        var master = DB.Instance.MTrap.GetById(trapId);
+        var trap = master.Instantiate(floorManager.transform);
+        
+        var data = new TrapData(trap, tile, master, floorManager, noticeGroup);
+        trap.SetMaterials(floorInfo.WallMaterial, floorInfo.FloorMaterial);
+        TrapList.Add(data);
+        minimap.AddSymbol(data);
+        floorManager.SetTrap(data, tile.Position);
+        return data;
     }
 }

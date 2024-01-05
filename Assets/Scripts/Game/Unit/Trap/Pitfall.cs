@@ -18,14 +18,12 @@ public class Pitfall : Trap
     public override void SetMaterials(Material wallMaterial, Material floorMaterial)
     {
         base.SetMaterials(wallMaterial, floorMaterial);
-        foreach (var renderer in renderers)
-            renderer.sharedMaterial = floorMaterial;
+        SetVisible(false);
     }
 
     public override async UniTask ExecuteAsync(Unit executer, CancellationToken token)
     {
-        foreach (var renderer in renderers)
-            renderer.sharedMaterial = wallMaterial;
+        SetVisible(true);
         var cancellationToken = CreateLinkedToken(token);
         await animator.PlayAsync(AnimatorHash.Execute, token: cancellationToken);
         await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: cancellationToken);
@@ -45,5 +43,12 @@ public class Pitfall : Trap
             player.Damage(10);
             noticeGroup.Add("プレイヤーは落とし穴に落ちた");
         }
+    }
+
+    public override void SetVisible(bool visible)
+    {
+        var material = visible ? wallMaterial : floorMaterial;
+        foreach (var renderer in renderers)
+            renderer.sharedMaterial = material;
     }
 }

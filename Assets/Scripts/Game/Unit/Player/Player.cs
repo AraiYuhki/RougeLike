@@ -35,6 +35,13 @@ public class Player : Unit
         };
     }
 
+    public void LoadFromJson(PlayerData original)
+    {
+        data = original.Clone();
+        SetPosition(data.Position);
+        SetAngle(data.Angle);
+    }
+
     public override void Damage(int damage, Unit attacker, bool damagePopup = true)
     {
         var passiveEffects = cardController.PassiveEffects();
@@ -80,18 +87,6 @@ public class Player : Unit
     public override void Update()
     {
         base.Update();
-    }
-
-    public override void Move(Vector2Int move)
-    {
-        IsLockInput = true;
-        Move(move, () =>
-        {
-            IsLockInput = false;
-            var flag = floorManager.GetTile(Position).IsRoom;
-            pointLight.SetActive(flag);
-        });
-        ChargeStack = 0;
     }
 
     public override async UniTask MoveAsync(Vector2Int move, CancellationToken token)

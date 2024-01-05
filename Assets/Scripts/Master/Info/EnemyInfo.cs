@@ -14,12 +14,15 @@ public class EnemyInfo
     private int atk = 10;
     [SerializeField, CsvColumn("def")]
     private int def = 0;
+    [SerializeField]
+    private Enemy prefab;
     
     public int Id => id;
     public string Name => name;
     public float Hp => hp;
     public int Atk => atk;
     public int Def => def;
+    public Enemy Prefab => prefab;
 
     public EnemyInfo()
     {

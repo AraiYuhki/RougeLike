@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using UnityEngine;
 
 public abstract class EnemyAI
@@ -23,15 +24,14 @@ public abstract class EnemyAI
         return Mathf.Abs(diff.x) <= 1 && Mathf.Abs(diff.y) <= 1;
     }
 
-    public virtual UniTask MoveAsync(TweenCallback onComplete = null)
+    public virtual UniTask MoveAsync(CancellationToken token)
     {
-        onComplete?.Invoke();
-        return new UniTask();
+        return UniTask.CompletedTask;
     }
 
-    public virtual UniTask AttackAsync()
+    public virtual UniTask AttackAsync(CancellationToken token)
     {
-        return new UniTask();
+        return UniTask.CompletedTask;
     }
 }
 
@@ -41,7 +41,7 @@ public class DefaultAI : EnemyAI
     protected List<int> rootRooms = new List<int>();
     public DefaultAI(FloorManager floorInfo, Enemy enemy, Player player) : base(floorInfo, enemy, player) { }
 
-    public override async UniTask MoveAsync(TweenCallback onComplete = null)
+    public override async UniTask MoveAsync(CancellationToken token)
     {
         if (!Enemy.IsEncounted)
         {
@@ -54,7 +54,7 @@ public class DefaultAI : EnemyAI
         // ルートが見つからないもしくは現在地点から動けない場合は何もしない
         if(root == null || root.Count < 2)
         {
-            await base.MoveAsync(onComplete);
+            await base.MoveAsync(token);
             cantMoveTurns++;
             return;
         }
@@ -63,22 +63,19 @@ public class DefaultAI : EnemyAI
         if (floorInfo.GetUnit(nextTile) != null)
         {
             // 移動できなかった
-            await base.MoveAsync(onComplete);
+            await base.MoveAsync(token);
             cantMoveTurns++;
             return;
         }
         cantMoveTurns = 0;
-        Enemy.MoveTo(nextTile, () =>
-        {
-            CheckTrap();
-            onComplete?.Invoke();
-        });
+        await Enemy.MoveToAsync(nextTile, token);
+        await CheckTrapAsync(token);
     }
 
-    public override async UniTask AttackAsync()
+    public override async UniTask AttackAsync(CancellationToken token)
     {
         var diff = player.Position - Enemy.Position;
-        await Enemy.RotateAsync(diff, default);
+        await Enemy.RotateAsync(diff, token);
         await Enemy.AttackAsync(player, Enemy.Data.Atk);
     }
 
@@ -118,10 +115,14 @@ public class DefaultAI : EnemyAI
         return floorInfo.GetRoot(Enemy.Position, player.Position);
     }
 
-    private void CheckTrap()
+    private async UniTask CheckTrapAsync(CancellationToken token)
     {
         var trap = floorInfo.GetTrap(Enemy.Position);
-        if (trap == null) return;
-        trap.ExecuteAsync(Enemy, Enemy.GetCancellationTokenOnDestroy()).Forget();
+        if (trap == null)
+        {
+            await UniTask.Yield();
+            return;
+        }
+        await trap.ExecuteAsync(Enemy, token);
     }
 }

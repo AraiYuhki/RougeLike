@@ -13,13 +13,15 @@ MonoBehaviour:
   m_Name: MEnemy
   m_EditorClassIdentifier: 
   data:
-  - atk: 10
-    id: 1
+  - id: 1
     name: "\u30AB\u30D7\u30BB\u30EBLv1"
-    maxHp: 10
+    hp: 15
+    atk: 10
     def: 0
-  - atk: 10
-    id: 2
+    prefab: {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}
+  - id: 2
     name: "\u30AB\u30D7\u30BB\u30EBLv2"
-    maxHp: 20
+    hp: 15
+    atk: 10
     def: 0
+    prefab: {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}

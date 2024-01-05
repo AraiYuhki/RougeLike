@@ -7,8 +7,6 @@ using UnityEngine;
 public class FloorData
 {
     [SerializeField]
-    private TileData[,] map;
-    [SerializeField]
     private Point stairPosition;
     [SerializeField]
     private Point spawnPoint;
@@ -17,7 +15,7 @@ public class FloorData
     [SerializeField]
     private List<Path> paths;
 
-    public TileData[,] Map { get => map; set => map = value; }
+    public TileData[,] Map { get; private set; }
     public Point StairPosition { get => stairPosition; set => stairPosition = value; }
     public Point SpawnPoint { get => spawnPoint; set => spawnPoint = value; }
     public Point Size => new Point(Map.GetLength(0), Map.GetLength(1));
@@ -33,25 +31,40 @@ public class FloorData
 
     public FloorData() { }
 
-    public FloorData(TileData[,] map, List<Room> roomList, List<Path> paths, List<Path> deletedPath)
+    public FloorData(FloorInfo master, FloorData original)
     {
-        Create(map, roomList, paths);
-        DeletedPaths = deletedPath;
+        var size = master.Size;
+        Map = new TileData[size.x, size.y];
+        for (var x = 0; x < size.x; x++)
+            for (var y = 0; y < size.y; y++)
+                Map[x, y] = new TileData() { Position = new Point(x, y), Type = TileType.Wall };
+
+        rooms = original.rooms;
+        paths = original.paths;
+
+        UpdateMap();
+
+        var roomTiles = Map.ToArray().Where(tile => tile.IsRoom).ToArray();
+        stairPosition = original.stairPosition;
+        spawnPoint = original.spawnPoint;
     }
 
     public FloorData(int width, int height, List<Room> roomList, List<Path> pathList)
+        => Initialize(width, height, roomList, pathList);
+
+    private void Initialize(int width, int height, List<Room> roomList, List<Path> pathList)
     {
-        map = new TileData[width, height];
+        Map = new TileData[width, height];
         for (var x = 0; x < width; x++)
             for (var y = 0; y < height; y++)
-                map[x, y] = new TileData() { Position = new Point(x, y), Type = TileType.Wall };
+                Map[x, y] = new TileData() { Position = new Point(x, y), Type = TileType.Wall };
 
         rooms = roomList;
         paths = pathList;
 
         UpdateMap();
 
-        var roomTiles = map.ToArray().Where(tile => tile.IsRoom).ToArray();
+        var roomTiles = Map.ToArray().Where(tile => tile.IsRoom).ToArray();
         stairPosition = roomTiles.Random().Position;
         spawnPoint = roomTiles.Random().Position;
     }
@@ -118,7 +131,7 @@ public class FloorData
                 Debug.Log($"deleted path {path.FromRoomId} -> {path.ToRoomId}");
                 foreach (var position in path.PathPositionList)
                 {
-                    var tile = map[position.X, position.Y];
+                    var tile = Map[position.X, position.Y];
                     if (tile.Type == TileType.Room) continue;
                     tile.Type = TileType.Deleted;
                 }
@@ -129,9 +142,9 @@ public class FloorData
         {
             foreach (var position in path.PathPositionList)
             {
-                map[position.X, position.Y].Position = position;
-                map[position.X, position.Y].Type = TileType.Path;
-                map[position.X, position.Y].Id = path.Id;
+                Map[position.X, position.Y].Position = position;
+                Map[position.X, position.Y].Type = TileType.Path;
+                Map[position.X, position.Y].Id = path.Id;
             }
         }
 
@@ -145,9 +158,9 @@ public class FloorData
             {
                 for (var column = x; column < x + roomWidth; column++)
                 {
-                    map[column, row].Position = new Point(column, row);
-                    map[column, row].Type = TileType.Room;
-                    map[column, row].Id = room.Id;
+                    Map[column, row].Position = new Point(column, row);
+                    Map[column, row].Type = TileType.Room;
+                    Map[column, row].Id = room.Id;
                 }
             }
         }
@@ -155,7 +168,7 @@ public class FloorData
 
     public void Create(TileData[,] map, List<Room> roomList, List<Path> paths)
     {
-        this.map = map;
+        this.Map = map;
         var roomTiles = map.ToArray().Where(tile => tile.IsRoom).ToArray();
         var spawnPointIndex = UnityEngine.Random.Range(0, roomTiles.Length);
         var stairPointIndex = UnityEngine.Random.Range(0, roomTiles.Length);

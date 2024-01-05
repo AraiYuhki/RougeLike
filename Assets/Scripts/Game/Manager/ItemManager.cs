@@ -29,6 +29,12 @@ public class ItemManager : MonoBehaviour
         }
     }
 
+    public void LoadFromJson(List<ItemData> items)
+    {
+        foreach (var item in items)
+            Spawn(item.GemCount, item.Position);
+    }
+
     public void Clear()
     {
         foreach (var item in ItemList)
@@ -52,10 +58,14 @@ public class ItemManager : MonoBehaviour
 
     private void Spawn(int price, TileData tile)
     {
-        var template = gemTemplates.First();
-        var item = Instantiate(template, floorManager.transform);
-        var itemData = new ItemData(item, tile.Position, price);
-        floorManager.SetItem(itemData, tile.Position);
+        Spawn(price, tile.Position);
+    }
+
+    private void Spawn(int price, Vector2Int position)
+    {
+        var item = Instantiate(gemTemplates.First(), floorManager.transform);
+        var itemData = new ItemData(item, position, price);
+        floorManager.SetItem(itemData, position);
         ItemList.Add(itemData);
         minimap.AddSymbol(itemData);
     }

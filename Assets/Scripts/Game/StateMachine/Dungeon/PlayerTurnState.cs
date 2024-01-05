@@ -74,17 +74,19 @@ public class PlayerTurnState : IState
             move = Vector2Int.zero;
         if (move == Vector2Int.zero) return;
 
+        var token = player.GetCancellationTokenOnDestroy();
+
         var currentPosition = player.Position;
         var destPosition = currentPosition + move;
         var destTile = floorManager.GetTile(destPosition);
         var enemy = floorManager.GetUnit(destPosition);
         if (enemy != null || destTile.IsWall || isTurnMode)
         {
-            player.SetDestAngle(move);
+            player.RotateAsync(move, token).Forget();
             return;
         }
         stateMachine.Goto(GameState.Wait);
-        player.MoveAsync(move, player.GetCancellationTokenOnDestroy()).Forget();
+        player.MoveAsync(move, token).Forget();
         TakeItem();
         await CheckTrapAsync();
         if (!CheckStair())

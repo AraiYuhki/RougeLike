@@ -14,7 +14,7 @@ public abstract class UnitData
     protected int atk = 10;
 
     [SerializeField, HideInInspector]
-    private Encyclopedia<AilmentType, AilmentData> ailments = new();
+    protected Encyclopedia<AilmentType, AilmentData> ailments = new();
 
     public Vector2Int Position { get => position; set => position = value; }
     public Vector2Int Angle { get => angle; set => angle = value; }

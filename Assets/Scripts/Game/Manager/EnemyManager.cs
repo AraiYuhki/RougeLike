@@ -37,7 +37,21 @@ public class EnemyManager : MonoBehaviour
             Spawn();
     }
 
-    public void SetFloorData(FloorInfo floorSetting) => this.floorSetting = floorSetting;
+    public void LoadFromJson(List<EnemyData> enemies)
+    {
+        foreach (var data in enemies)
+        {
+            var instance = Instantiate(data.Master.Prefab, floorManager.transform);
+            instance.Initialize(
+                data, data.Position,
+                gameController, floorManager,
+                this, itemManager,
+                notice, damagePopupManager
+                );
+            Setup(instance);
+            instance.SetAngle(data.Angle);
+        }
+    }
 
     public void Clear()
     {
@@ -52,7 +66,8 @@ public class EnemyManager : MonoBehaviour
     public void Spawn()
     {
         var enemyId = floorSetting.Enemies.Random();
-        var instance = Instantiate(prefabs.First(), floorManager.transform);
+        var master = DB.Instance.MEnemy.GetById(enemyId);
+        var instance = Instantiate(master.Prefab, floorManager.transform);
         var playerTile = floorManager.GetTile(player.Position);
         var tiles = floorManager.GetEmptyRoomTiles(playerTile.Id);
 
@@ -62,8 +77,13 @@ public class EnemyManager : MonoBehaviour
             this, itemManager,
             notice, damagePopupManager);
 
+        Setup(instance);
+    }
+
+    private void Setup(Enemy instance)
+    {
         var ai = new DefaultAI(floorManager, instance, player);
-        
+
         floorManager.SetUnit(instance, instance.Position);
         instance.OnMoved += floorManager.OnMoveUnit;
         instance.OnDead += () =>
@@ -92,13 +112,15 @@ public class EnemyManager : MonoBehaviour
         {
             var moveEnemies = enemies.Where(e => !e.CanAttack()).ToList();
             var attackEnemies = enemies.Where(e => e.CanAttack()).ToList();
-            var completedCount = 0;
+
+            var tasks = new List<UniTask>();
             foreach (var enemy in moveEnemies)
-                await enemy.MoveAsync(() => completedCount++);
+                tasks.Add(enemy.MoveAsync(enemy.Enemy.destroyCancellationToken));
             minimap.UpdateView();
-            while (moveEnemies.Count > completedCount) await UniTask.Yield();
+            await UniTask.WhenAll(tasks);
+
             foreach (var enemy in attackEnemies)
-                await enemy.AttackAsync();
+                await enemy.AttackAsync(enemy.Enemy.destroyCancellationToken);
             await UniTask.Yield();
             minimap.UpdateView();
             stateMachine.Goto(GameState.PlayerTurn);

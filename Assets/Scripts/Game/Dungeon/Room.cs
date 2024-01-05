@@ -7,34 +7,36 @@ using UnityEngine;
 public class Room
 {
     [SerializeField]
-    private Vector2Int position;
-    [SerializeField]
-    private Vector2Int size;
-    [SerializeField]
     private int id;
+    [SerializeField]
+    private RectInt rect;
+    [SerializeField]
+    private Encyclopedia<int, Path> connectedPaths = new();
+    [SerializeField]
+    private Encyclopedia<int, Point> connectedPoints = new();
 
-    public int X => position.x;
-    public int Y => position.y;
-    public int Width => size.x;
-    public int Height => size.y;
+    public int X => rect.x;
+    public int Y => rect.y;
+    public int Width => rect.width;
+    public int Height => rect.height;
     public int Id => id;
 
     /// <summary>
     /// 接続先番号
     /// </summary>
-    public Dictionary<int, Path> Connected { get; private set; } = new Dictionary<int, Path>();
+    public Dictionary<int, Path> ConnectedPaths => connectedPaths;
     /// <summary>
     /// (接続先の部屋ID, 接続元の部屋から通路への入り口の座標)
     /// </summary>
-    public Dictionary<int, Point> ConnectedPoint { get; private set; } = new Dictionary<int, Point>();
-    public List<int> ConnectedRooms => Connected.Keys.ToList();
-    public List<Path> ConnectedPathList => Connected.Values.ToList();
+    public Dictionary<int, Point> ConnectedPoints => connectedPoints;
+    public List<int> ConnectedRooms => connectedPaths.Keys.ToList();
+    public List<Path> ConnectedPathList => connectedPaths.Values.ToList();
 
-    public int EndX => X + Width;
+    public int EndX => rect.max.x;
 
-    public int EndY => Y + Height;
+    public int EndY => rect.max.y;
 
-    public Point Center => new Point(X + Width * 0.5f, Y + Height * 0.5f);
+    public Point Center => new Point(rect.center.x, rect.center.y);
 
     public Room()
     {
@@ -43,8 +45,7 @@ public class Room
     public Room(int id, int x, int y, int width, int height)
     {
         this.id = id;
-        position = new Vector2Int(x, y);
-        size = new Vector2Int(width, height);
+        rect = new RectInt(x, y, width, height);
     }
 
     /// <summary>
@@ -55,16 +56,16 @@ public class Room
     /// <param name="connectedPoint">接続元の部屋から通路に入る座標</param>
     public void AddPath(int toRoomID, Path path, Point connectedPoint)
     {
-        if (Connected.ContainsKey(toRoomID)) return;
-        Connected.Add(toRoomID, path);
-        ConnectedPoint.Add(toRoomID, connectedPoint);
+        if (connectedPaths.ContainsKey(toRoomID)) return;
+        connectedPaths.Add(toRoomID, path);
+        connectedPoints.Add(toRoomID, connectedPoint);
     }
 
     public void RemovePath(int toRoomId)
     {
-        if (!Connected.ContainsKey(toRoomId)) return;
-        Connected.Remove(toRoomId);
-        ConnectedPoint.Remove(toRoomId);
+        if (!connectedPaths.ContainsKey(toRoomId)) return;
+        connectedPaths.Remove(toRoomId);
+        connectedPoints.Remove(toRoomId);
     }
 
     public bool CheckPathBeing(int toRoomId) => ConnectedRooms.Contains(toRoomId);

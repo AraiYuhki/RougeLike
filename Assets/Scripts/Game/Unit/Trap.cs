@@ -63,4 +63,9 @@ public abstract class Trap : MonoBehaviour
         var y = Type == TrapType.Pitfall ? 0f : 0.5f;
         transform.localPosition = new Vector3(Position.x, y, Position.y);
     }
+
+    public virtual void SetVisible(bool visible)
+    {
+        gameObject.SetActive(visible);
+    }
 }

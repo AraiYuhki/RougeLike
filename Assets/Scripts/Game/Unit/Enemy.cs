@@ -30,16 +30,18 @@ public class Enemy : Unit, IPositionable
         SetPosition(position);
     }
 
-    public override void SetDestAngle(Vector2Int move)
+    public void Initialize(
+        EnemyData original,
+        Vector2Int position,
+        GameController gameController,
+        FloorManager floorManager,
+        EnemyManager enemyManager,
+        ItemManager itemManager,
+        NoticeGroup notice,
+        DamagePopupManager damagePopupManager)
     {
-        EndRotation = false;
-        var destAngle = Vector3.SignedAngle(Vector3.forward, new Vector3(move.x, 0f, move.y), Vector3.up);
-        var tween = transform.DORotate(new Vector3(0f, destAngle, 0f), 0.1f).SetEase(Ease.OutCubic);
-        tweenList.Add(tween);
-        tween.OnComplete(() =>
-        {
-            tweenList.Remove(tween);
-            EndRotation = true;
-        });
+        data = original.Clone();
+        SetManagers(gameController, floorManager, enemyManager, itemManager, notice, damagePopupManager);
+        SetPosition(position);
     }
 }

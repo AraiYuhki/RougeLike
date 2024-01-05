@@ -12,7 +12,7 @@ public class DataBank
     private const string path = "SaveData";
     private const string extension = "dat";
     private static readonly string fullPath = Path.Combine(Application.dataPath, "../", path);
-    public static bool IsEncript { get; set; }
+    public static bool IsEncrypt { get; set; }
 
     public string SavePath => fullPath;
 
@@ -47,9 +47,9 @@ public class DataBank
             Directory.CreateDirectory(fullPath);
 
         var json = JsonUtility.ToJson(bank[key]);
-        if (!IsEncript)
+        if (!IsEncrypt)
         {
-            using (var streamWrite = new StreamWriter(filePath))
+            using (var streamWrite = new StreamWriter(filePath, false, Encoding.UTF8))
                 streamWrite.WriteLine(json);
             return true;
         }
@@ -70,6 +70,16 @@ public class DataBank
         var filePath = $"{fullPath}/{key}.{extension}";
 
         if (!File.Exists(filePath)) return false;
+
+        if (!IsEncrypt)
+        {
+            using (var sr = new StreamReader(filePath, Encoding.UTF8))
+            {
+                var text = sr.ReadToEnd();
+                bank[key] = JsonUtility.FromJson<DataType>(text);
+                return true;
+            }
+        }
 
         byte[] data = null;
         using (var fileStream = File.OpenRead(filePath))

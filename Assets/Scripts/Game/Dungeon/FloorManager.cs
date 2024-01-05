@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using UnityEngine;
 
@@ -128,10 +129,20 @@ public class FloorManager : MonoBehaviour, IUnitContainer
         floor.GetComponent<Renderer>().sharedMaterial = floorInfo.FloorMaterial;
         Clear();
         FloorInfo = floorInfo;
-
-        Initialize(floorInfo.Size, floorInfo.MaxRoomCount, dungeonData.IsTower);
+        FloorData = DungeonGenerator.GenerateFloor(FloorInfo.Size.x, FloorInfo.Size.y, FloorInfo.MaxRoomCount);
+        Initialize(dungeonData.IsTower);
 
         return floorInfo;
+    }
+
+    public void LoadFromJson(FloorInfo floorInfo, FloorData floorData, bool isTower)
+    {
+        Clear();
+        FloorData = new FloorData(floorInfo, floorData);
+        FloorInfo = floorInfo;
+        wall.GetComponent<Renderer>().sharedMaterial = floorInfo.WallMaterial;
+        floor.GetComponent<Renderer>().sharedMaterial = floorInfo.FloorMaterial;
+        Initialize(isTower);
     }
 
     public void CreateMesh()
@@ -140,19 +151,9 @@ public class FloorManager : MonoBehaviour, IUnitContainer
         wall.transform.localPosition = Vector3.zero;
     }
 
-    public void Create(int width, int height, int maxRoom, bool isTower)
+    private void Initialize(bool isTower)
     {
-        Initialize(new Vector2Int(width, height), maxRoom, isTower);
-
-        CombineMesh();
-
-        wall.transform.localPosition = Vector3.zero;
-    }
-
-    private void Initialize(Vector2Int size, int maxRoom, bool isTower)
-    {
-        Size = size;
-        FloorData = DungeonGenerator.GenerateFloor(Size.x, Size.y, maxRoom);
+        Size = FloorInfo.Size;
         units = new Unit[Size.x, Size.y];
         items = new ItemData[Size.x, Size.y];
         traps = new TrapData[Size.x, Size.y];
