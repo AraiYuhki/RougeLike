@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = System.Random;
+using System.Drawing;
 
 
 public static class Extension
@@ -25,6 +26,30 @@ public static class Extension
     public static T[] ToArray<T>(this T[,] self)
     {
         return self.ToList().ToArray();
+    }
+
+    public static T[,] To2DArray<T>(this T[] self, Vector2Int size)
+        => self.To2DArray(size.x, size.y);
+    
+
+    public static T[,] To2DArray<T>(this T[] self, int width, int height)
+    {
+        var newData = new T[width, height];
+        var index = 0;
+        for (var x = 0; x < width; x++)
+        {
+            for (var y = 0; y < height; y++)
+            {
+                if (index >= self.Length)
+                {
+                    newData[x, y] = default;
+                    continue;
+                }
+                newData[x, y] = self[index];
+                index++;
+            }
+        }
+        return newData;
     }
 
     public static T Random<T>(this IEnumerable<T> self)

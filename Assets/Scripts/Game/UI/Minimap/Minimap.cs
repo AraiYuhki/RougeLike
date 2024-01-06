@@ -66,6 +66,7 @@ public class Minimap : MonoBehaviour
     private Sequence tween = null;
 
     public MinimapMode Mode { get; private set; } = MinimapMode.Normal;
+    public bool[,] VisibleMap => visibleMap;
 
     private void Start()
     {
@@ -144,6 +145,13 @@ public class Minimap : MonoBehaviour
         stair.gameObject.SetActive(false);
     }
 
+    public void LoadFromJson(bool[] data)
+    {
+        visibleMap = data.To2DArray(floorData.Size);
+        UpdateTexture();
+        UpdateView();
+    }
+
     private void Update()
     {
         var position = -tileSize * player.Position.ToVector3();
@@ -198,6 +206,11 @@ public class Minimap : MonoBehaviour
         }
         if (!changed) return;
 
+        UpdateTexture();
+    }
+
+    private void UpdateTexture()
+    {
         foreach (var tile in floorData.Map.ToArray())
         {
             var visible = visibleMap[tile.Position.X, tile.Position.Y];

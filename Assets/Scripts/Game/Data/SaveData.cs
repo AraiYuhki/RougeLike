@@ -25,6 +25,8 @@ public class SaveData
     private List<int> hands;
     [SerializeField]
     private List<int> cemetary;
+    [SerializeField]
+    private bool[] visibleTiles;
 
     public int DungeonId => dungeonId;
     public int CurrentFloor => currentFloor;
@@ -36,6 +38,7 @@ public class SaveData
     public List<int> Deck => deck;
     public List<int> Hands => hands;
     public List<int> Cemetary => cemetary;
+    public bool[] VisibleTiles => visibleTiles;
 
     public SaveData(
         int dungeonId,
@@ -45,7 +48,9 @@ public class SaveData
         List<TrapData> traps,
         List<EnemyData> enemies,
         FloorData floorData,
-        CardController cardController)
+        CardController cardController,
+        bool[] visibleTiles
+        )
     {
         this.dungeonId = dungeonId;
         this.currentFloor = currentFloor;
@@ -55,5 +60,6 @@ public class SaveData
         this.enemies = enemies;
         this.floorData = floorData;
         (deck, hands, cemetary) = cardController.GetSerializableData();
+        this.visibleTiles = visibleTiles;
     }
 }

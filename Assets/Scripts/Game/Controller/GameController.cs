@@ -143,7 +143,8 @@ public class GameController : MonoBehaviour
             trapManager.TrapList,
             enemyManager.DataList,
             floorManager.FloorData,
-            cardController
+            cardController,
+            minimap.VisibleMap.ToArray()
             );
         DataBank.IsEncrypt = false;
         DataBank.Instance.Store("save", saveData);
@@ -171,6 +172,7 @@ public class GameController : MonoBehaviour
         enemyManager.LoadFromJson(saveData.Enemies);
 
         floorManager.CreateMesh();
+        minimap.LoadFromJson(saveData.VisibleTiles);
     }
 
     public void StartEnemyTurn() => stateMachine.Goto(GameState.EnemyTurn);
