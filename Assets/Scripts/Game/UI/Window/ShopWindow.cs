@@ -60,11 +60,16 @@ public class ShopWindow : MonoBehaviour
         shopWindow.gameObject.SetActive(true);
         deckWindow.gameObject.SetActive(false);
 
-        deckWindow.alpha = canvasGroup.alpha = 0;
+        canvasGroup.alpha = 0;
+        deckWindow.alpha = 1f;
         shopWindow.alpha = 1f;
 
         mode = Mode.Shop;
-        await canvasGroup.DOFade(1f, 0.2f);
+        canvasGroup.transform.localScale = Vector3.one * 0.5f;
+        await DOTween.Sequence()
+            .Append(canvasGroup.DOFade(1f, 0.2f))
+            .Join(canvasGroup.transform.DOScale(Vector3.one, 0.2f))
+            .ToUniTask(cancellationToken: destroyCancellationToken);
 
         shopMenu.Enable = true;
         deckMenu.Enable = false;

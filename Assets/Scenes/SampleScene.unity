@@ -3628,7 +3628,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   floorManager: {fileID: 100000723}
   enemyManager: {fileID: 1009754815}
-  originalCard: {fileID: 3571255467048407659, guid: 4f85f79c6d5e709418d3adb0dc4a30d8, type: 3}
   deckContainer: {fileID: 6255391833590300709}
   cemetaryContainer: {fileID: 847626929428575167}
   handContainers:
