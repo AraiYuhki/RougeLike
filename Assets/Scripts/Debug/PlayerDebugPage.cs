@@ -3,7 +3,7 @@ using System.Collections;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 
-#if !EXCLUDE_UNITY_DEBUG_SHEET
+#if !EXCLUDE_UNITY_DEBUG_SHEET && DEBUG
 using UnityDebugSheet.Runtime.Core.Scripts;
 using UnityDebugSheet.Runtime.Core.Scripts.DefaultImpl.Cells;
 

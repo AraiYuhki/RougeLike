@@ -22,19 +22,19 @@ namespace UnityDebugSheet.Runtime.Core.Scripts
             if (!_didFirstUpdate || _isPortrait != isPortrait)
             {
                 var anchorMin = rectTrans.anchorMin;
-                anchorMin.x = isPortrait ? 0.5f : 0.0f;
+                anchorMin.x = isPortrait ? 0.5f : 1.0f;
                 rectTrans.anchorMin = anchorMin;
 
                 var anchorMax = rectTrans.anchorMax;
-                anchorMax.x = isPortrait ? 0.5f : 0.0f;
+                anchorMax.x = isPortrait ? 0.5f : 1.0f;
                 rectTrans.anchorMax = anchorMax;
 
                 var pivot = rectTrans.pivot;
-                pivot.x = isPortrait ? 0.5f : 0.0f;
+                pivot.x = isPortrait ? 0.5f : 1.0f;
                 rectTrans.pivot = pivot;
 
                 var anchoredPosition = rectTrans.anchoredPosition;
-                anchoredPosition.x = isPortrait ? 0.0f : 60.0f;
+                anchoredPosition.x = isPortrait ? 0.0f : -150.0f;
                 anchoredPosition.x += safeArea.xMin;
                 rectTrans.anchoredPosition = anchoredPosition;
                 
