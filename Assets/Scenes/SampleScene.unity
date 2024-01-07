@@ -3651,6 +3651,10 @@ MonoBehaviour:
   hideHandPositionY: -440
   deckCardCountLabel: {fileID: 67017422810179799}
   cardIcons: {fileID: 100100200, guid: 02af2bbd6adc19149bc5c45b35ed6d92, type: 3}
+  attackCardPrefab: {fileID: 6138645063532164413, guid: 90625c099454b904cb0e45b0bc23eab5, type: 3}
+  passiveCardPrefab: {fileID: 5747766387397689518, guid: 2f5958ece16142a498c9531d8025442b, type: 3}
+  utilityCardPrefab: {fileID: 5685372955684077780, guid: 74d203ff2f6d77644baa36d938a12b0c, type: 3}
+  specialCardPrefab: {fileID: 4094444808730468181, guid: dd80fb18832df224382623e767588f8d, type: 3}
 --- !u!1 &539418655
 GameObject:
   m_ObjectHideFlags: 0
@@ -5078,8 +5082,6 @@ MonoBehaviour:
   minimap: {fileID: 1128604652}
   notice: {fileID: 370729898}
   damagePopupManager: {fileID: 259449479}
-  prefabs:
-  - {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}
 --- !u!114 &1009754816
 MonoBehaviour:
   m_ObjectHideFlags: 0

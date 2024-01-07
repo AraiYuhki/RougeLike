@@ -13,8 +13,6 @@ public class CardController : MonoBehaviour
     private FloorManager floorManager;
     [SerializeField]
     private EnemyManager enemyManager;
-    [SerializeField]
-    private Card originalCard;
 
     [SerializeField]
     private Transform deckContainer;
@@ -38,10 +36,20 @@ public class CardController : MonoBehaviour
     [SerializeField]
     private SpriteAtlas cardIcons = null;
 
+    [SerializeField]
+    private Card attackCardPrefab;
+    [SerializeField]
+    private Card passiveCardPrefab;
+    [SerializeField]
+    private Card utilityCardPrefab;
+    [SerializeField]
+    private Card specialCardPrefab;
+
     private List<Card> deck = new List<Card>();
     private Card[] hands = new Card[4];
     private Card[] useStack = new Card[9];
     private List<Card> cemetary = new List<Card>();
+
 
     public Player Player { get; set; }
 
@@ -160,13 +168,25 @@ public class CardController : MonoBehaviour
 
     private Card CreateCard(CardInfo data, Vector3 position, Transform parent)
     {
-        var card = Instantiate(originalCard, parent);
+        var card = Instantiate(GetPrefab(data.Category), parent);
         card.transform.localPosition = position;
         card.transform.localScale = Vector3.one;
         card.SetManager(floorManager, enemyManager);
         card.SetInfo(data, Player);
         card.VisibleFrontSide = false;
         return card;
+    }
+
+    private Card GetPrefab(CardCategory category)
+    {
+        return category switch
+        {
+            CardCategory.Attack => attackCardPrefab,
+            CardCategory.Utility => utilityCardPrefab,
+            CardCategory.Passive => passiveCardPrefab,
+            CardCategory.Special => specialCardPrefab,
+            _ => attackCardPrefab
+        };
     }
 
     public void Shuffle(bool isReset = false)
@@ -342,4 +362,5 @@ public class CardController : MonoBehaviour
         handGroupTween.OnComplete(() => handGroupTween = null);
         isShowHandGroup = false;
     }
+
 }

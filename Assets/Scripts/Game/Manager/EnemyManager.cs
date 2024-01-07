@@ -18,8 +18,6 @@ public class EnemyManager : MonoBehaviour
     private NoticeGroup notice;
     [SerializeField]
     private DamagePopupManager damagePopupManager;
-    [SerializeField]
-    private Enemy[] prefabs = new Enemy[0];
 
     private FloorInfo floorSetting;
     private Player player = null;
