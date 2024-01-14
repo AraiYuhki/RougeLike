@@ -1,9 +1,9 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// ’Š‘IƒVƒXƒeƒ€
+/// æŠ½é¸ã‚·ã‚¹ãƒ†ãƒ 
 /// </summary>
 public static class Lottery
 {

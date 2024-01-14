@@ -1,4 +1,4 @@
-public interface ILotterable
+﻿public interface ILotterable
 {
     int Probability { get; }
 }

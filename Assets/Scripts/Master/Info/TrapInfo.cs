@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -6,11 +6,11 @@ using UnityEditor;
 
 public enum TrapType
 {
-    Mine,       // ’n—‹
-    HugeMine,   // ‘å‚«‚È’n—‹
-    PoisonTrap, // “Å•H
-    BearTrap,   // ƒgƒ‰ƒoƒTƒ~
-    Pitfall,    // —‚Æ‚µŒŠ
+    Mine,       // åœ°é›·
+    HugeMine,   // å¤§ããªåœ°é›·
+    PoisonTrap, // æ¯’è±
+    BearTrap,   // ãƒˆãƒ©ãƒã‚µãƒŸ
+    Pitfall,    // è½ã¨ã—ç©´
 }
 
 [Serializable]
