@@ -12,7 +12,6 @@ public class ShopCard : SelectableItem
     [SerializeField]
     private TMP_Text priceLabel;
 
-    public Action OnClick { get; set; }
     public CardInfo Data { get; private set; }
     public Card Card { get; private set; }
     public int Price => Data.Price;

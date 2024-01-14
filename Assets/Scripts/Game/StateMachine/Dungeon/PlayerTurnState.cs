@@ -48,7 +48,7 @@ public class PlayerTurnState : IState
     public async void Update()
     {
         if (player.IsLockInput) return;
-        if (InputUtility.Menu.IsTriggerd())
+        if (InputUtility.Menu.IsTrigger())
         {
             stateMachine.Goto(GameState.MainMenu);
             return;
@@ -100,22 +100,22 @@ public class PlayerTurnState : IState
     {
         Card card = null;
         var handIndex = -1;
-        if (InputUtility.One.IsTriggerd())
+        if (InputUtility.One.IsTrigger())
         {
             card = cardController.GetHandCard(0);
             handIndex = 0;
         }
-        else if (InputUtility.Two.IsTriggerd())
+        else if (InputUtility.Two.IsTrigger())
         {
             card = cardController.GetHandCard(1);
             handIndex = 1;
         }
-        else if (InputUtility.Three.IsTriggerd())
+        else if (InputUtility.Three.IsTrigger())
         {
             card = cardController.GetHandCard(2);
             handIndex = 2;
         }
-        else if (InputUtility.Four.IsTriggerd())
+        else if (InputUtility.Four.IsTrigger())
         {
             card = cardController.GetHandCard(3);
             handIndex = 3;

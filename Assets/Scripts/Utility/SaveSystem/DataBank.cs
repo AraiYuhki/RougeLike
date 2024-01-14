@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
-
 using System.IO;
 using System.Text;
+using UnityEngine;
 
 public class DataBank
 {
@@ -12,8 +11,8 @@ public class DataBank
     private const string path = "SaveData";
     private const string extension = "dat";
     private static readonly string fullPath = Path.Combine(Application.dataPath, "../", path);
-    public static bool IsEncrypt { get; set; }
 
+    public static bool IsEncrypt { get; set; }
     public string SavePath => fullPath;
 
     private DataBank() { }
@@ -32,8 +31,15 @@ public class DataBank
 
     public DataType Get<DataType>(string key) => ExistsKey(key) ? (DataType)bank[key] : default;
 
+    private void CreateDirectoryIfNeed()
+    {
+        var directory = new DirectoryInfo(fullPath);
+        if (!directory.Exists) directory.Create();
+    }
+
     public void SaveAll()
     {
+        CreateDirectoryIfNeed();
         foreach (var key in bank.Keys)
             Save(key);
     }
@@ -41,23 +47,22 @@ public class DataBank
     public bool Save(string key)
     {
         if (!ExistsKey(key)) return false;
-
+        CreateDirectoryIfNeed();
         var filePath = $"{fullPath}/{key}.{extension}";
-        if (!Directory.Exists(fullPath))
-            Directory.CreateDirectory(fullPath);
 
         var json = JsonUtility.ToJson(bank[key]);
         if (!IsEncrypt)
         {
-            using (var streamWrite = new StreamWriter(filePath, false, Encoding.UTF8))
-                streamWrite.WriteLine(json);
+            using (var sw = new StreamWriter(filePath, false))
+                sw.Write(json);
             return true;
         }
-
         var data = Encoding.UTF8.GetBytes(json);
         data = Compressor.Compress(data);
         data = Cryptor.Encrypt(data);
 
+        if (!Directory.Exists(fullPath))
+            Directory.CreateDirectory(fullPath);
 
         using (var fileStream = File.Create(filePath))
             fileStream.Write(data, 0, data.Length);
@@ -73,9 +78,9 @@ public class DataBank
 
         if (!IsEncrypt)
         {
-            using (var sr = new StreamReader(filePath, Encoding.UTF8))
+            using (var streamReader = new StreamReader(filePath, Encoding.UTF8))
             {
-                var text = sr.ReadToEnd();
+                var text = streamReader.ReadToEnd();
                 bank[key] = JsonUtility.FromJson<DataType>(text);
                 return true;
             }
@@ -96,5 +101,11 @@ public class DataBank
         bank[key] = JsonUtility.FromJson<DataType>(json);
 
         return true;
+    }
+
+    public bool ExistSaveFile(string key)
+    {
+        var filePath = $"{fullPath}/{key}.{extension}";
+        return File.Exists(filePath);
     }
 }

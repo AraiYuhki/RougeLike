@@ -31,12 +31,12 @@ public class ShopState : IState
 
     public void Update()
     {
-        if (InputUtility.Right.IsTriggerd()) window.Right();
-        else if (InputUtility.Left.IsTriggerd()) window.Left();
-        else if (InputUtility.Up.IsTriggerd()) window.Up();
-        else if (InputUtility.Down.IsTriggerd()) window.Down();
-        else if (InputUtility.Submit.IsTriggerd()) window.Submit();
-        else if (InputUtility.Cancel.IsTriggerd())
+        if (InputUtility.Right.IsTrigger()) window.Right();
+        else if (InputUtility.Left.IsTrigger()) window.Left();
+        else if (InputUtility.Up.IsTrigger()) window.Up();
+        else if (InputUtility.Down.IsTrigger()) window.Down();
+        else if (InputUtility.Submit.IsTrigger()) window.Submit();
+        else if (InputUtility.Cancel.IsTrigger())
         {
             stateMachine.Goto(GameState.Wait);
             window.Close();

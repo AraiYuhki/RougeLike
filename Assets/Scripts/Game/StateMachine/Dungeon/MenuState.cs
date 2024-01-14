@@ -26,7 +26,7 @@
             return;
         }
         uiManager.UpdateUI();
-        if (InputUtility.Menu.IsTriggerd())
+        if (InputUtility.Menu.IsTrigger())
             stateMachine.Goto(GameState.PlayerTurn);
     }
 }

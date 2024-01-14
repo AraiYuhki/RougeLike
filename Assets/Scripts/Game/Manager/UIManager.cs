@@ -134,17 +134,17 @@ public class UIManager : MonoBehaviour
     public void UpdateUI()
     {
         if (current == null) return;
-        if (InputUtility.Right.IsTriggerd())
+        if (InputUtility.Right.IsTrigger())
             current.Right();
-        else if (InputUtility.Left.IsTriggerd())
+        else if (InputUtility.Left.IsTrigger())
             current.Left();
-        else if (InputUtility.Up.IsTriggerd())
+        else if (InputUtility.Up.IsTrigger())
             current.Up();
-        else if (InputUtility.Down.IsTriggerd())
+        else if (InputUtility.Down.IsTrigger())
             current.Down();
-        else if (InputUtility.Submit.IsTriggerd())
+        else if (InputUtility.Submit.IsTrigger())
             current.Submit();
-        else if (InputUtility.Cancel.IsTriggerd())
+        else if (InputUtility.Cancel.IsTrigger())
             CloseCurrent();
     }
 

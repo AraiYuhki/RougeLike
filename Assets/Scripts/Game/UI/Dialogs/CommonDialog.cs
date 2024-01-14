@@ -78,11 +78,11 @@ public class CommonDialog : DialogBase
     {
         if (lockInput) return;
         var prevIndex = currentSelected;
-        if (InputUtility.Left.IsTriggerd())
+        if (InputUtility.Left.IsTrigger())
             Left();
-        else if (InputUtility.Right.IsTriggerd())
+        else if (InputUtility.Right.IsTrigger())
             Right();
-        else if (InputUtility.Submit.IsTriggerd())
+        else if (InputUtility.Submit.IsTrigger())
             items[currentSelected].Submit();
         if (prevIndex != currentSelected) UpdateView();
     }

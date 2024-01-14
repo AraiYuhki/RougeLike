@@ -21,11 +21,11 @@ public class DialogState : IState
 
     public void Update()
     {
-        if (InputUtility.Up.IsTriggerd()) dialog.Up();
-        else if (InputUtility.Down.IsTriggerd()) dialog.Down();
-        if (InputUtility.Right.IsTriggerd()) dialog.Right();
-        else if (InputUtility.Left.IsTriggerd()) dialog.Left();
-        if (InputUtility.Submit.IsTriggerd()) dialog.Submit();
-        else if (InputUtility.Cancel.IsTriggerd()) dialog.Cancel();
+        if (InputUtility.Up.IsTrigger()) dialog.Up();
+        else if (InputUtility.Down.IsTrigger()) dialog.Down();
+        if (InputUtility.Right.IsTrigger()) dialog.Right();
+        else if (InputUtility.Left.IsTrigger()) dialog.Left();
+        if (InputUtility.Submit.IsTrigger()) dialog.Submit();
+        else if (InputUtility.Cancel.IsTrigger()) dialog.Cancel();
     }
 }
