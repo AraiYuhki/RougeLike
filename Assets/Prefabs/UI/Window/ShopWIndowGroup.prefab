@@ -171,10 +171,10 @@ RectTransform:
   - {fileID: 497013118666740717}
   m_Father: {fileID: 1731147921727282564}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -25}
-  m_SizeDelta: {x: 0, y: -50}
+  m_SizeDelta: {x: 860, y: 650}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &497013117974198722
 CanvasRenderer:
@@ -243,8 +243,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   container: {fileID: 497013118600193166}
   scrollView: {fileID: 497013118666740718}
-  rectTransform: {fileID: 497013118664076017}
   grid: {fileID: 3429583217859413563}
+  padding:
+    m_Left: 10
+    m_Right: 10
+    m_Top: 10
+    m_Bottom: 10
+  spacing: {x: 10, y: 10}
+  cellSize: {x: 200, y: 200}
+  viewCountInPage: {x: 4, y: 3}
 --- !u!1 &497013118025651306
 GameObject:
   m_ObjectHideFlags: 0
@@ -480,8 +487,8 @@ MonoBehaviour:
   m_StartAxis: 0
   m_CellSize: {x: 200, y: 200}
   m_Spacing: {x: 10, y: 10}
-  m_Constraint: 0
-  m_ConstraintCount: 2
+  m_Constraint: 1
+  m_ConstraintCount: 4
 --- !u!1 &497013118664076016
 GameObject:
   m_ObjectHideFlags: 0
@@ -988,7 +995,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 700, y: 695}
+  m_SizeDelta: {x: 860, y: 700}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!225 &56091113226936064
 CanvasGroup:
