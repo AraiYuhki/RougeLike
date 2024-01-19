@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -44,13 +45,34 @@ public class CsvParser
                 if (member.MemberType == MemberTypes.Property)
                     type.GetProperty(member.Name).SetValue(instance, pair.Value);
                 else if (member.MemberType == MemberTypes.Field)
-                    type.GetField(member.Name, BindingFlags.NonPublic | BindingFlags.Instance).SetValue(instance, pair.Value);
+                    SetValue(type, member.Name, instance, pair.Value);
                 else
                     Debug.LogError($"{pair.Key} is not property or field");
             }
             result.Add(instance);
         }
         return result;
+    }
+
+    private static void SetValue<T>(Type type, string memberName, T instance, object value)
+    {
+        var fieldInfo = type.GetField(memberName, BindingFlags.NonPublic | BindingFlags.Instance);
+        if (fieldInfo.FieldType == typeof(int) && int.TryParse(value.ToString(), out var intValue))
+            fieldInfo.SetValue(instance, intValue);
+        else if (fieldInfo.FieldType == typeof(float) && float.TryParse(value.ToString(), out var floatValue))
+            fieldInfo.SetValue(instance, floatValue);
+        else if (fieldInfo.FieldType == typeof(double) && double.TryParse(value.ToString(), out var doubleValue))
+            fieldInfo.SetValue(instance, doubleValue);
+        else if (fieldInfo.FieldType == typeof(long) && long.TryParse(value.ToString(), out var longValue))
+            fieldInfo.SetValue(instance, longValue);
+        else if (fieldInfo.FieldType == typeof(bool) && bool.TryParse(value.ToString(), out var flag))
+            fieldInfo.SetValue(instance, flag);
+        else if (fieldInfo.FieldType == typeof(string))
+            fieldInfo.SetValue(instance, value.ToString());
+        else if (fieldInfo.FieldType.IsEnum && Enum.TryParse(fieldInfo.FieldType, value.ToString(), out var enumValue))
+            fieldInfo.SetValue(instance, enumValue);
+        else
+            throw new Exception($"{fieldInfo.FieldType} is not supported");
     }
 
     public static string ToCSV<T>(List<T> data, string separator = "\t")
