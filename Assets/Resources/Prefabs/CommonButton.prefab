@@ -34,7 +34,6 @@ RectTransform:
   m_Children:
   - {fileID: 1733633986815317885}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -135,7 +134,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c52a59702cb25a478b927aeb16e1180, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
+  normalColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
+  selectedColor: {r: 0, g: 1, b: 1, a: 0.5}
+  targetImage: {fileID: 4665839125457015064}
   button: {fileID: 3961902169387616622}
   label: {fileID: 3720408829539493160}
 --- !u!1 &4278507639626700732
@@ -169,7 +170,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 92207968121146787}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -247,15 +247,17 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_TextWrappingMode: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
+  m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
+  m_EmojiFallbackSupport: 1
   m_parseCtrlCharacters: 1
   m_isOrthographic: 1
   m_isCullingEnabled: 0

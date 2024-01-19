@@ -41,7 +41,7 @@ public abstract class MenuBase : MonoBehaviour
         Destroy(item.gameObject);
     }
 
-    public void Clear()
+    public virtual void Clear()
     {
         foreach (var item in Items)
             Destroy(item.gameObject);

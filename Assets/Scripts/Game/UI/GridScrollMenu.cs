@@ -1,108 +1,122 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(RectTransform))]
 public class GridScrollMenu : MenuBase
 {
     [SerializeField]
     private ScrollRect scrollView;
     [SerializeField]
-    private RectTransform rectTransform;
-    [SerializeField]
     private GridLayoutGroup grid;
 
-    private int columnCount = 0;
-    private int rowCount = 0;
-
-    private int rowCountInPage = 0;
-
-    private int topRowIndex = 0;
-    private int bottomRowIndex = 0;
+    [SerializeField]
+    private RectOffset padding;
+    [SerializeField]
+    private Vector2 spacing;
+    [SerializeField]
+    private Vector2 cellSize = new Vector2(100, 100);
+    [SerializeField, Tooltip("スクロールせずに表示される行・列数")]
+    private Vector2Int viewCountInPage = new Vector2Int(3, 3);
 
     private Vector2Int selectedIndex = Vector2Int.zero;
+    protected override int SelectedIndex { get => 0; set { } }
 
-    protected override int SelectedIndex
-    {
-        get => columnCount * selectedIndex.y + selectedIndex.x;
-        set
-        {
-            selectedIndex.x += value % columnCount;
-            selectedIndex.y = Mathf.FloorToInt(value / columnCount);
-            FixIndex();
-        }
-    }
+    private List<List<SelectableItem>> items = new();
+    private int rowCount => items.Count;
+    private int GetCurrentColumnCount() => items[selectedIndex.y].Count;
 
     public Action<SelectableItem> OnSubmit { get; set; }
-    public T GetSelectedItem<T>() where T : SelectableItem => Items[SelectedIndex] as T;
+    public T GetSelectedItem<T>() where T : SelectableItem => CurrentSelected as T;
+    public SelectableItem CurrentSelected => items[selectedIndex.y][selectedIndex.x];
+
+    public override void Submit()
+    {
+        if (!Enable) return;
+        items[selectedIndex.y][selectedIndex.x].Submit();
+    }
 
     public void Initialize()
     {
         selectedIndex = Vector2Int.zero;
-        columnCount = Mathf.FloorToInt(rectTransform.rect.width / grid.cellSize.x);
-        rowCountInPage = Mathf.FloorToInt(rectTransform.rect.height / grid.cellSize.y) - 1;
-        bottomRowIndex = rowCountInPage;
         ReselectCurrentItem();
     }
 
     public override void ReselectCurrentItem(bool fixIndex = false)
     {
-        if (Items.Count <= 0) return;
+        if (items.Sum(row => row.Count) <= 0) return;
         if (fixIndex)
         {
             FixIndex();
             FixScroll();
         }
-        Items[SelectedIndex].Select(true);
-    }
-
-    private void Awake()
-    {
-        columnCount = Mathf.FloorToInt(rectTransform.rect.width / grid.cellSize.x);
-        rowCountInPage = Mathf.FloorToInt(rectTransform.rect.height / grid.cellSize.y) - 1;
-        bottomRowIndex = rowCountInPage;
+        CurrentSelected.Select(true);
     }
 
     public override void AddItem<T>(T item)
     {
-        Items.Add(item);
-        item.transform.parent = container.transform;
+        if (items.Count <= 0 || items.Last().Count >= viewCountInPage.x) items.Add(new());
+        items.Last().Add(item);
+        item.transform.parent = scrollView.content.transform;
         item.transform.localScale = Vector3.one;
 
         item.Initialize(() =>
         {
-            Items[SelectedIndex].Select(false);
-            var index = Items.IndexOf(item);
-            selectedIndex.x = index % columnCount;
-            selectedIndex.y = index / columnCount;
-            Items[SelectedIndex].Select(true);
+            CurrentSelected.Select(false);
+            var indecies = new Vector2Int(-1, -1);
+            foreach ((var row, var indexY) in items.Select((row, index) => (row, index)))
+            {
+                var indexX = row.IndexOf(item);
+                if (indexX > 0)
+                {
+                    indecies.x = indexX;
+                    indecies.y = indexY;
+                    break;
+                }
+            }
+            if (indecies.x < 0 || indecies.y < 0)
+                return;
+            selectedIndex = indecies;
+            CurrentSelected.Select(true);
         },
         () =>
         {
             if (!Enable) return;
             OnSubmit?.Invoke(item);
         });
-        if (Items.Count > 0)
-        {
-            rowCount = Mathf.CeilToInt(Items.Count / columnCount);
-            if (Items.Count % columnCount > 0)
-                rowCount++;
-        }
+    }
+
+    public void AddItems<T>(IEnumerable<T> items) where T : SelectableItem
+    {
+        foreach (var item in items)
+            AddItem(item);
     }
 
     public override void RemoveItem<T>(T item)
     {
-        Items.Remove(item);
+        items.FirstOrDefault(row => row.Contains(item))?.Remove(item);
+        ResetIndex();
         Destroy(item.gameObject);
-        if (Items.Count > 0)
+    }
+
+    private void ResetIndex()
+    {
+        var tmp = new List<List<SelectableItem>>();
+        foreach (var item in items.SelectMany(row => row).ToList())
         {
-            rowCount = Mathf.CeilToInt(Items.Count / columnCount);
-            if (Items.Count % columnCount > 0)
-                rowCount++;
-            return;
+            if (tmp.Count <= 0 || tmp.Count > viewCountInPage.x) tmp.Add(new());
+            tmp.Last().Add(item);
         }
+        items = tmp;
+    }
 
-        rowCount = 0;
-
+    public override void Clear()
+    {
+        foreach (var item in items.SelectMany(row => row))
+            Destroy(item.gameObject);
+        items.Clear();
     }
 
     public override void Right() => Move(Vector2Int.right);
@@ -116,11 +130,11 @@ public class GridScrollMenu : MenuBase
         {
             return;
         }
-        Items[SelectedIndex].Select(false);
+        CurrentSelected.Select(false);
         selectedIndex += move;
         FixIndex();
         FixScroll();
-        Items[SelectedIndex].Select(true);
+        CurrentSelected.Select(true);
     }
 
     protected override void FixIndex()
@@ -130,15 +144,7 @@ public class GridScrollMenu : MenuBase
         else if (selectedIndex.y >= rowCount) selectedIndex.y -= rowCount;
 
         // 現在の行の列数を算出
-        var currentLineColumns = columnCount;
-        var lastIndex = (selectedIndex.y + 1) * columnCount - 1; // 現在の行の末尾のインデックスを算出
-        // 現在の行末のインデックスが要素数より大きい場合、列数が足りていないので、差の分だけ減らす
-        if (lastIndex >= Items.Count)
-        {
-            var diff = lastIndex - Items.Count;
-            currentLineColumns = columnCount - (diff + 1);
-            selectedIndex.x = Mathf.Clamp(selectedIndex.x, 0, currentLineColumns);
-        }
+        var currentLineColumns = GetCurrentColumnCount();
         // X軸のインデックスを補正する
         if (selectedIndex.x < 0) selectedIndex.x += currentLineColumns;
         else if (selectedIndex.x >= currentLineColumns) selectedIndex.x -= currentLineColumns;
@@ -146,24 +152,47 @@ public class GridScrollMenu : MenuBase
 
     private void FixScroll()
     {
-        if (selectedIndex.y <= topRowIndex)
-        {
-            topRowIndex = selectedIndex.y;
-            bottomRowIndex = topRowIndex + rowCountInPage;
-        }
-        else if (selectedIndex.y >= bottomRowIndex)
-        {
-            bottomRowIndex = selectedIndex.y;
-            topRowIndex = bottomRowIndex - rowCountInPage;
-        }
-        if (bottomRowIndex == rowCount - 1)
-            scrollView.verticalNormalizedPosition = 0f;
-        else if (topRowIndex == 0)
-            scrollView.verticalNormalizedPosition = 1f;
-        else
-        {
-            var value = 1f / (rowCount - 2)* topRowIndex;
-            scrollView.verticalNormalizedPosition = value == 0f ? 1f : 1 - value;
-        }
+        const float align = 0f;
+        var targetRect = CurrentSelected.GetComponent<RectTransform>();
+        var contentHeight = scrollView.content.rect.height;
+        var viewPortHeight = scrollView.viewport.rect.height;
+        // スクロールの必要なし
+        if (contentHeight < viewPortHeight) return;
+
+        // pivotによるズレをrec.yで補正
+        var positionY = targetRect.localPosition.y + targetRect.rect.y;
+        // ローカル座標が、contentHeightの上辺を0として負の値で格納されている
+        var targetPosition = contentHeight + positionY + targetRect.rect.height * align;
+
+        // 上端～下端合わせのための調整量
+        var gap = viewPortHeight * align;
+        scrollView.verticalNormalizedPosition = Mathf.Clamp01((targetPosition - gap) / (contentHeight - viewPortHeight));
     }
+
+    private void OnEnable()
+    {
+        var rectTransform = GetComponent<RectTransform>();
+        scrollView ??= GetComponent<ScrollRect>();
+
+        if (grid == null) return;
+        grid.cellSize = cellSize;
+        grid.spacing = spacing;
+        grid.childAlignment = TextAnchor.UpperLeft;
+        grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        grid.constraintCount = viewCountInPage.x;
+        grid.padding = padding;
+
+        var size = (grid.cellSize + spacing) * viewCountInPage + new Vector2(padding.left + padding.right, padding.top + padding.bottom);
+        rectTransform.sizeDelta = size;
+        grid.CalculateLayoutInputHorizontal();
+        grid.CalculateLayoutInputVertical();
+    }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (Application.isPlaying) return;
+        OnEnable();
+    }
+#endif
 }
