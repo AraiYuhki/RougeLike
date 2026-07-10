@@ -29,6 +29,7 @@ public class Player : Unit
     public bool HasAnyAilment => Data.Ailments.Count > 0;
     public bool CanRedraw => cardController.CanRedraw;
     public int HandCount => cardController.HandCount;
+    public bool HasClairvoyance => cardController.PassiveEffects().Any(effect => effect.EffectType == PassiveEffectType.Clairvoyance);
 
     public void Initialize(int hp, int atk)
     {

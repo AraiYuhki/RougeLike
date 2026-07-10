@@ -33,6 +33,10 @@ public enum CardType
     FollowupAttack,     // 追い討ち(状態異常の敵にはダメージ倍増)
     PlaceTrap,          // 罠設置(足元に罠を設置する)
     LastCardAttack,     // 切り札(手札がこれ1枚の時のみ使用できる大ダメージ攻撃)
+
+    InfectionAttack,    // 感染(前方の敵にダメージ+その敵の状態異常を同室の敵全員に感染させる)
+    DrainAttack,        // 吸血攻撃(与えたダメージの一部を回復)
+    Smokescreen,        // 煙玉(同室の敵の視界を奪い、自分を見失わせる)
 }
 
 public enum CardCategory

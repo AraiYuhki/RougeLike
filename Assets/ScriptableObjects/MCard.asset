@@ -367,3 +367,55 @@ MonoBehaviour:
     attackAreaDataId: -1
     passiveEffectId: -1
     illust: {fileID: 21300000, guid: 54eafaa3ee2090e45a76c8cb6af7a121, type: 3}
+  - id: 31
+    name: "\u611F\u67D3"
+    description: "10\u30C0\u30E1\u30FC\u30B8<br>\u5BFE\u8C61\u306E\u72B6\u614B\u7570\u5E38\u3092\u540C\u3058\u90E8\u5C4B\u306E\u6575\u5168\u54E1\u306B\u3046\u3064\u3059"
+    type: 20
+    param1: 10
+    param2: 0
+    param3: 0
+    param4: 0
+    price: 400
+    category: 0
+    attackAreaDataId: -1
+    passiveEffectId: -1
+    illust: {fileID: 21300000, guid: 2aa5b4b3cdc8e1047b7dab7278874ae0, type: 3}
+  - id: 32
+    name: "\u5438\u8840\u306E\u7259"
+    description: "12\u30C0\u30E1\u30FC\u30B8<br>\u4E0E\u3048\u305F\u30C0\u30E1\u30FC\u30B8\u306E50%\u56DE\u5FA9"
+    type: 21
+    param1: 12
+    param2: 50
+    param3: 0
+    param4: 0
+    price: 500
+    category: 0
+    attackAreaDataId: -1
+    passiveEffectId: -1
+    illust: {fileID: 21300000, guid: 08d8417190e0a21499a730b7e06d64db, type: 3}
+  - id: 33
+    name: "\u5343\u91CC\u773C"
+    description: "\u3010\u30D1\u30C3\u30B7\u30D6\u3011<br>\u6575\u306E\u4F4D\u7F6E\u304C\u5E38\u306B\u30DF\u30CB\u30DE\u30C3\u30D7\u306B\u8868\u793A\u3055\u308C\u308B"
+    type: 9
+    param1: 0
+    param2: 0
+    param3: 0
+    param4: 0
+    price: 400
+    category: 2
+    attackAreaDataId: -1
+    passiveEffectId: 9
+    illust: {fileID: 21300000, guid: 31262a8b83c3af34da4aec2a0a54e1ec, type: 3}
+  - id: 34
+    name: "\u7159\u7389"
+    description: "\u540C\u3058\u90E8\u5C4B\u306E\u6575\u306B3\u30BF\u30FC\u30F3\u306E\u76F2\u76EE\u3092\u4E0E\u3048<br>\u81EA\u5206\u3092\u898B\u5931\u308F\u305B\u308B"
+    type: 22
+    param1: 0
+    param2: 3
+    param3: 0
+    param4: 0
+    price: 150
+    category: 1
+    attackAreaDataId: -1
+    passiveEffectId: -1
+    illust: {fileID: 21300000, guid: c44bf17de0aa1534aba61b03ad3800d1, type: 3}

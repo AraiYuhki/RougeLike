@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEditor;
@@ -168,6 +169,15 @@ public class Card : MonoBehaviour
             case CardType.LastCardAttack:
                 NormalAttack(onComplete, true, false);
                 break;
+            case CardType.InfectionAttack:
+                InfectionAttack(onComplete);
+                break;
+            case CardType.DrainAttack:
+                DrainAttack(onComplete);
+                break;
+            case CardType.Smokescreen:
+                Smokescreen(onComplete);
+                break;
             default:
                 throw new NotImplementedException();
         }
@@ -277,6 +287,87 @@ public class Card : MonoBehaviour
     }
 
     /// <summary>
+    /// 前方の敵にダメージを与え、その敵の状態異常を同じ部屋の敵全員に感染させる
+    /// </summary>
+    private void InfectionAttack(Action onComplete)
+    {
+        var target = floorManager.GetUnit(Owner.Position + Owner.Angle) as Enemy;
+        if (target == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+        // 攻撃で倒しても感染するように、攻撃前に対象の状態異常を控えておく
+        var ailments = target.Data.Ailments.Values.Select(ailment => ailment.Clone()).ToList();
+        var power = (int)(Data.Param1 * (Owner.ChargeStack + 1f));
+        Owner.Attack(power, target, () =>
+        {
+            foreach (var enemy in GetSameRoomEnemies().Where(enemy => enemy != target))
+            {
+                foreach (var ailment in ailments)
+                    enemy.AddAilment(ailment.Type, ailment.Param, ailment.RemainingTurn);
+            }
+            onComplete?.Invoke();
+        });
+    }
+
+    /// <summary>
+    /// 前方の敵にダメージを与え、与えたダメージの一部を回復する
+    /// </summary>
+    private void DrainAttack(Action onComplete)
+    {
+        var target = floorManager.GetUnit(Owner.Position + Owner.Angle) as Enemy;
+        if (target == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+        var power = (int)(Data.Param1 * (Owner.ChargeStack + 1f));
+        Owner.Attack(power, target, () =>
+        {
+            var healValue = Mathf.CeilToInt(power * Data.Param2 * 0.01f);
+            if (healValue > 0)
+                Owner.Heal(healValue);
+            onComplete?.Invoke();
+        });
+    }
+
+    /// <summary>
+    /// 同じ部屋の敵に盲目を付与して自分を見失わせる
+    /// </summary>
+    private void Smokescreen(Action onComplete)
+    {
+        foreach (var enemy in GetSameRoomEnemies())
+        {
+            enemy.IsEncounted = false;
+            enemy.AddAilment(AilmentType.Blind, 1, Data.Param2);
+        }
+        onComplete?.Invoke();
+    }
+
+    /// <summary>
+    /// 同じ部屋にいる敵を取得する(部屋にいない場合でも隣接している敵は含む)
+    /// </summary>
+    private List<Enemy> GetSameRoomEnemies()
+    {
+        var result = new List<Enemy>();
+        var currentTile = floorManager.GetTile(Owner.Position);
+        if (currentTile.IsRoom)
+        {
+            result.AddRange(enemyManager.Enemies.Where(enemy =>
+            {
+                var tile = floorManager.GetTile(enemy.Position);
+                return tile.IsRoom && tile.Id == currentTile.Id;
+            }));
+        }
+        foreach (var enemy in floorManager.GetAroundTilesAt(Owner.Position)
+            .Select(tile => floorManager.GetUnit(tile.Position) as Enemy)
+            .Where(enemy => enemy != null && !result.Contains(enemy)))
+            result.Add(enemy);
+        return result;
+    }
+
+    /// <summary>
     /// 前方の敵と位置を入れ替える
     /// </summary>
     private async void SwapPosition(Action onComplete)
@@ -344,7 +435,11 @@ public class Card : MonoBehaviour
             case CardType.KnockbackAttack:
             case CardType.Swap:
             case CardType.FollowupAttack:
+            case CardType.InfectionAttack:
+            case CardType.DrainAttack:
                 return CheckEnemyInAroundTile();
+            case CardType.Smokescreen:
+                return CheckEnemyInAroundTile() || CheckEnemyInSameRoom();
             case CardType.CureAilment:
                 return Owner.HasAnyAilment;
             case CardType.Redraw:

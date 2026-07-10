@@ -166,10 +166,15 @@ public class Minimap : MonoBehaviour
 
         stair.gameObject.SetActive(visibleMap[floorData.StairPosition.X, floorData.StairPosition.Y]);
 
+        // 千里眼を所持している間は敵の位置が常に表示される
+        var clairvoyance = player.HasClairvoyance;
         foreach ((var owner, var symbol) in activeSymbols)
         {
             symbol.UpdatePosition(originalPosition);
-            symbol.SetVisible(CheckVisible(owner.Position));
+            var visible = CheckVisible(owner.Position);
+            if (clairvoyance && owner is Enemy)
+                visible = true;
+            symbol.SetVisible(visible);
         }
     }
 

@@ -11,6 +11,7 @@ public enum PassiveEffectType
     Counter, // 反撃(固定値)
     Refrect, // 反撃(受けたダメージのN%反撃)
     Satiated, // 腹減り軽減
+    Clairvoyance, // 千里眼(敵の位置が常にミニマップに表示される)
 }
 
 [Serializable]

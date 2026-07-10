@@ -29,3 +29,7 @@
 28	追い討ち	10ダメージ<br>状態異常の敵には3倍	FollowupAttack	10	3	0	0	400	Attack	-1	-1	icon_heart_break (UnityEngine.Sprite)
 29	地雷設置	足元に地雷を設置する<br>(自分も踏むと発動する)	PlaceTrap	0	1	0	0	200	Utility	-1	-1	icon_fire_orb (UnityEngine.Sprite)
 30	切り札	50ダメージ<br>手札がこれ1枚の時のみ使用可能	LastCardAttack	50	0	0	0	800	Attack	-1	-1	icon_fatal_slash (UnityEngine.Sprite)
+31	感染	10ダメージ<br>対象の状態異常を同じ部屋の敵全員にうつす	InfectionAttack	10	0	0	0	400	Attack	-1	-1	icon_bleeding (UnityEngine.Sprite)
+32	吸血の牙	12ダメージ<br>与えたダメージの50%回復	DrainAttack	12	50	0	0	500	Attack	-1	-1	icon_drain_blade (UnityEngine.Sprite)
+33	千里眼	【パッシブ】<br>敵の位置が常にミニマップに表示される	Passive	0	0	0	0	400	Passive	-1	9	icon_dream_catcher (UnityEngine.Sprite)
+34	煙玉	同じ部屋の敵に3ターンの盲目を与え<br>自分を見失わせる	Smokescreen	0	3	0	0	150	Utility	-1	-1	icon_broken_pearl (UnityEngine.Sprite)
