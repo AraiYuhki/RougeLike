@@ -140,6 +140,17 @@ public class PlayerTurnState : IState
             await UniTask.Yield();
             return;
         }
+        // 罠無効のパッシブを持っている場合は発動せず、罠の位置だけ明らかになる
+        if (player.HasTrapImmunity)
+        {
+            if (!trap.IsVisible)
+            {
+                trap.SetVisible(true);
+                notice.Add($"{trap.Master.Name}を踏んだが発動しなかった", Color.cyan);
+            }
+            await UniTask.Yield();
+            return;
+        }
         stateMachine.Goto(GameState.Wait);
         await trap.ExecuteAsync(player, player.GetCancellationTokenOnDestroy());
         await UniTask.Yield();

@@ -33,3 +33,4 @@
 32	吸血の牙	12ダメージ<br>与えたダメージの50%回復	DrainAttack	12	50	0	0	500	Attack	-1	-1	icon_drain_blade (UnityEngine.Sprite)
 33	千里眼	【パッシブ】<br>敵の位置が常にミニマップに表示される	Passive	0	0	0	0	400	Passive	-1	9	icon_dream_catcher (UnityEngine.Sprite)
 34	煙玉	同じ部屋の敵に3ターンの盲目を与え<br>自分を見失わせる	Smokescreen	0	3	0	0	150	Utility	-1	-1	icon_broken_pearl (UnityEngine.Sprite)
+35	罠師の腕輪	【パッシブ】<br>罠を踏んでも発動しない	Passive	0	0	0	0	400	Passive	-1	10	icon_magic_locket (UnityEngine.Sprite)

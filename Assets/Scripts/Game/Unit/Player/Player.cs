@@ -30,6 +30,7 @@ public class Player : Unit
     public bool CanRedraw => cardController.CanRedraw;
     public int HandCount => cardController.HandCount;
     public bool HasClairvoyance => cardController.PassiveEffects().Any(effect => effect.EffectType == PassiveEffectType.Clairvoyance);
+    public bool HasTrapImmunity => cardController.PassiveEffects().Any(effect => effect.EffectType == PassiveEffectType.TrapImmunity);
 
     public void Initialize(int hp, int atk)
     {

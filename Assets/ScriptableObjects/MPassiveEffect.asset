@@ -58,3 +58,8 @@ MonoBehaviour:
     effectType: 8
     param1: 0
     param2: 0
+  - id: 10
+    memo: "\u7F60\u3092\u8E0F\u3093\u3067\u3082\u767A\u52D5\u3057\u306A\u3044"
+    effectType: 9
+    param1: 0
+    param2: 0
