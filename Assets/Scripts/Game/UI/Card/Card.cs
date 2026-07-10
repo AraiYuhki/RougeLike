@@ -343,13 +343,12 @@ public class Card : MonoBehaviour
             case CardType.AilmentAttack:
             case CardType.KnockbackAttack:
             case CardType.Swap:
+            case CardType.FollowupAttack:
                 return CheckEnemyInAroundTile();
             case CardType.CureAilment:
                 return Owner.HasAnyAilment;
             case CardType.Redraw:
                 return Owner.CanRedraw;
-            case CardType.FollowupAttack:
-                return CheckAilmentEnemyInAroundTile();
             case CardType.PlaceTrap:
                 return CanPlaceTrap();
             case CardType.LastCardAttack:
@@ -369,13 +368,6 @@ public class Card : MonoBehaviour
     private bool CheckEnemyInAroundTile()
     {
         return floorManager.GetAroundTilesAt(Owner.Position).Where(tile => floorManager.GetUnit(tile.Position) != null).Any();
-    }
-
-    private bool CheckAilmentEnemyInAroundTile()
-    {
-        return floorManager.GetAroundTilesAt(Owner.Position)
-            .Select(tile => floorManager.GetUnit(tile.Position) as Enemy)
-            .Any(enemy => enemy != null && enemy.HasAnyAilment);
     }
 
     /// <summary>
