@@ -29,6 +29,10 @@ public enum CardType
     Swap,               // 前方の敵と位置を入れ替える
     KnockbackAttack,    // ノックバック攻撃(吹き飛ばし、激突時に追加ダメージ)
     PullAttack,         // 引き寄せ攻撃(直線上の敵を目の前まで引き寄せて攻撃)
+
+    FollowupAttack,     // 追い討ち(状態異常の敵にはダメージ倍増)
+    PlaceTrap,          // 罠設置(足元に罠を設置する)
+    LastCardAttack,     // 切り札(手札がこれ1枚の時のみ使用できる大ダメージ攻撃)
 }
 
 public enum CardCategory

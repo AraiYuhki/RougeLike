@@ -16,6 +16,7 @@ public class Enemy : Unit, IPositionable
     public int TargetRoomId => TargetTile.Id;
 
     public bool HasAilment(AilmentType type) => Data.Ailments.ContainsKey(type);
+    public bool HasAnyAilment => Data.Ailments.Count > 0;
 
     public override void AddAilment(AilmentType type, int param, int turn)
     {

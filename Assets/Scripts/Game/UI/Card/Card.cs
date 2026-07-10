@@ -159,6 +159,15 @@ public class Card : MonoBehaviour
             case CardType.PullAttack:
                 PullAttack(onComplete);
                 break;
+            case CardType.FollowupAttack:
+                FollowupAttack(onComplete);
+                break;
+            case CardType.PlaceTrap:
+                Owner.PlaceTrap(Data.Param2, onComplete);
+                break;
+            case CardType.LastCardAttack:
+                NormalAttack(onComplete, true, false);
+                break;
             default:
                 throw new NotImplementedException();
         }
@@ -251,6 +260,23 @@ public class Card : MonoBehaviour
     }
 
     /// <summary>
+    /// 前方の敵にダメージを与える。状態異常の敵にはダメージ倍増
+    /// </summary>
+    private void FollowupAttack(Action onComplete)
+    {
+        var target = floorManager.GetUnit(Owner.Position + Owner.Angle) as Enemy;
+        if (target == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+        var power = Data.Param1;
+        if (target.HasAnyAilment)
+            power *= Data.Param2;
+        Owner.Attack((int)(power * (Owner.ChargeStack + 1f)), target, () => onComplete?.Invoke());
+    }
+
+    /// <summary>
     /// 前方の敵と位置を入れ替える
     /// </summary>
     private async void SwapPosition(Action onComplete)
@@ -322,6 +348,12 @@ public class Card : MonoBehaviour
                 return Owner.HasAnyAilment;
             case CardType.Redraw:
                 return Owner.CanRedraw;
+            case CardType.FollowupAttack:
+                return CheckAilmentEnemyInAroundTile();
+            case CardType.PlaceTrap:
+                return CanPlaceTrap();
+            case CardType.LastCardAttack:
+                return Owner.HandCount == 1 && CheckEnemyInAroundTile();
             default:
                 throw new NotImplementedException();
         }
@@ -337,6 +369,23 @@ public class Card : MonoBehaviour
     private bool CheckEnemyInAroundTile()
     {
         return floorManager.GetAroundTilesAt(Owner.Position).Where(tile => floorManager.GetUnit(tile.Position) != null).Any();
+    }
+
+    private bool CheckAilmentEnemyInAroundTile()
+    {
+        return floorManager.GetAroundTilesAt(Owner.Position)
+            .Select(tile => floorManager.GetUnit(tile.Position) as Enemy)
+            .Any(enemy => enemy != null && enemy.HasAnyAilment);
+    }
+
+    /// <summary>
+    /// 足元に罠を設置できるか(階段と既存の罠の上には置けない)
+    /// </summary>
+    private bool CanPlaceTrap()
+    {
+        var position = Owner.Position;
+        if (floorManager.FloorData.IsStair(position.x, position.y)) return false;
+        return floorManager.GetTrap(position) == null;
     }
 
     private bool CheckExistEnemySameRoom()

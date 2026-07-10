@@ -280,10 +280,12 @@ public class CardController : MonoBehaviour
         Use(handIndex);
     }
 
+    public int HandCount => hands.Count(card => card != null);
+
     /// <summary>
     /// 自分以外に手札があれば引き直し可能
     /// </summary>
-    public bool CanRedraw => hands.Count(card => card != null) > 1;
+    public bool CanRedraw => HandCount > 1;
 
     /// <summary>
     /// 手札をすべて捨てて引き直す(使用したカード自身も捨てる)

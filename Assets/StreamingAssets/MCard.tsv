@@ -26,3 +26,6 @@
 25	すり替え	前方の敵と位置を入れ替える	Swap	0	0	0	0	200	Special	-1	-1	icon_shadow_strike (UnityEngine.Sprite)
 26	ノックバック	10ダメージ<br>敵を3マス吹き飛ばす<br>激突時に追加10ダメージ	KnockbackAttack	10	3	10	0	300	Attack	-1	-1	icon_tomahawk (UnityEngine.Sprite)
 27	フックショット	直線上の敵を引き寄せて<br>5ダメージ	PullAttack	5	10	0	0	300	Special	-1	-1	icon_curved_shot (UnityEngine.Sprite)
+28	追い討ち	10ダメージ<br>状態異常の敵には3倍	FollowupAttack	10	3	0	0	400	Attack	-1	-1	icon_heart_break (UnityEngine.Sprite)
+29	地雷設置	足元に地雷を設置する<br>(自分も踏むと発動する)	PlaceTrap	0	1	0	0	200	Utility	-1	-1	icon_fire_orb (UnityEngine.Sprite)
+30	切り札	50ダメージ<br>手札がこれ1枚の時のみ使用可能	LastCardAttack	50	0	0	0	800	Attack	-1	-1	icon_fatal_slash (UnityEngine.Sprite)

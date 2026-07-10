@@ -28,6 +28,7 @@ public class Player : Unit
 
     public bool HasAnyAilment => Data.Ailments.Count > 0;
     public bool CanRedraw => cardController.CanRedraw;
+    public int HandCount => cardController.HandCount;
 
     public void Initialize(int hp, int atk)
     {
@@ -151,6 +152,17 @@ public class Player : Unit
     }
 
     public void Redraw(Action onComplete = null) => cardController.Redraw(onComplete);
+
+    /// <summary>
+    /// 足元に罠を設置する
+    /// </summary>
+    public void PlaceTrap(int trapId, Action onComplete = null)
+    {
+        var tile = floorManager.GetTile(Position);
+        var trap = gameController.TrapManager.Install(trapId, tile);
+        notice.Add($"{trap.Master.Name}を設置した", Color.cyan);
+        onComplete?.Invoke();
+    }
 
     public override void TurnEnd()
     {
