@@ -99,33 +99,21 @@ public class PlayerTurnState : IState
     private bool UseCard()
     {
         Card card = null;
-        var handIndex = -1;
         if (InputUtility.One.IsTrigger())
-        {
             card = cardController.GetHandCard(0);
-            handIndex = 0;
-        }
         else if (InputUtility.Two.IsTrigger())
-        {
             card = cardController.GetHandCard(1);
-            handIndex = 1;
-        }
         else if (InputUtility.Three.IsTrigger())
-        {
             card = cardController.GetHandCard(2);
-            handIndex = 2;
-        }
         else if (InputUtility.Four.IsTrigger())
-        {
             card = cardController.GetHandCard(3);
-            handIndex = 3;
-        }
         if (card != null && card.CanUse())
         {
             stateMachine.Goto(GameState.Wait);
             card.Use(() =>
             {
-                cardController.Use(handIndex);
+                // 引き直しなどで手札が丸ごと入れ替わることがあるため、インデックスではなくカード自身を渡す
+                cardController.Use(card);
                 stateMachine.Goto(GameState.EnemyTurn);
             });
             return true;

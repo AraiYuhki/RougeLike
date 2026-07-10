@@ -21,6 +21,14 @@ public enum CardType
     DrawAndUse,         //　指定数のカードを引いて、そのまま使用する
 
     Passive,
+
+    PenetrateAttack,    // 貫通攻撃(直線上の敵全てにダメージ)
+    AilmentAttack,      // 状態異常攻撃(前方の敵にダメージ+状態異常を付与)
+    CureAilment,        // 状態異常をすべて回復
+    Redraw,             // 手札をすべて捨てて引き直す
+    Swap,               // 前方の敵と位置を入れ替える
+    KnockbackAttack,    // ノックバック攻撃(吹き飛ばし、激突時に追加ダメージ)
+    PullAttack,         // 引き寄せ攻撃(直線上の敵を目の前まで引き寄せて攻撃)
 }
 
 public enum CardCategory
@@ -46,6 +54,10 @@ public class CardInfo
     private float param1;
     [SerializeField, CsvColumn("param2")]
     private int param2;
+    [SerializeField, CsvColumn("param3")]
+    private int param3;
+    [SerializeField, CsvColumn("param4")]
+    private int param4;
     [SerializeField, CsvColumn("price")]
     private int price;
     [SerializeField, CsvColumn("category")]
@@ -97,11 +109,28 @@ public class CardInfo
         set => param2 = value;
     }
 
+    public int Param3
+    {
+        get => param3;
+        set => param3 = value;
+    }
+
+    public int Param4
+    {
+        get => param4;
+        set => param4 = value;
+    }
+
     public int Range
     {
         get => param2;
         set => param2 = value;
     }
+
+    // 状態異常攻撃用のエイリアス
+    public AilmentType Ailment => (AilmentType)param2;
+    public int AilmentParam => param3;
+    public int AilmentTurn => param4;
 
     public CardCategory TargetCategory
     {
@@ -154,6 +183,8 @@ public class CardInfo
             Category = Category,
             Param1 = Param1,
             Param2 = Param2,
+            Param3 = Param3,
+            Param4 = Param4,
             Price = Price,
             AttackAreaDataId = AttackAreaDataId,
             PassiveEffectId = PassiveEffectId,

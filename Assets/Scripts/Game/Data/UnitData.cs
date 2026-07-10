@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 [Serializable]
@@ -41,5 +42,17 @@ public abstract class UnitData
     public int GetAilmengEffects(AilmentType type)
     {
         return ailments.TryGetValue(type, out var value) ? value.Param : 0;
+    }
+
+    /// <summary>
+    /// 状態異常の残りターンを減らし、切れたものを取り除く
+    /// </summary>
+    public void DecrementAilmentTurns()
+    {
+        foreach ((var type, var ailment) in ailments.Where(pair => !pair.Value.IsInfinit).ToList())
+        {
+            if (ailment.DecrementTurn())
+                ailments.Remove(type);
+        }
     }
 }
