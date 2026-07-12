@@ -37,3 +37,6 @@ MonoBehaviour:
   - groupId: 2
     enemyId: 8
     probability: 100
+  - groupId: 2
+    enemyId: 9
+    probability: 100

@@ -265,6 +265,26 @@ public class AilmentThrowerAI : DefaultAI
 }
 
 /// <summary>
+/// 手札落としAI(攻撃を当てるとプレイヤーの手札からランダムに1枚捨て札へ送る)
+/// </summary>
+public class HandDiscardAI : DefaultAI
+{
+    public HandDiscardAI(FloorManager floorInfo, Enemy enemy, Player player) : base(floorInfo, enemy, player) { }
+
+    public override async UniTask AttackAsync(CancellationToken token)
+    {
+        await base.AttackAsync(token);
+        // 攻撃で倒れていなければ手札を叩き落とす
+        if (player.Hp <= 0) return;
+        var count = Mathf.Max(Enemy.Data.Master.AIParam1, 1);
+        for (var i = 0; i < count; i++)
+        {
+            if (!player.DiscardRandomHand()) break;
+        }
+    }
+}
+
+/// <summary>
 /// 盗みAI(隣接時にジェムを盗み、盗んだ後はプレイヤーから逃げ回る)
 /// </summary>
 public class ThiefAI : DefaultAI

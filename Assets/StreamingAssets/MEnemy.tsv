@@ -7,3 +7,4 @@ id	name	hp	atk	def	aiType	aiParam1	aiParam2
 6	分裂スライム	12	5	0	Split	40	0
 7	疾風ウサギ	14	6	0	DoubleSpeed	0	0
 8	いねむりゴーレム	30	15	2	Sleeper	0	0
+9	カマイタチ	16	7	0	HandDiscarder	1	0

@@ -13,6 +13,7 @@ public enum EnemyAIType
     Split,          // 分裂(ダメージを受けると一定確率で分裂 param1:分裂確率%)
     DoubleSpeed,    // 倍速(1ターンに2回行動)
     Sleeper,        // 居眠り(プレイヤーが同じ部屋に入るか隣接するまで動かない)
+    HandDiscarder,  // 手札落とし(攻撃を当てると手札からランダムに捨て札へ送る param1:落とす枚数)
 }
 
 [Serializable]

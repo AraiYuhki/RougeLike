@@ -113,6 +113,7 @@ public class EnemyManager : MonoBehaviour
             EnemyAIType.Thief => new ThiefAI(floorManager, instance, player),
             EnemyAIType.DoubleSpeed => new DoubleSpeedAI(floorManager, instance, player),
             EnemyAIType.Sleeper => new SleeperAI(floorManager, instance, player),
+            EnemyAIType.HandDiscarder => new HandDiscardAI(floorManager, instance, player),
             _ => new DefaultAI(floorManager, instance, player),
         };
     }
