@@ -18,6 +18,11 @@ public abstract class EnemyAI
         Enemy = enemy;
     }
 
+    /// <summary>
+    /// 1ターンに行動できる回数(倍速の敵は2)
+    /// </summary>
+    public virtual int ActionCount => 1;
+
     public virtual bool CanAttack()
     {
         var diff = player.Position - Enemy.Position;
@@ -116,7 +121,7 @@ public class DefaultAI : EnemyAI
         return floorInfo.GetRoot(Enemy.Position, player.Position);
     }
 
-    private async UniTask CheckTrapAsync(CancellationToken token)
+    protected async UniTask CheckTrapAsync(CancellationToken token)
     {
         var trap = floorInfo.GetTrap(Enemy.Position);
         if (trap == null)
@@ -125,5 +130,195 @@ public class DefaultAI : EnemyAI
             return;
         }
         await trap.ExecuteAsync(Enemy, token);
+    }
+}
+
+/// <summary>
+/// 倍速AI(1ターンに2回行動する)
+/// </summary>
+public class DoubleSpeedAI : DefaultAI
+{
+    public DoubleSpeedAI(FloorManager floorInfo, Enemy enemy, Player player) : base(floorInfo, enemy, player) { }
+
+    public override int ActionCount => 2;
+}
+
+/// <summary>
+/// 居眠りAI(プレイヤーが同じ部屋に入るか隣接するまで一切動かない)
+/// </summary>
+public class SleeperAI : DefaultAI
+{
+    public SleeperAI(FloorManager floorInfo, Enemy enemy, Player player) : base(floorInfo, enemy, player) { }
+
+    public override async UniTask MoveAsync(CancellationToken token)
+    {
+        // 眠っている間は移動しない(発見済みになったら通常の追跡を行う)
+        if (!Enemy.IsEncounted && !Enemy.HasAilment(AilmentType.Blind))
+        {
+            var diff = player.Position - Enemy.Position;
+            var isAdjacent = Mathf.Abs(diff.x) <= 1 && Mathf.Abs(diff.y) <= 1;
+            var playerTile = floorInfo.GetTile(player.Position);
+            var currentTile = floorInfo.GetTile(Enemy.Position);
+            var isSameRoom = playerTile.IsRoom && currentTile.IsRoom && playerTile.Id == currentTile.Id;
+            Enemy.IsEncounted = isAdjacent || isSameRoom;
+        }
+        if (!Enemy.IsEncounted) return;
+        await base.MoveAsync(token);
+    }
+
+    public override async UniTask AttackAsync(CancellationToken token)
+    {
+        // 攻撃されるか隣接されたら目を覚ます
+        Enemy.IsEncounted = true;
+        await base.AttackAsync(token);
+    }
+}
+
+/// <summary>
+/// 遠距離攻撃AI(直線上にプレイヤーがいれば射程内から射撃する)
+/// </summary>
+public class RangedAI : DefaultAI
+{
+    public RangedAI(FloorManager floorInfo, Enemy enemy, Player player) : base(floorInfo, enemy, player) { }
+
+    private int Range => Mathf.Max(Enemy.Data.Master.AIParam1, 2);
+
+    public override bool CanAttack()
+    {
+        if (base.CanAttack()) return true;
+        return FindShootDirection().HasValue;
+    }
+
+    public override async UniTask AttackAsync(CancellationToken token)
+    {
+        // 隣接時は通常攻撃
+        if (base.CanAttack())
+        {
+            await base.AttackAsync(token);
+            return;
+        }
+        var direction = FindShootDirection();
+        if (!direction.HasValue) return;
+        Enemy.IsEncounted = true;
+        await Enemy.RotateAsync(direction.Value, token);
+        await Enemy.ShootAsync(player, Enemy.Data.Atk, token);
+    }
+
+    /// <summary>
+    /// プレイヤーが射程内の直線上(8方向)にいて、間に壁や他ユニットがなければその方向を返す
+    /// </summary>
+    private Vector2Int? FindShootDirection()
+    {
+        var diff = player.Position - Enemy.Position;
+        if (diff.x != 0 && diff.y != 0 && Mathf.Abs(diff.x) != Mathf.Abs(diff.y)) return null;
+        var distance = Mathf.Max(Mathf.Abs(diff.x), Mathf.Abs(diff.y));
+        if (distance <= 0 || distance > Range) return null;
+        var direction = new Vector2Int(System.Math.Sign(diff.x), System.Math.Sign(diff.y));
+        for (var count = 1; count < distance; count++)
+        {
+            var position = Enemy.Position + direction * count;
+            var tile = floorInfo.GetTile(position);
+            if (tile == null || tile.IsWall) return null;
+            if (floorInfo.GetUnit(position) != null) return null;
+        }
+        return direction;
+    }
+}
+
+/// <summary>
+/// 状態異常投擲AI(同じ部屋にいるプレイヤーへ毒を投げる)
+/// </summary>
+public class AilmentThrowerAI : DefaultAI
+{
+    public AilmentThrowerAI(FloorManager floorInfo, Enemy enemy, Player player) : base(floorInfo, enemy, player) { }
+
+    public override bool CanAttack()
+    {
+        if (base.CanAttack()) return true;
+        return CanThrow();
+    }
+
+    public override async UniTask AttackAsync(CancellationToken token)
+    {
+        // 隣接時は通常攻撃
+        if (base.CanAttack())
+        {
+            await base.AttackAsync(token);
+            return;
+        }
+        if (!CanThrow()) return;
+        Enemy.IsEncounted = true;
+        var diff = player.Position - Enemy.Position;
+        await Enemy.RotateAsync(diff, token);
+        var master = Enemy.Data.Master;
+        await Enemy.ThrowAilmentAsync(player, AilmentType.Poison, master.AIParam1, master.AIParam2, token);
+    }
+
+    private bool CanThrow()
+    {
+        // すでに毒状態なら投げずに接近する
+        if (player.Data.Ailments.ContainsKey(AilmentType.Poison)) return false;
+        var playerTile = floorInfo.GetTile(player.Position);
+        var currentTile = floorInfo.GetTile(Enemy.Position);
+        return playerTile.IsRoom && currentTile.IsRoom && playerTile.Id == currentTile.Id;
+    }
+}
+
+/// <summary>
+/// 盗みAI(隣接時にジェムを盗み、盗んだ後はプレイヤーから逃げ回る)
+/// </summary>
+public class ThiefAI : DefaultAI
+{
+    public ThiefAI(FloorManager floorInfo, Enemy enemy, Player player) : base(floorInfo, enemy, player) { }
+
+    private bool HasStolen => Enemy.Data.StolenGems > 0;
+
+    public override bool CanAttack()
+    {
+        // 盗んだ後は攻撃せず逃げに徹する
+        if (HasStolen) return false;
+        return base.CanAttack();
+    }
+
+    public override async UniTask AttackAsync(CancellationToken token)
+    {
+        // ジェムを持っていない相手には通常攻撃
+        if (player.Data.Gems <= 0)
+        {
+            await base.AttackAsync(token);
+            return;
+        }
+        var diff = player.Position - Enemy.Position;
+        await Enemy.RotateAsync(diff, token);
+        Enemy.StealGems(player, Mathf.Max(Enemy.Data.Master.AIParam1, 1));
+    }
+
+    public override async UniTask MoveAsync(CancellationToken token)
+    {
+        if (!HasStolen)
+        {
+            await base.MoveAsync(token);
+            return;
+        }
+        // プレイヤーから最も遠ざかる隣接タイルへ逃げる
+        var candidates = floorInfo.GetAroundTilesAt(Enemy.Position)
+            .Where(tile => !tile.IsWall && floorInfo.GetUnit(tile.Position) == null)
+            .ToList();
+        if (candidates.Count <= 0)
+        {
+            cantMoveTurns++;
+            return;
+        }
+        var currentDistance = (player.Position - Enemy.Position).sqrMagnitude;
+        var destTile = candidates.OrderByDescending(tile => (player.Position - (Vector2Int)tile.Position).sqrMagnitude).First();
+        // これ以上逃げられない場合はその場に留まる
+        if ((player.Position - (Vector2Int)destTile.Position).sqrMagnitude <= currentDistance)
+        {
+            cantMoveTurns++;
+            return;
+        }
+        cantMoveTurns = 0;
+        await Enemy.MoveToAsync(destTile.Position, token);
+        await CheckTrapAsync(token);
     }
 }

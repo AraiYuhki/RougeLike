@@ -1,3 +1,9 @@
-id	name	hp	def	atk
-1	カプセルLv1	10	0	10
-2	カプセルLv2	20	0	10
+id	name	hp	atk	def	aiType	aiParam1	aiParam2
+1	カプセルLv1	15	10	0	Default	0	0
+2	カプセルLv2	15	10	0	Default	0	0
+3	ミニキャノン	18	8	0	Ranged	5	0
+4	毒ダケ	15	6	0	AilmentThrower	3	3
+5	盗賊モグラ	12	5	0	Thief	300	0
+6	分裂スライム	12	5	0	Split	40	0
+7	疾風ウサギ	14	6	0	DoubleSpeed	0	0
+8	いねむりゴーレム	30	15	2	Sleeper	0	0

@@ -14,6 +14,8 @@ public class EnemyData : UnitData
     private int def;
     [SerializeField]
     private float chargeStack;
+    [SerializeField]
+    private int stolenGems = 0;
 
     private EnemyInfo master;
 
@@ -25,6 +27,7 @@ public class EnemyData : UnitData
     public override int Def => def;
     public bool IsEncouted { get => isEncouted; set => isEncouted = value; }
     public float ChargeStack { get => chargeStack; set => chargeStack = value; }
+    public int StolenGems { get => stolenGems; set => stolenGems = value; }
     public EnemyInfo Master
     {
         get
@@ -50,6 +53,9 @@ public class EnemyData : UnitData
     public EnemyData Clone()
     {
         var newData = new EnemyData(masterId);
+        newData.hp.Value = hp.Value;
+        newData.isEncouted = isEncouted;
+        newData.stolenGems = stolenGems;
         foreach (var pair in ailments)
             newData.ailments[pair.Key] = pair.Value.Clone();
         return newData;
