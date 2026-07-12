@@ -45,6 +45,16 @@ public class TrapManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 指定した位置に罠を設置する(プレイヤーの設置用のため最初から可視状態)
+    /// </summary>
+    public TrapData Install(int trapId, TileData tile)
+    {
+        var data = Create(trapId, floorManager.FloorInfo, tile);
+        data.SetVisible(true);
+        return data;
+    }
+
     private TrapData Create(int trapId, FloorInfo floorInfo, TileData tile)
     {
         var master = DB.Instance.MTrap.GetById(trapId);

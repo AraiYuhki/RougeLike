@@ -15,6 +15,22 @@ public class Enemy : Unit, IPositionable
     public TileData TargetTile { get; set; }
     public int TargetRoomId => TargetTile.Id;
 
+    public bool HasAilment(AilmentType type) => Data.Ailments.ContainsKey(type);
+    public bool HasAnyAilment => Data.Ailments.Count > 0;
+
+    public override void AddAilment(AilmentType type, int param, int turn)
+    {
+        data.AddAilment(type, param, turn);
+        notice.Add($"{Name}は{type.ToLabel()}状態になった", Color.magenta);
+    }
+
+    protected override void ExecuteAilments()
+    {
+        if (data.Ailments.ContainsKey(AilmentType.Poison))
+            Damage(data.Ailments[AilmentType.Poison].Param);
+        data.DecrementAilmentTurns();
+    }
+
     public void Initialize(
         int masterId,
         Vector2Int position,

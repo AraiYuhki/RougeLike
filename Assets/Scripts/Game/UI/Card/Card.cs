@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEditor;
@@ -137,6 +138,46 @@ public class Card : MonoBehaviour
             case CardType.DrawAndUse:
                 Owner.DrawAndUse((int)Data.Param1, Data.TargetCategory, onComplete);
                 break;
+            case CardType.PenetrateAttack:
+                Owner.PenetrateShoot((int)Data.Param1, Data.Range, onComplete);
+                break;
+            case CardType.AilmentAttack:
+                AilmentAttack(onComplete);
+                break;
+            case CardType.CureAilment:
+                Owner.RecoverAilment();
+                onComplete?.Invoke();
+                break;
+            case CardType.Redraw:
+                Owner.Redraw(onComplete);
+                break;
+            case CardType.Swap:
+                SwapPosition(onComplete);
+                break;
+            case CardType.KnockbackAttack:
+                KnockbackAttack(onComplete);
+                break;
+            case CardType.PullAttack:
+                PullAttack(onComplete);
+                break;
+            case CardType.FollowupAttack:
+                FollowupAttack(onComplete);
+                break;
+            case CardType.PlaceTrap:
+                Owner.PlaceTrap(Data.Param2, onComplete);
+                break;
+            case CardType.LastCardAttack:
+                NormalAttack(onComplete, true, false);
+                break;
+            case CardType.InfectionAttack:
+                InfectionAttack(onComplete);
+                break;
+            case CardType.DrainAttack:
+                DrainAttack(onComplete);
+                break;
+            case CardType.Smokescreen:
+                Smokescreen(onComplete);
+                break;
             default:
                 throw new NotImplementedException();
         }
@@ -157,6 +198,209 @@ public class Card : MonoBehaviour
     private void LongRangeAttack(Action onComplete = null)
     {
         Owner.Shoot((int)Data.Param1, Data.Range, onComplete);
+    }
+
+    /// <summary>
+    /// 前方の敵にダメージを与え、生き残った場合は状態異常を付与する
+    /// </summary>
+    private void AilmentAttack(Action onComplete)
+    {
+        var target = floorManager.GetUnit(Owner.Position + Owner.Angle) as Enemy;
+        if (target == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+        var power = (int)(Data.Param1 * (Owner.ChargeStack + 1f));
+        Owner.Attack(power, target, () =>
+        {
+            if (target != null && target.Hp > 0)
+                target.AddAilment(Data.Ailment, Data.AilmentParam, Data.AilmentTurn);
+            onComplete?.Invoke();
+        });
+    }
+
+    /// <summary>
+    /// 前方の敵にダメージを与えて吹き飛ばす。壁や他のユニットに激突した場合は追加ダメージ
+    /// </summary>
+    private void KnockbackAttack(Action onComplete)
+    {
+        var target = floorManager.GetUnit(Owner.Position + Owner.Angle) as Enemy;
+        if (target == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+        var power = (int)(Data.Param1 * (Owner.ChargeStack + 1f));
+        Owner.Attack(power, target, async () =>
+        {
+            if (target == null || target.Hp <= 0)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+            await KnockbackAsync(target);
+            onComplete?.Invoke();
+        });
+    }
+
+    private async UniTask KnockbackAsync(Enemy target)
+    {
+        var direction = Owner.Angle;
+        var position = target.Position;
+        var isCrashed = false;
+        for (var count = 0; count < Data.Param2; count++)
+        {
+            var next = position + direction;
+            var tile = floorManager.GetTile(next);
+            if (tile == null || tile.IsWall || floorManager.GetUnit(next) != null)
+            {
+                isCrashed = true;
+                break;
+            }
+            position = next;
+        }
+        if (position != target.Position)
+        {
+            floorManager.OnMoveUnit(target, position);
+            await target.SetPositionAsync(position, target.GetCancellationTokenOnDestroy());
+        }
+        if (isCrashed && Data.Param3 > 0)
+            target.Damage(Data.Param3, Owner);
+    }
+
+    /// <summary>
+    /// 前方の敵にダメージを与える。状態異常の敵にはダメージ倍増
+    /// </summary>
+    private void FollowupAttack(Action onComplete)
+    {
+        var target = floorManager.GetUnit(Owner.Position + Owner.Angle) as Enemy;
+        if (target == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+        var power = Data.Param1;
+        if (target.HasAnyAilment)
+            power *= Data.Param2;
+        Owner.Attack((int)(power * (Owner.ChargeStack + 1f)), target, () => onComplete?.Invoke());
+    }
+
+    /// <summary>
+    /// 前方の敵にダメージを与え、その敵の状態異常を同じ部屋の敵全員に感染させる
+    /// </summary>
+    private void InfectionAttack(Action onComplete)
+    {
+        var target = floorManager.GetUnit(Owner.Position + Owner.Angle) as Enemy;
+        if (target == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+        // 攻撃で倒しても感染するように、攻撃前に対象の状態異常を控えておく
+        var ailments = target.Data.Ailments.Values.Select(ailment => ailment.Clone()).ToList();
+        var power = (int)(Data.Param1 * (Owner.ChargeStack + 1f));
+        Owner.Attack(power, target, () =>
+        {
+            foreach (var enemy in GetSameRoomEnemies().Where(enemy => enemy != target))
+            {
+                foreach (var ailment in ailments)
+                    enemy.AddAilment(ailment.Type, ailment.Param, ailment.RemainingTurn);
+            }
+            onComplete?.Invoke();
+        });
+    }
+
+    /// <summary>
+    /// 前方の敵にダメージを与え、与えたダメージの一部を回復する
+    /// </summary>
+    private void DrainAttack(Action onComplete)
+    {
+        var target = floorManager.GetUnit(Owner.Position + Owner.Angle) as Enemy;
+        if (target == null)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+        var power = (int)(Data.Param1 * (Owner.ChargeStack + 1f));
+        Owner.Attack(power, target, () =>
+        {
+            var healValue = Mathf.CeilToInt(power * Data.Param2 * 0.01f);
+            if (healValue > 0)
+                Owner.Heal(healValue);
+            onComplete?.Invoke();
+        });
+    }
+
+    /// <summary>
+    /// 同じ部屋の敵に盲目を付与して自分を見失わせる
+    /// </summary>
+    private void Smokescreen(Action onComplete)
+    {
+        foreach (var enemy in GetSameRoomEnemies())
+        {
+            enemy.IsEncounted = false;
+            enemy.AddAilment(AilmentType.Blind, 1, Data.Param2);
+        }
+        onComplete?.Invoke();
+    }
+
+    /// <summary>
+    /// 同じ部屋にいる敵を取得する(部屋にいない場合でも隣接している敵は含む)
+    /// </summary>
+    private List<Enemy> GetSameRoomEnemies()
+    {
+        var result = new List<Enemy>();
+        var currentTile = floorManager.GetTile(Owner.Position);
+        if (currentTile.IsRoom)
+        {
+            result.AddRange(enemyManager.Enemies.Where(enemy =>
+            {
+                var tile = floorManager.GetTile(enemy.Position);
+                return tile.IsRoom && tile.Id == currentTile.Id;
+            }));
+        }
+        foreach (var enemy in floorManager.GetAroundTilesAt(Owner.Position)
+            .Select(tile => floorManager.GetUnit(tile.Position) as Enemy)
+            .Where(enemy => enemy != null && !result.Contains(enemy)))
+            result.Add(enemy);
+        return result;
+    }
+
+    /// <summary>
+    /// 前方の敵と位置を入れ替える
+    /// </summary>
+    private async void SwapPosition(Action onComplete)
+    {
+        var target = floorManager.GetUnit(Owner.Position + Owner.Angle) as Enemy;
+        if (target == null)
+        {
+            await MisFire(onComplete);
+            return;
+        }
+        await Owner.SwapAsync(target);
+        onComplete?.Invoke();
+    }
+
+    /// <summary>
+    /// 直線上の敵を目の前まで引き寄せてダメージを与える
+    /// </summary>
+    private async void PullAttack(Action onComplete)
+    {
+        var (_, _, target) = floorManager.GetHitPosition(Owner.Position, Owner.Angle, Data.Range);
+        if (target == null)
+        {
+            await MisFire(onComplete);
+            return;
+        }
+        var destPosition = Owner.Position + Owner.Angle;
+        if (target.Position != destPosition)
+        {
+            floorManager.OnMoveUnit(target, destPosition);
+            await target.SetPositionAsync(destPosition, target.GetCancellationTokenOnDestroy());
+        }
+        var power = (int)(Data.Param1 * (Owner.ChargeStack + 1f));
+        Owner.Attack(power, target, () => onComplete?.Invoke());
     }
 
     public bool CanUse()
@@ -184,6 +428,26 @@ public class Card : MonoBehaviour
             case CardType.Passive:
             case CardType.DrawAndUse:
                 return true;
+            case CardType.PenetrateAttack:
+            case CardType.PullAttack:
+                return CheckEnemyInRange() || CheckEnemyInAroundTile();
+            case CardType.AilmentAttack:
+            case CardType.KnockbackAttack:
+            case CardType.Swap:
+            case CardType.FollowupAttack:
+            case CardType.InfectionAttack:
+            case CardType.DrainAttack:
+                return CheckEnemyInAroundTile();
+            case CardType.Smokescreen:
+                return CheckEnemyInAroundTile() || CheckEnemyInSameRoom();
+            case CardType.CureAilment:
+                return Owner.HasAnyAilment;
+            case CardType.Redraw:
+                return Owner.CanRedraw;
+            case CardType.PlaceTrap:
+                return CanPlaceTrap();
+            case CardType.LastCardAttack:
+                return Owner.HandCount == 1 && CheckEnemyInAroundTile();
             default:
                 throw new NotImplementedException();
         }
@@ -199,6 +463,16 @@ public class Card : MonoBehaviour
     private bool CheckEnemyInAroundTile()
     {
         return floorManager.GetAroundTilesAt(Owner.Position).Where(tile => floorManager.GetUnit(tile.Position) != null).Any();
+    }
+
+    /// <summary>
+    /// 足元に罠を設置できるか(階段と既存の罠の上には置けない)
+    /// </summary>
+    private bool CanPlaceTrap()
+    {
+        var position = Owner.Position;
+        if (floorManager.FloorData.IsStair(position.x, position.y)) return false;
+        return floorManager.GetTrap(position) == null;
     }
 
     private bool CheckExistEnemySameRoom()

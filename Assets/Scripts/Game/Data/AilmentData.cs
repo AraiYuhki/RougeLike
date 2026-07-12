@@ -11,6 +11,23 @@ public enum AilmentType
     Blind,      // 盲目(視認範囲減少)
 }
 
+public static class AilmentTypeExtensions
+{
+    public static string ToLabel(this AilmentType type)
+    {
+        return type switch
+        {
+            AilmentType.HandLock => "手札封じ",
+            AilmentType.Poison => "毒",
+            AilmentType.Exhaustion => "疲労",
+            AilmentType.Bind => "拘束",
+            AilmentType.Paralysis => "麻痺",
+            AilmentType.Blind => "盲目",
+            _ => type.ToString(),
+        };
+    }
+}
+
 [Serializable]
 public class AilmentData
 {

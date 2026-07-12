@@ -43,7 +43,8 @@ public class DefaultAI : EnemyAI
 
     public override async UniTask MoveAsync(CancellationToken token)
     {
-        if (!Enemy.IsEncounted)
+        // 盲目中はプレイヤーを発見できない
+        if (!Enemy.IsEncounted && !Enemy.HasAilment(AilmentType.Blind))
         {
             var playerTile = floorInfo.GetTile(player.Position);
             var currentTile = floorInfo.GetTile(Enemy.Position);

@@ -214,6 +214,47 @@ public abstract class Unit : MonoBehaviour
         ChargeStack = 0;
     }
 
+    /// <summary>
+    /// 直線上の敵全てを貫通してダメージを与える射撃
+    /// </summary>
+    public virtual void PenetrateShoot(int damage, int range, Action onComplete = null)
+    {
+        damage = (int)(damage * (ChargeStack + 1));
+        var targets = new List<Enemy>();
+        var endPosition = Position;
+        var length = 0;
+        for (var count = 1; count <= range; count++)
+        {
+            var position = Position + Angle * count;
+            var tile = floorManager.GetTile(position);
+            if (tile == null || tile.IsWall) break;
+            endPosition = position;
+            length = count;
+            if (floorManager.GetUnit(position) is Enemy enemy)
+                targets.Add(enemy);
+        }
+        var bullet = gameController.CreateBullet(transform.localPosition, transform.rotation);
+        var tween = bullet.transform
+            .DOLocalMove(new Vector3(endPosition.x, 0.5f, endPosition.y), 0.1f * Mathf.Max(length, 1))
+            .SetEase(Ease.Linear)
+            .Play();
+        tweenList.Add(tween);
+        tween.OnComplete(() =>
+        {
+            tweenList.Remove(tween);
+            Destroy(bullet);
+            if (this is Player player)
+            {
+                foreach (var enemy in targets)
+                    enemy.Damage(damage, player);
+            }
+            onComplete?.Invoke();
+        });
+        ChargeStack = 0;
+    }
+
+    public virtual void AddAilment(AilmentType type, int param, int turn) { }
+
     public async UniTask MoveToAsync(Vector2Int destPosition, CancellationToken token)
     {
         var diff = destPosition - Position;

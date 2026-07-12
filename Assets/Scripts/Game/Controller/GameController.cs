@@ -68,6 +68,8 @@ public class GameController : MonoBehaviour
 
     public string DungeonName => dungeonData.Name;
 
+    public TrapManager TrapManager => trapManager;
+
     private void Awake()
     {
         Application.targetFrameRate = 60;

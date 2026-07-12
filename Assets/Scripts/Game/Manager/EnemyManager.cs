@@ -108,8 +108,10 @@ public class EnemyManager : MonoBehaviour
         }
         try
         {
-            var moveEnemies = enemies.Where(e => !e.CanAttack()).ToList();
-            var attackEnemies = enemies.Where(e => e.CanAttack()).ToList();
+            // 麻痺中は行動不可、拘束中は移動のみ不可
+            var actableEnemies = enemies.Where(e => !e.Enemy.HasAilment(AilmentType.Paralysis)).ToList();
+            var moveEnemies = actableEnemies.Where(e => !e.CanAttack() && !e.Enemy.HasAilment(AilmentType.Bind)).ToList();
+            var attackEnemies = actableEnemies.Where(e => e.CanAttack()).ToList();
 
             var tasks = new List<UniTask>();
             foreach (var enemy in moveEnemies)
@@ -119,6 +121,10 @@ public class EnemyManager : MonoBehaviour
 
             foreach (var enemy in attackEnemies)
                 await enemy.AttackAsync(enemy.Enemy.destroyCancellationToken);
+
+            // 状態異常(毒ダメージなど)のターン経過処理
+            foreach (var enemy in Enemies)
+                enemy.TurnEnd();
             await UniTask.Yield();
             minimap.UpdateView();
             stateMachine.Goto(GameState.PlayerTurn);

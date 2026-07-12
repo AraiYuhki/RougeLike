@@ -269,6 +269,54 @@ public class CardController : MonoBehaviour
         if (hands.All(hand => hand == null)) Reload();
     }
 
+    /// <summary>
+    /// 手札にあるカードを指定して使用済みにする
+    /// 引き直しなどで既に手札から離れている場合は何もしない
+    /// </summary>
+    public void Use(Card card)
+    {
+        var handIndex = Array.IndexOf(hands, card);
+        if (handIndex < 0) return;
+        Use(handIndex);
+    }
+
+    public int HandCount => hands.Count(card => card != null);
+
+    /// <summary>
+    /// 自分以外に手札があれば引き直し可能
+    /// </summary>
+    public bool CanRedraw => HandCount > 1;
+
+    /// <summary>
+    /// 手札をすべて捨てて引き直す(使用したカード自身も捨てる)
+    /// </summary>
+    public void Redraw(Action onComplete = null)
+    {
+        var sequence = DOTween.Sequence();
+        tweenList.Add(sequence);
+        var delay = 0f;
+        for (var index = 0; index < hands.Length; index++)
+        {
+            var card = hands[index];
+            if (card == null) continue;
+            hands[index] = null;
+            cemetary.Add(card);
+            sequence.InsertCallback(delay, () => card.Goto(cemetaryContainer));
+            delay += 0.05f;
+        }
+        sequence.AppendInterval(0.3f);
+        sequence.OnComplete(() =>
+        {
+            tweenList.Remove(sequence);
+            // 山札が手札分に足りない場合は墓地を混ぜてから引き直す
+            if (deck.Count < EnableHandCount)
+                Reload();
+            else
+                DrawAll();
+            onComplete?.Invoke();
+        });
+    }
+
     public Card ToStack()
     {
         if (deck.Count <= 0) return null;

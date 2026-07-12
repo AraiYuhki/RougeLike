@@ -26,6 +26,12 @@ public class Player : Unit
 
     public bool IsLockInput { get; set; }
 
+    public bool HasAnyAilment => Data.Ailments.Count > 0;
+    public bool CanRedraw => cardController.CanRedraw;
+    public int HandCount => cardController.HandCount;
+    public bool HasClairvoyance => cardController.PassiveEffects().Any(effect => effect.EffectType == PassiveEffectType.Clairvoyance);
+    public bool HasTrapImmunity => cardController.PassiveEffects().Any(effect => effect.EffectType == PassiveEffectType.TrapImmunity);
+
     public void Initialize(int hp, int atk)
     {
         data = new PlayerData(hp)
@@ -107,6 +113,59 @@ public class Player : Unit
         pointLight.SetActive(flag);
     }
 
+    public override async UniTask SetPositionAsync(Vector2Int position, CancellationToken token)
+    {
+        await base.SetPositionAsync(position, token);
+        pointLight.SetActive(floorManager.GetTile(Position).IsRoom);
+    }
+
+    /// <summary>
+    /// 前方の敵と位置を入れ替える
+    /// </summary>
+    public async UniTask SwapAsync(Enemy target)
+    {
+        var playerPosition = Position;
+        var enemyPosition = target.Position;
+        floorManager.RemoveUnit(playerPosition);
+        floorManager.RemoveUnit(enemyPosition);
+        floorManager.SetUnit(this, enemyPosition);
+        floorManager.SetUnit(target, playerPosition);
+        ChargeStack = 0;
+        var token = this.GetCancellationTokenOnDestroy();
+        await UniTask.WhenAll(
+            SetPositionAsync(enemyPosition, token),
+            target.SetPositionAsync(playerPosition, token));
+    }
+
+    public override void AddAilment(AilmentType type, int param, int turn)
+    {
+        data.AddAilment(type, param, turn);
+        notice.Add($"{Name}は{type.ToLabel()}状態になった", Color.red);
+    }
+
+    /// <summary>
+    /// 状態異常をすべて回復する
+    /// </summary>
+    public void RecoverAilment()
+    {
+        if (Data.Ailments.Count <= 0) return;
+        Data.Ailments.Clear();
+        notice.Add($"{Name}の状態異常が回復した", Color.green);
+    }
+
+    public void Redraw(Action onComplete = null) => cardController.Redraw(onComplete);
+
+    /// <summary>
+    /// 足元に罠を設置する
+    /// </summary>
+    public void PlaceTrap(int trapId, Action onComplete = null)
+    {
+        var tile = floorManager.GetTile(Position);
+        var trap = gameController.TrapManager.Install(trapId, tile);
+        notice.Add($"{trap.Master.Name}を設置した", Color.cyan);
+        onComplete?.Invoke();
+    }
+
     public override void TurnEnd()
     {
         var rate = 1f - cardController.PassiveEffects()
@@ -136,11 +195,7 @@ public class Player : Unit
             cardController.ApplyAilment();
         }
 
-        foreach ((var type, var ailment) in Data.Ailments.Where(ailment => !ailment.Value.IsInfinit).ToList())
-        {
-            if (ailment.DecrementTurn())
-                Data.Ailments.Remove(type);
-        }
+        Data.DecrementAilmentTurns();
     }
 
     public void Attack(int damage, Enemy target, TweenCallback onEndAttack = null, bool isResourceAttack = false)
