@@ -156,6 +156,17 @@ public class Player : Unit
     public void Redraw(Action onComplete = null) => cardController.Redraw(onComplete);
 
     /// <summary>
+    /// 手札からランダムに1枚叩き落とされて捨て札に送られる
+    /// </summary>
+    public bool DiscardRandomHand()
+    {
+        var card = cardController.DiscardRandomHand();
+        if (card == null) return false;
+        notice.Add($"{card.Data.Name}を叩き落とされた!", Color.red);
+        return true;
+    }
+
+    /// <summary>
     /// 足元に罠を設置する
     /// </summary>
     public void PlaceTrap(int trapId, Action onComplete = null)

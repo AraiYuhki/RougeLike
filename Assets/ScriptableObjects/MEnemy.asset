@@ -18,10 +18,79 @@ MonoBehaviour:
     hp: 15
     atk: 10
     def: 0
+    aiType: 0
+    aiParam1: 0
+    aiParam2: 0
     prefab: {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}
   - id: 2
     name: "\u30AB\u30D7\u30BB\u30EBLv2"
     hp: 15
     atk: 10
     def: 0
+    aiType: 0
+    aiParam1: 0
+    aiParam2: 0
+    prefab: {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}
+  - id: 3
+    name: "\u30DF\u30CB\u30AD\u30E3\u30CE\u30F3"
+    hp: 18
+    atk: 8
+    def: 0
+    aiType: 1
+    aiParam1: 5
+    aiParam2: 0
+    prefab: {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}
+  - id: 4
+    name: "\u6BD2\u30C0\u30B1"
+    hp: 15
+    atk: 6
+    def: 0
+    aiType: 2
+    aiParam1: 3
+    aiParam2: 3
+    prefab: {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}
+  - id: 5
+    name: "\u76D7\u8CCA\u30E2\u30B0\u30E9"
+    hp: 12
+    atk: 5
+    def: 0
+    aiType: 3
+    aiParam1: 300
+    aiParam2: 0
+    prefab: {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}
+  - id: 6
+    name: "\u5206\u88C2\u30B9\u30E9\u30A4\u30E0"
+    hp: 12
+    atk: 5
+    def: 0
+    aiType: 4
+    aiParam1: 40
+    aiParam2: 0
+    prefab: {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}
+  - id: 7
+    name: "\u75BE\u98A8\u30A6\u30B5\u30AE"
+    hp: 14
+    atk: 6
+    def: 0
+    aiType: 5
+    aiParam1: 0
+    aiParam2: 0
+    prefab: {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}
+  - id: 8
+    name: "\u3044\u306D\u3080\u308A\u30B4\u30FC\u30EC\u30E0"
+    hp: 30
+    atk: 15
+    def: 2
+    aiType: 6
+    aiParam1: 0
+    aiParam2: 0
+    prefab: {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}
+  - id: 9
+    name: "\u30AB\u30DE\u30A4\u30BF\u30C1"
+    hp: 16
+    atk: 7
+    def: 0
+    aiType: 7
+    aiParam1: 1
+    aiParam2: 0
     prefab: {fileID: 3257652530591405809, guid: 77da6624b7112794c80f8a5444d91827, type: 3}

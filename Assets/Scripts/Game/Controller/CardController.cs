@@ -357,6 +357,20 @@ public class CardController : MonoBehaviour
         if (hands.All(hand => hand == null)) Reload();
     }
 
+    /// <summary>
+    /// 手札からランダムに1枚捨て札に送る(敵の手札叩き落とし用)
+    /// 捨てられたカードを返す。手札がない場合はnullを返す
+    /// </summary>
+    public Card DiscardRandomHand()
+    {
+        var indices = Enumerable.Range(0, hands.Length).Where(index => hands[index] != null).ToList();
+        if (indices.Count <= 0) return null;
+        var handIndex = indices.Random();
+        var card = hands[handIndex];
+        GotoCemetary(handIndex);
+        return card;
+    }
+
     public void Remove(Card card)
     {
         if (deck.Contains(card)) deck.Remove(card);
